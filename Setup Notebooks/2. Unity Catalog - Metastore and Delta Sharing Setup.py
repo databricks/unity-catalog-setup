@@ -10,7 +10,7 @@
 # MAGIC ## READ ME FIRST
 # MAGIC - Make sure you are running this notebook as an **Account Administrator** (role need to be set at account level at https://accounts.cloud.databricks.com/)
 # MAGIC - Double check the UC special images on Cmd 7
-# MAGIC - Unity Catalog set up requires the Databricks CLI with Unity Catalog extension. The tarball needs to be uploaded to dbfs. Verify the path in Cmd 10 correctly matches the dbfs of the tar (currently */dbfs/FileStore/tables/databricks_cli_0_14_4_uc4.tgz*)
+# MAGIC - Unity Catalog set up requires the Databricks CLI with Unity Catalog extension. This is downloaded from Databricks public GDrive link
 
 # COMMAND ----------
 
@@ -49,6 +49,11 @@ sql_photon_version = "custom:custom-local__9.x-snapshot-photon-scala2.12__unknow
 
 # COMMAND ----------
 
+#### Check the databricks-cli-uc gdrive link ####
+databricks_cli_gdrive = "14d0du3rENjwqWfGcIcNFmnx7Fz3FRcLg"
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC 
 # MAGIC ## Retrieve Databricks host & token and check if the user is an admin
@@ -60,6 +65,9 @@ token = dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiTok
 user = dbutils.notebook.entry_point.getDbutils().notebook().getContext().tags().get("user").getOrElse(None)
 
 # COMMAND ----------
+
+import requests
+import json
 
 # check if the user is admin
 response = requests.get(
@@ -94,16 +102,46 @@ token = {token}
 
 # COMMAND ----------
 
-# MAGIC %sh
-# MAGIC # download databricks-cli-uc
-# MAGIC cp /dbfs/FileStore/tables/databricks_cli_0_14_4_uc4.tgz /tmp/
-# MAGIC cd /tmp/
-# MAGIC tar xzf databricks_cli_0_14_4_uc4.tgz
+import requests
+
+def download_file_from_google_drive(id, destination):
+    URL = "https://docs.google.com/uc?export=download"
+
+    session = requests.Session()
+
+    response = session.get(URL, params = { 'id' : id }, stream = True)
+    token = get_confirm_token(response)
+
+    if token:
+        params = { 'id' : id, 'confirm' : token }
+        response = session.get(URL, params = params, stream = True)
+
+    save_response_content(response, destination)    
+
+def get_confirm_token(response):
+    for key, value in response.cookies.items():
+        if key.startswith('download_warning'):
+            return value
+
+    return None
+
+def save_response_content(response, destination):
+    CHUNK_SIZE = 32768
+
+    with open(destination, "wb") as f:
+        for chunk in response.iter_content(CHUNK_SIZE):
+            if chunk: # filter out keep-alive new chunks
+                f.write(chunk)
+                
+                
+download_file_from_google_drive(databricks_cli_gdrive, "/tmp/databricks_cli.tgz")
 
 # COMMAND ----------
 
 # MAGIC %sh
 # MAGIC # install databricks-cli-uc
+# MAGIC cd /tmp/
+# MAGIC tar xzf databricks_cli.tgz
 # MAGIC cd /tmp/databricks-cli-uc
 # MAGIC virtualenv venv
 # MAGIC . venv/bin/activate
@@ -115,6 +153,9 @@ token = {token}
 # MAGIC ## Define a helper function to run dbcli uc command
 
 # COMMAND ----------
+
+from typing import List
+import subprocess
 
 # helper function to execute db-cli uc commands
 def execute_uc(args:List[str]) -> str:
@@ -149,12 +190,7 @@ def execute_dbcli(args:List[str]) -> str:
 
 # MAGIC %md
 # MAGIC #### Create the account-level metastore
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC ### Note
-# MAGIC Each Databricks account only requires 1 metastore to be created, so the following command with error when running on a workspace where the account-level metastore already exists
+# MAGIC **Note:** Each Databricks account only requires 1 metastore to be created, so the following command with error when running on a workspace where the account-level metastore already exists
 
 # COMMAND ----------
 
@@ -178,6 +214,8 @@ metastore_id = "66b5fa0c-adb2-4e47-be71-770ee996a290"
 
 # MAGIC %md
 # MAGIC #### Assign the metastore to the current workspace
+# MAGIC 
+# MAGIC This command prints no output for successful run
 
 # COMMAND ----------
 
@@ -218,7 +256,7 @@ print(f"Current metastore setup: \n {execute_uc(['metastore-summary'])}")
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC #### Catalog permission
+# MAGIC #### Set catalog permission
 
 # COMMAND ----------
 
@@ -249,6 +287,8 @@ print(f"Delta Sharing is {'enabled' if delta_sharing else 'disabled'}")
 # MAGIC  ## Create a UC-enabled cluster
 
 # COMMAND ----------
+
+import uuid
 
 cluster_json = {
     "num_workers": 1,
