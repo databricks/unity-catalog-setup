@@ -99,6 +99,8 @@ token = {token}
 
 # MAGIC %md
 # MAGIC ## Download special databricks-cli and install
+# MAGIC **Note:** the below cell downloads from Google Drive, so will only work if Internet access is allowed on the workspace and GDrive is not blocked
+# MAGIC Alternatively, download the cli to a local machine, and upload it to a dbfs location, then use dbutils.fs.cp to move it to `/tmp/databricks_cli.tgz` on the driver 
 
 # COMMAND ----------
 
