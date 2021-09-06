@@ -32,6 +32,7 @@ dbutils.widgets.text("bucket", <bucket>)
 dbutils.widgets.text("iam_role", <iam_role>)
 dbutils.widgets.text("dac_name", "dac_main")
 dbutils.widgets.text("workspace_id", "896752397158209")
+dbutils.widgets.text("metastore_admin_users", "metastore-admin-users")
 
 # COMMAND ----------
 
@@ -40,6 +41,7 @@ bucket = dbutils.widgets.get("bucket")
 iam_role = dbutils.widgets.get("iam_role")
 dac_name = dbutils.widgets.get("dac_name")
 workspace_id = dbutils.widgets.get("workspace_id")
+metastore_admin = dbutils.widgets.get("metastore_admin_users")
 
 # COMMAND ----------
 
@@ -100,6 +102,7 @@ token = {token}
 # MAGIC %md
 # MAGIC ## Download special databricks-cli and install
 # MAGIC **Note:** the below cell downloads from Google Drive, so will only work if Internet access is allowed on the workspace and GDrive is not blocked
+# MAGIC 
 # MAGIC Alternatively, download the cli to a local machine, and upload it to a dbfs location, then use dbutils.fs.cp to move it to `/tmp/databricks_cli.tgz` on the driver 
 
 # COMMAND ----------
@@ -192,7 +195,7 @@ def execute_dbcli(args:List[str]) -> str:
 
 # MAGIC %md
 # MAGIC #### Create the account-level metastore
-# MAGIC **Note:** Each Databricks account only requires 1 metastore to be created, so the following command with error when running on a workspace where the account-level metastore already exists
+# MAGIC **Note:** Each Databricks account only requires 1 metastore to be created, so the following command will throw an error when running on a workspace where the account-level metastore already exists
 
 # COMMAND ----------
 
@@ -203,14 +206,14 @@ print(f"Metastore {metastore_id} has been set up")
 
 # COMMAND ----------
 
-# Verify the metastore is correctly created and configured
-print(f"Metastore summary: \n {execute_uc(['get-metastore', '--id', metastore_id])}")
+# For workspaces where account-level metastore already exists, cmd 21 would fail
+
+# metastore_id = "66b5fa0c-adb2-4e47-be71-770ee996a290"
 
 # COMMAND ----------
 
-# For workspaces where account-level metastore already exists
-
-metastore_id = "66b5fa0c-adb2-4e47-be71-770ee996a290"
+# Verify the metastore is correctly created and configured
+print(f"Metastore summary: \n {execute_uc(['get-metastore', '--id', metastore_id])}")
 
 # COMMAND ----------
 
@@ -227,6 +230,7 @@ print(execute_uc(['assign-metastore', '--metastore-id', metastore_id, '--workspa
 
 # MAGIC %md
 # MAGIC #### Data access configuration
+# MAGIC **Note** This would fail if a DAC with the same name already exists (e.g. from previous set-up)
 
 # COMMAND ----------
 
@@ -258,12 +262,22 @@ print(f"Current metastore setup: \n {execute_uc(['metastore-summary'])}")
 # COMMAND ----------
 
 # MAGIC %md
+# MAGIC #### Set metastore permission
+
+# COMMAND ----------
+
+# Update the metastore owner to metastore admin group
+print(execute_uc(['update-metastore', '--id', metastore_id, '--json', f'{{"owner":"{metastore_admin}"}}']))
+
+# COMMAND ----------
+
+# MAGIC %md
 # MAGIC #### Set catalog permission
 
 # COMMAND ----------
 
-# Update the permissions for admin
-print(execute_uc(['update-permissions', '--catalog', 'main', '--json', f'{{"changes": [{{"principal": "{user}","add": ["CREATE","USAGE"]}}]}}']))
+# Grant full access to main catalog for metastore admin group
+print(execute_uc(['update-permissions', '--catalog', 'main', '--json', f'{{"changes": [{{"principal": "{metastore_admin}","add": ["CREATE","USAGE"]}}]}}']))
 
 # COMMAND ----------
 
