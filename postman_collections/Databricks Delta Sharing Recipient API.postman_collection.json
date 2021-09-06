@@ -1,0 +1,174 @@
+{
+	"info": {
+		"_postman_id": "8b02b497-478d-4783-a107-e0199feb50a0",
+		"name": "Databricks Delta Sharing Recipient API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "List Shares",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{host}}/api/2.0/delta-sharing/metastores/{{metastore_id}}/shares",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"2.0",
+						"delta-sharing",
+						"metastores",
+						"{{metastore_id}}",
+						"shares"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Schemas",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Tables",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Query Table Version",
+			"request": {
+				"method": "HEAD",
+				"header": [],
+				"url": {
+					"raw": "https://{{host}}/api/2.0/delta-sharing/metastores/{{metastore_id}}/shares/{{share_name}}/schemas/{{schema_name}}/tables/{{table_name}}",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"2.0",
+						"delta-sharing",
+						"metastores",
+						"{{metastore_id}}",
+						"shares",
+						"{{share_name}}",
+						"schemas",
+						"{{schema_name}}",
+						"tables",
+						"{{table_name}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Query Table Metadata",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{host}}/api/2.0/delta-sharing/metastores/{{metastore_id}}/shares/{{share_name}}/schemas/{{schema_name}}/tables/{{table_name}}/metadata",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"2.0",
+						"delta-sharing",
+						"metastores",
+						"{{metastore_id}}",
+						"shares",
+						"{{share_name}}",
+						"schemas",
+						"{{schema_name}}",
+						"tables",
+						"{{table_name}}",
+						"metadata"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Query Table",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n   \"predicateHints\" : [\n      \"longitude <= 90'\"\n   ],\n   \"limitHint\": 1000\n}"
+				},
+				"url": {
+					"raw": "https://{{host}}/api/2.0/delta-sharing/metastores/{{metastore_id}}/shares/{{share_name}}/schemas/{{schema_name}}/tables/{{table_name}}/query",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"2.0",
+						"delta-sharing",
+						"metastores",
+						"{{metastore_id}}",
+						"shares",
+						"{{share_name}}",
+						"schemas",
+						"{{schema_name}}",
+						"tables",
+						"{{table_name}}",
+						"query"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{bearer_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

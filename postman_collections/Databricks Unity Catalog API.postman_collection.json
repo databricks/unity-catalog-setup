@@ -1,0 +1,317 @@
+{
+	"info": {
+		"_postman_id": "c13af8cd-5c80-47a6-9800-c525ac267357",
+		"name": "Databricks Unity Catalog API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "List Shares",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{host}}/api/2.0/unity-catalog/shares",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"2.0",
+						"unity-catalog",
+						"shares"
+					]
+				},
+				"description": "List shares.\n\nCalls the 'listShares' RPC endpoint of the Unity Catalog service. Returns array of ShareInfos."
+			},
+			"response": []
+		},
+		{
+			"name": "Get Share",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://{{host}}/api/2.0/unity-catalog/shares/{{share_name}}",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"2.0",
+						"unity-catalog",
+						"shares",
+						"{{share_name}}"
+					]
+				},
+				"description": "Get a share. Calls the 'getShare' RPC endpoint of the Unity Catalog service."
+			},
+			"response": []
+		},
+		{
+			"name": "Update Share Permissions",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"changes\":[{\"principal\":\"{{recipientName}}\",\"add\":[\"SELECT\"]}]}"
+				},
+				"url": {
+					"raw": "https://{{host}}/api/2.0/unity-catalog/shares/{{shareName}}/permissions",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"2.0",
+						"unity-catalog",
+						"shares",
+						"{{shareName}}",
+						"permissions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Share Permissions",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{host}}/api/2.0/unity-catalog/shares/{{shareName}}/permissions",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"2.0",
+						"unity-catalog",
+						"shares",
+						"{{shareName}}",
+						"permissions"
+					]
+				},
+				"description": "Get a share's schema"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Share",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"{{shareName}}\"\n}"
+				},
+				"url": {
+					"raw": "https://{{host}}/api/2.0/unity-catalog/shares",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"2.0",
+						"unity-catalog",
+						"shares"
+					]
+				},
+				"description": "Create a share"
+			},
+			"response": []
+		},
+		{
+			"name": "Update Share",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"{{shareName}}\"\n}"
+				},
+				"url": {
+					"raw": "https://{{host}}/api/2.0/unity-catalog/shares",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"2.0",
+						"unity-catalog",
+						"shares"
+					]
+				},
+				"description": "Update a share"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Recipient",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{  \n    \"name\": \"{{recipient_name}}\n}"
+				},
+				"url": {
+					"raw": "https://{{host}}/api/2.0/unity-catalog/recipients/",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"2.0",
+						"unity-catalog",
+						"recipients",
+						""
+					]
+				},
+				"description": "Create a share recipient "
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Share",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://{{host}}/api/2.0/unity-catalog/shares/{{shareName}}",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"2.0",
+						"unity-catalog",
+						"shares",
+						"{{shareName}}"
+					]
+				},
+				"description": "Delete a share"
+			},
+			"response": []
+		},
+		{
+			"name": "List Recipients",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": ""
+				},
+				"description": "Lists all recipients"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Recipient",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": ""
+				},
+				"description": "Get recipient by id"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Recipient",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Activation URL Info",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Access Token",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{host}}/api/2.0/unity-catalog/public/data_sharing_activation/{{activation_nonce}}",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"2.0",
+						"unity-catalog",
+						"public",
+						"data_sharing_activation",
+						"{{activation_nonce}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{pat}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
