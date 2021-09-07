@@ -25,6 +25,8 @@ def display_img(path):
   plt.figure(figsize=(10,10))
   img = plt.imread(path)
   imgplot = plt.imshow(img, interpolation='none')
+  imgplot.axes.get_xaxis().set_visible(False)
+  imgplot.axes.get_yaxis().set_visible(False)
 
 # COMMAND ----------
 
