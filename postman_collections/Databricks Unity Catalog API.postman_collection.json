@@ -64,10 +64,15 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\"changes\":[{\"principal\":\"{{recipientName}}\",\"add\":[\"SELECT\"]}]}"
+					"raw": "{\n    \"changes\": [\n        {\n            \"principal\": \"{{recipient_name}}\",\n            \"add\": [\n                \"SELECT\"\n            ]\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
 				},
 				"url": {
-					"raw": "https://{{host}}/api/2.0/unity-catalog/shares/{{shareName}}/permissions",
+					"raw": "https://{{host}}/api/2.0/unity-catalog/shares/{{share_name}}/permissions",
 					"protocol": "https",
 					"host": [
 						"{{host}}"
@@ -77,7 +82,7 @@
 						"2.0",
 						"unity-catalog",
 						"shares",
-						"{{shareName}}",
+						"{{share_name}}",
 						"permissions"
 					]
 				}
@@ -90,7 +95,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://{{host}}/api/2.0/unity-catalog/shares/{{shareName}}/permissions",
+					"raw": "https://{{host}}/api/2.0/unity-catalog/shares/{{share_name}}/permissions",
 					"protocol": "https",
 					"host": [
 						"{{host}}"
@@ -100,7 +105,7 @@
 						"2.0",
 						"unity-catalog",
 						"shares",
-						"{{shareName}}",
+						"{{share_name}}",
 						"permissions"
 					]
 				},
@@ -115,7 +120,12 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"name\": \"{{shareName}}\"\n}"
+					"raw": "{\n    \"name\": \"{{share_name}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
 				},
 				"url": {
 					"raw": "https://{{host}}/api/2.0/unity-catalog/shares",
@@ -141,10 +151,15 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"name\": \"{{shareName}}\"\n}"
+					"raw": "{\n    \"updates\": [\n        {\n            \"action\": \"ADD\",\n            \"data_object\": {\n                \"name\": \"main.default.flights\"\n            }\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
 				},
 				"url": {
-					"raw": "https://{{host}}/api/2.0/unity-catalog/shares",
+					"raw": "https://{{host}}/api/2.0/unity-catalog/shares/{{share_name}}",
 					"protocol": "https",
 					"host": [
 						"{{host}}"
@@ -153,7 +168,8 @@
 						"api",
 						"2.0",
 						"unity-catalog",
-						"shares"
+						"shares",
+						"{{share_name}}"
 					]
 				},
 				"description": "Update a share"
@@ -167,7 +183,12 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{  \n    \"name\": \"{{recipient_name}}\n}"
+					"raw": "{\n    \"name\": \"{{recipient_name}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
 				},
 				"url": {
 					"raw": "https://{{host}}/api/2.0/unity-catalog/recipients/",
@@ -197,7 +218,7 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": "https://{{host}}/api/2.0/unity-catalog/shares/{{shareName}}",
+					"raw": "https://{{host}}/api/2.0/unity-catalog/shares/{{share_name}}",
 					"protocol": "https",
 					"host": [
 						"{{host}}"
@@ -207,7 +228,7 @@
 						"2.0",
 						"unity-catalog",
 						"shares",
-						"{{shareName}}"
+						"{{share_name}}"
 					]
 				},
 				"description": "Delete a share"
@@ -220,7 +241,17 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": ""
+					"raw": "https://{{host}}/api/2.0/unity-catalog/recipients",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"2.0",
+						"unity-catalog",
+						"recipients"
+					]
 				},
 				"description": "Lists all recipients"
 			},
@@ -232,7 +263,18 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": ""
+					"raw": "https://{{host}}/api/2.0/unity-catalog/recipients/{{recipient_name}}",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"2.0",
+						"unity-catalog",
+						"recipients",
+						"{{recipient_name}}"
+					]
 				},
 				"description": "Get recipient by id"
 			},
@@ -241,21 +283,21 @@
 		{
 			"name": "Delete Recipient",
 			"request": {
-				"method": "GET",
+				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": ""
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get Activation URL Info",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": ""
+					"raw": "https://{{host}}/api/2.0/unity-catalog/recipients/{{recipient_name}}",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"2.0",
+						"unity-catalog",
+						"recipients",
+						"{{recipient_name}}"
+					]
 				}
 			},
 			"response": []

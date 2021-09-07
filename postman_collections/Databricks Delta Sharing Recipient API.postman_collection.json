@@ -34,7 +34,21 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": ""
+					"raw": "https://{{host}}/api/2.0/delta-sharing/metastores/{{metastore_id}}/shares/{{share_name}}/schemas",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"2.0",
+						"delta-sharing",
+						"metastores",
+						"{{metastore_id}}",
+						"shares",
+						"{{share_name}}",
+						"schemas"
+					]
 				}
 			},
 			"response": []
@@ -45,7 +59,23 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": ""
+					"raw": "https://{{host}}/api/2.0/delta-sharing/metastores/{{metastore_id}}/shares/{{share_name}}/schemas/{{schema_name}}/tables",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"2.0",
+						"delta-sharing",
+						"metastores",
+						"{{metastore_id}}",
+						"shares",
+						"{{share_name}}",
+						"schemas",
+						"{{schema_name}}",
+						"tables"
+					]
 				}
 			},
 			"response": []
@@ -114,7 +144,12 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n   \"predicateHints\" : [\n      \"longitude <= 90'\"\n   ],\n   \"limitHint\": 1000\n}"
+					"raw": "{\n    \"predicateHints\": [\n        \"longitude <= 90'\"\n    ],\n    \"limitHint\": 1000\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
 				},
 				"url": {
 					"raw": "https://{{host}}/api/2.0/delta-sharing/metastores/{{metastore_id}}/shares/{{share_name}}/schemas/{{schema_name}}/tables/{{table_name}}/query",
