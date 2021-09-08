@@ -9,6 +9,7 @@
 # MAGIC %md
 # MAGIC ## READ ME FIRST
 # MAGIC - Make sure you are running this notebook as an **Account Administrator** (role need to be set at account level at https://accounts.cloud.databricks.com/)
+# MAGIC - Fill in the widgets with the required information after Cmd 5 is run
 # MAGIC - Double check the UC special images on Cmd 7
 # MAGIC - Unity Catalog set up requires the Databricks CLI with Unity Catalog extension. This is downloaded from Databricks public GDrive link
 
@@ -28,9 +29,9 @@ import json
 # COMMAND ----------
 
 dbutils.widgets.text("metastore", "unity-catalog")
-dbutils.widgets.text("bucket", <bucket>)
-dbutils.widgets.text("iam_role", <iam_role>)
-dbutils.widgets.text("dac_name", "dac_main")
+dbutils.widgets.text("bucket", "<bucket>")
+dbutils.widgets.text("iam_role", "<iam_role>")
+dbutils.widgets.text("dac_name", "<dac_name>")
 dbutils.widgets.text("workspace_id", "896752397158209")
 dbutils.widgets.text("metastore_admin_users", "metastore-admin-users")
 
@@ -189,13 +190,15 @@ def execute_dbcli(args:List[str]) -> str:
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ## Create the Unity Catalog metastore
+# MAGIC ## Create the Unity Catalog metastore (only once per Databricks account)
+# MAGIC **Note:** Each Databricks account only requires 1 metastore to be created, so the following command will throw an error when running on a workspace where the account-level metastore already exists
+# MAGIC 
+# MAGIC **Skip to Cmd 31 if that is the case **
 
 # COMMAND ----------
 
 # MAGIC %md
 # MAGIC #### Create the account-level metastore
-# MAGIC **Note:** Each Databricks account only requires 1 metastore to be created, so the following command will throw an error when running on a workspace where the account-level metastore already exists
 
 # COMMAND ----------
 
@@ -206,25 +209,8 @@ print(f"Metastore {metastore_id} has been set up")
 
 # COMMAND ----------
 
-# For workspaces where account-level metastore already exists, cmd 21 would fail
-
-# metastore_id = "66b5fa0c-adb2-4e47-be71-770ee996a290"
-
-# COMMAND ----------
-
 # Verify the metastore is correctly created and configured
 print(f"Metastore summary: \n {execute_uc(['get-metastore', '--id', metastore_id])}")
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC #### Assign the metastore to the current workspace
-# MAGIC 
-# MAGIC This command prints no output for successful run
-
-# COMMAND ----------
-
-print(execute_uc(['assign-metastore', '--metastore-id', metastore_id, '--workspace-id', workspace_id]))
 
 # COMMAND ----------
 
@@ -252,16 +238,6 @@ print(execute_uc(['update-metastore', '--id', metastore_id, '--json', f'{{"defau
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC #### Verification
-
-# COMMAND ----------
-
-# Verify the current metastore
-print(f"Current metastore setup: \n {execute_uc(['metastore-summary'])}")
-
-# COMMAND ----------
-
-# MAGIC %md
 # MAGIC #### Set metastore permission
 
 # COMMAND ----------
@@ -278,6 +254,33 @@ print(execute_uc(['update-metastore', '--id', metastore_id, '--json', f'{{"owner
 
 # Grant full access to main catalog for metastore admin group
 print(execute_uc(['update-permissions', '--catalog', 'main', '--json', f'{{"changes": [{{"principal": "{metastore_admin}","add": ["CREATE","USAGE"]}}]}}']))
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC #### Assign the metastore to the current workspace
+# MAGIC 
+# MAGIC This command prints no output for successful run
+
+# COMMAND ----------
+
+# For workspaces where account-level metastore already exists, need to specify the metastore_id
+
+# metastore_id = "66b5fa0c-adb2-4e47-be71-770ee996a290"
+
+# COMMAND ----------
+
+print(execute_uc(['assign-metastore', '--metastore-id', metastore_id, '--workspace-id', workspace_id]))
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC #### Verification
+
+# COMMAND ----------
+
+# Verify the current metastore
+print(f"Current metastore setup: \n {execute_uc(['metastore-summary'])}")
 
 # COMMAND ----------
 
