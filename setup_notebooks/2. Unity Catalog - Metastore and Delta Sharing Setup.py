@@ -10,6 +10,11 @@
 # MAGIC ## READ ME FIRST
 # MAGIC - Make sure you are running this notebook as an **Account Administrator** (role need to be set at account level at https://accounts.cloud.databricks.com/)
 # MAGIC - Fill in the widgets with the required information after Cmd 5 is run
+# MAGIC   - `bucket` - the S3 bucket to be the default storage location for managed tables in Unity Catalog
+# MAGIC   - `dac_name` - unique name for the Data Access Configuration
+# MAGIC   - `iam_role` - the IAM role to be used by Unity Catalog
+# MAGIC   - `metastore` - unique name for the metastore
+# MAGIC   - `metastore_admin_group` - account-level group who will be the metastore admins
 # MAGIC - Double check the UC special images on Cmd 7
 # MAGIC - Unity Catalog set up requires the Databricks CLI with Unity Catalog extension. This is downloaded from Databricks public GDrive link
 
@@ -29,11 +34,10 @@ import json
 # COMMAND ----------
 
 dbutils.widgets.text("metastore", "unity-catalog")
-dbutils.widgets.text("bucket", "<bucket>")
+dbutils.widgets.text("bucket", "s3://<bucket>")
 dbutils.widgets.text("iam_role", "<iam_role>")
-dbutils.widgets.text("dac_name", "<dac_name>")
-dbutils.widgets.text("workspace_id", "896752397158209")
-dbutils.widgets.text("metastore_admin_users", "metastore-admin-users")
+dbutils.widgets.text("dac_name", "default-dac")
+dbutils.widgets.text("metastore_admin_group", "metastore-admin-users")
 
 # COMMAND ----------
 
@@ -66,6 +70,7 @@ databricks_cli_gdrive = "14d0du3rENjwqWfGcIcNFmnx7Fz3FRcLg"
 host = dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiUrl().getOrElse(None)
 token = dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiToken().getOrElse(None)
 user = dbutils.notebook.entry_point.getDbutils().notebook().getContext().tags().get("user").getOrElse(None)
+workspace_id = dbutils.notebook.entry_point.getDbutils().notebook().getContext().tags().get("orgId").getOrElse(None)
 
 # COMMAND ----------
 
@@ -193,7 +198,7 @@ def execute_dbcli(args:List[str]) -> str:
 # MAGIC ## Create the Unity Catalog metastore (only once per Databricks account)
 # MAGIC **Note:** Each Databricks account only requires 1 metastore to be created, so the following command will throw an error when running on a workspace where the account-level metastore already exists
 # MAGIC 
-# MAGIC **Skip to Cmd 31 if that is the case **
+# MAGIC **Skip to Cmd 29 if that is the case **
 
 # COMMAND ----------
 
@@ -248,16 +253,6 @@ print(execute_uc(['update-metastore', '--id', metastore_id, '--json', f'{{"owner
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC #### Set catalog permission
-
-# COMMAND ----------
-
-# Grant full access to main catalog for metastore admin group
-print(execute_uc(['update-permissions', '--catalog', 'main', '--json', f'{{"changes": [{{"principal": "{metastore_admin}","add": ["CREATE","USAGE"]}}]}}']))
-
-# COMMAND ----------
-
-# MAGIC %md
 # MAGIC #### Assign the metastore to the current workspace
 # MAGIC 
 # MAGIC This command prints no output for successful run
@@ -271,6 +266,16 @@ print(execute_uc(['update-permissions', '--catalog', 'main', '--json', f'{{"chan
 # COMMAND ----------
 
 print(execute_uc(['assign-metastore', '--metastore-id', metastore_id, '--workspace-id', workspace_id]))
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC #### Set catalog permission
+
+# COMMAND ----------
+
+# Grant full access to main catalog for metastore admin group
+print(execute_uc(['update-permissions', '--catalog', 'main', '--json', f'{{"changes": [{{"principal": "{metastore_admin}","add": ["CREATE","USAGE"]}}]}}']))
 
 # COMMAND ----------
 
