@@ -31,12 +31,19 @@
 
 -- COMMAND ----------
 
-CREATE CATALOG quickstart_catalog
+--- this currently does not work, requires API/CLI calls instead.
+--- can call print(execute_uc(['create-catalog', '--name', 'quickstart_catalog'])) in setup notebook instead
+--- CREATE CATALOG quickstart_catalog
 
 -- COMMAND ----------
 
 -- Set the current catalog
 USE CATALOG quickstart_catalog
+
+-- COMMAND ----------
+
+--- Show all existing catalogs, does not work currently
+--- SHOW CATALOG
 
 -- COMMAND ----------
 
@@ -50,7 +57,7 @@ GRANT CREATE,USAGE on CATALOG quickstart_catalog to `account users`
 
 -- COMMAND ----------
 
-CREATE SCHEMA quickstart_database
+CREATE SCHEMA IF NOT EXISTS quickstart_database
 COMMENT "A new Unity Catalog schema called quickstart_database"
 
 -- COMMAND ----------
@@ -66,7 +73,7 @@ DESCRIBE SCHEMA EXTENDED quickstart_database
 -- COMMAND ----------
 
 -- Drop a schema
---DROP SCHEMA quickstart_database CASCADE
+-- DROP SCHEMA quickstart_database CASCADE
 
 -- COMMAND ----------
 
@@ -83,7 +90,7 @@ USE quickstart_database
 -- COMMAND ----------
 
 -- Create managed Delta table
-CREATE TABLE quickstart_table (columnA Int, columnB String);
+CREATE TABLE IF NOT EXISTS quickstart_table (columnA Int, columnB String);
 
 INSERT INTO TABLE quickstart_table VALUES (1, "one"), (2, "two")
 
@@ -173,7 +180,7 @@ DROP TABLE quickstart_database.city_data
 -- MAGIC 
 -- MAGIC ## Migrate Existing Tables to Unity Catalog
 -- MAGIC 
--- MAGIC Existing tables stored within a workspaces metastore from before the introduction of Unity Catalog are still available for use and can be accessed from a catalog named `legacy`. 
+-- MAGIC Existing tables stored within a workspaces metastore from before the introduction of Unity Catalog are still available for use and can be accessed from a catalog named `hive_metastore`. 
 -- MAGIC 
 -- MAGIC The existing tables from the legacy metastore can be migrated to the Unity Catalog using a pattern similar to the one below.
 
@@ -182,7 +189,7 @@ DROP TABLE quickstart_database.city_data
 USE CATALOG quickstart_catalog;
 
 CREATE TABLE quickstart_database.migrated_table AS
-SELECT * FROM legacy.{database_name}.{table_name};
+SELECT * FROM hive_metastore.{database_name}.{table_name};
 
 -- COMMAND ----------
 
@@ -194,7 +201,7 @@ SELECT * FROM legacy.{database_name}.{table_name};
 USE CATALOG quickstart_catalog;
 
 CREATE TABLE IF NOT EXISTS quickstart_database.migrated_table 
-DEEP CLONE legacy.default.city_data
+DEEP CLONE hive_metastore.default.city_data
 
 -- COMMAND ----------
 
@@ -206,7 +213,7 @@ DEEP CLONE legacy.default.city_data
 -- COMMAND ----------
 
 -- Create example external table in legacy store
-USE CATALOG legacy;
+USE CATALOG hive_metastore;
 CREATE TABLE IF NOT EXISTS default.external_table
 (
   rankIn2016 INT,
@@ -243,7 +250,7 @@ LOCATION "s3://databricks-corp-training/common/City-Data.parquet";
 
 -- COMMAND ----------
 
-USE CATALOG legacy;
+USE CATALOG hive_metastore;
 DROP TABLE default.external_table
 
 -- COMMAND ----------
