@@ -278,6 +278,11 @@ print(execute_uc(['update-permissions', '--catalog', 'main', '--json', f'{{"chan
 
 # COMMAND ----------
 
+# Grant full access to main catalog for admin running the notebook as well
+print(execute_uc(['update-permissions', '--catalog', 'main', '--json', f'{{"changes": [{{"principal": "{user}","add": ["CREATE","USAGE"]}}]}}']))
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC #### Verification
 
