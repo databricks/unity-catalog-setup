@@ -45,7 +45,7 @@ metastore = dbutils.widgets.get("metastore")
 bucket = dbutils.widgets.get("bucket")
 iam_role = dbutils.widgets.get("iam_role")
 dac_name = dbutils.widgets.get("dac_name")
-metastore_admin = dbutils.widgets.get("metastore_admin_users")
+metastore_admin = dbutils.widgets.get("metastore_admin_group")
 
 # COMMAND ----------
 
