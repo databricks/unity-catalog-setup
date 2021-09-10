@@ -38,7 +38,6 @@ dbutils.widgets.text("bucket", "s3://<bucket>")
 dbutils.widgets.text("iam_role", "<iam_role>")
 dbutils.widgets.text("dac_name", "default-dac")
 dbutils.widgets.text("metastore_admin_group", "metastore-admin-users")
-dbutils.widgets.text("workspace_id", "<workspace_id>")
 
 # COMMAND ----------
 
@@ -46,7 +45,6 @@ metastore = dbutils.widgets.get("metastore")
 bucket = dbutils.widgets.get("bucket")
 iam_role = dbutils.widgets.get("iam_role")
 dac_name = dbutils.widgets.get("dac_name")
-workspace_id = dbutils.widgets.get("workspace_id")
 metastore_admin = dbutils.widgets.get("metastore_admin_group")
 
 # COMMAND ----------
