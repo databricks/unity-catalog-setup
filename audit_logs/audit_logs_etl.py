@@ -1,7 +1,7 @@
 # Databricks notebook source
 # MAGIC %sql
 # MAGIC -- this is only required if running on a UC-enabled cluster
-# MAGIC USE CATALOG hive_metastore
+# MAGIC --USE CATALOG hive_metastore
 
 # COMMAND ----------
 
