@@ -53,7 +53,11 @@ USE CATALOG quickstart_catalog
 
 -- COMMAND ----------
 
-GRANT CREATE,USAGE on CATALOG quickstart_catalog to `account users`
+REVOKE CREATE, usage on CATALOG quickstart_catalog from `vuong.nguyen+uc@databricks.com`
+
+-- COMMAND ----------
+
+SHOW GRANT on CATALOG quickstart_catalog
 
 -- COMMAND ----------
 
@@ -119,6 +123,12 @@ DESCRIBE TABLE EXTENDED quickstart_table
 
 -- Query the table using the three part namespace
 SELECT * FROM quickstart_catalog.quickstart_database.quickstart_table
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC df = spark.read.table("quickstart_catalog.quickstart_database.quickstart_table")
+-- MAGIC display(df)
 
 -- COMMAND ----------
 

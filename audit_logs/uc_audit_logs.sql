@@ -5,7 +5,7 @@
 -- COMMAND ----------
 
 -- Specify Catalog, only for UC-enabled cluster
-USE CATALOG hive_metastore
+--- USE CATALOG hive_metastore
 
 -- COMMAND ----------
 
@@ -153,4 +153,42 @@ SELECT count(actionName), to_date(date_time) as date from audit_logs.unitycatalo
 -- COMMAND ----------
 
 -- Tracking Delta Sharing Table Query Requests
-SELECT * FROM audit_logs.unitycatalog where actionName = "deltaSharingQueryTable" order by date_time
+SELECT * FROM audit_logs.unitycatalog where actionName = "deltaSharingQueryTable" order by date desc
+
+-- COMMAND ----------
+
+-- Tracking Delta Sharing Table Query Requests
+SELECT
+  CONCAT(
+    requestParams.share,
+    '.',
+    requestParams.schema,
+    '.',
+    requestParams.name
+  ) as sharedTable,
+  requestParams.recipient_name as recipient,
+  date,
+  count(actionName) as queries
+FROM
+  audit_logs.unitycatalog
+where
+  actionName = "deltaSharingQueryTable"
+group by
+  1,
+  2,
+  3
+order by
+  3 desc
+
+-- COMMAND ----------
+
+-- MAGIC %md 
+-- MAGIC ### Tracking UC Table Query Requests
+
+-- COMMAND ----------
+
+SELECT workspaceId, date_time, email, requestParams FROM audit_logs.unitycatalog where actionName = "createCredentials" order by date_time desc
+
+-- COMMAND ----------
+
+SELECT email, date, requestParams.table_id as table_id, count(actionName) as queries FROM audit_logs.unitycatalog where actionName = "createCredentials" group by 1, 2, 3 order by 2 desc
