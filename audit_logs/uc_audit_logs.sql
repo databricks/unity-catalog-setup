@@ -192,3 +192,7 @@ SELECT workspaceId, date_time, email, requestParams FROM audit_logs.unitycatalog
 -- COMMAND ----------
 
 SELECT email, date, requestParams.table_id as table_id, count(actionName) as queries FROM audit_logs.unitycatalog where actionName = "createCredentials" group by 1, 2, 3 order by 2 desc
+
+-- COMMAND ----------
+
+SELECT workspaceId, date_time, email, actionName, requestParams.full_name_arg FROM audit_logs.unitycatalog where actionName = "getTable" order by date_time desc
