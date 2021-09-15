@@ -10,9 +10,9 @@
 # MAGIC ## READ ME FIRST
 # MAGIC - Make sure you are running this notebook as an **Account Administrator** (role need to be set at account level at https://accounts.cloud.databricks.com/)
 # MAGIC - Fill in the widgets with the required information after Cmd 5 is run
-# MAGIC   - `bucket` - the S3 bucket to be the default storage location for managed tables in Unity Catalog
+# MAGIC   - `bucket` - the S3 bucket to be the default storage location for managed tables in Unity Catalog (`s3://<bucket>`)
 # MAGIC   - `dac_name` - unique name for the Data Access Configuration
-# MAGIC   - `iam_role` - the IAM role to be used by Unity Catalog
+# MAGIC   - `iam_role` - the IAM role to be used by Unity Catalog (`arn:aws:iam::<account_id>:role/<role_name>`)
 # MAGIC   - `metastore` - unique name for the metastore
 # MAGIC   - `metastore_admin_group` - account-level group who will be the metastore admins
 # MAGIC - Double check the UC special images on Cmd 7
@@ -34,8 +34,8 @@ import json
 # COMMAND ----------
 
 dbutils.widgets.text("metastore", "unity-catalog")
-dbutils.widgets.text("bucket", "s3://<bucket>")
-dbutils.widgets.text("iam_role", "<iam_role>")
+dbutils.widgets.text("bucket", "s3://bucket")
+dbutils.widgets.text("iam_role", "arn:aws:iam::997819012307:role/role")
 dbutils.widgets.text("dac_name", "default-dac")
 dbutils.widgets.text("metastore_admin_group", "metastore-admin-users")
 
@@ -46,6 +46,21 @@ bucket = dbutils.widgets.get("bucket")
 iam_role = dbutils.widgets.get("iam_role")
 dac_name = dbutils.widgets.get("dac_name")
 metastore_admin = dbutils.widgets.get("metastore_admin_group")
+
+# COMMAND ----------
+
+# format validation of s3 bucket & iam role
+
+import re
+
+s3_regex = "^s3:\/\/[a-z0-9\-]{3,63}$"
+iam_role_regex = "^arn:aws:iam::\d{12}:role/.+"
+
+if not re.match(s3_regex, bucket):
+  raise Exception("Not a valid s3 path")
+  
+if not re.match(iam_role_regex, iam_role):
+  raise Exception("Not a valid IAM role arn")
 
 # COMMAND ----------
 
