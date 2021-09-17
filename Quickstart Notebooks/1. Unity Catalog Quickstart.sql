@@ -47,17 +47,13 @@ USE CATALOG quickstart_catalog
 
 -- COMMAND ----------
 
+SHOW GRANT on CATALOG quickstart_catalog
+
+-- COMMAND ----------
+
 -- MAGIC %md
 -- MAGIC ### Create and View Schemas
 -- MAGIC Schemas, also referred to as Databases, are the second layer of the Unity Catalog namespace. They can be used to logically organize tables. 
-
--- COMMAND ----------
-
-REVOKE CREATE, usage on CATALOG quickstart_catalog from `vuong.nguyen+uc@databricks.com`
-
--- COMMAND ----------
-
-SHOW GRANT on CATALOG quickstart_catalog
 
 -- COMMAND ----------
 
@@ -127,6 +123,7 @@ SELECT * FROM quickstart_catalog.quickstart_database.quickstart_table
 -- COMMAND ----------
 
 -- MAGIC %python
+-- MAGIC # won't work yet
 -- MAGIC df = spark.read.table("quickstart_catalog.quickstart_database.quickstart_table")
 -- MAGIC display(df)
 
@@ -331,7 +328,7 @@ REVOKE SELECT ON TABLE quickstart_database.quickstart_table FROM `account users`
 -- COMMAND ----------
 
 -- MAGIC %python
--- MAGIC # Check access on an external file location
+-- MAGIC # Check access on an external file location - wont work
 -- MAGIC 
 -- MAGIC file_location = "s3://databricks-corp-training/common/City-Data.delta"
 -- MAGIC 
