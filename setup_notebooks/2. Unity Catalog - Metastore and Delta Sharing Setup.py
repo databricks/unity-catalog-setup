@@ -338,9 +338,12 @@ cluster_json = {
     "cluster_name": "uc-cluster-" + uuid.uuid4().hex[:8],
     "spark_version": spark_version,
     "spark_conf": {
-        "spark.databricks.sql.initial.catalog.namespace": "main",
-        "spark.databricks.managedCatalog": "com.databricks.sql.managedcatalog.PermissionEnforcingManagedCatalog",
-        "spark.databricks.unityCatalog.enabled": "true"
+      "spark.databricks.sql.initial.catalog.name": "hive_metastore",
+      "spark.databricks.unityCatalog.enabled": "true",
+      "spark.databricks.cluster.profile": "serverless",
+      "spark.databricks.repl.allowedLanguages": "sql",
+      "spark.databricks.acl.dfAclsEnabled": "true",
+      "spark.databricks.acl.sqlOnly": "true"
     },
     "aws_attributes": {
       "availability": "SPOT"
@@ -392,10 +395,14 @@ post_body = {
   "enable_photon": "true",         
   "test_overrides": {"runtime_version": sql_photon_version},
   "conf_pairs":
-  {"spark.databricks.managedCatalog":"com.databricks.sql.managedcatalog.PermissionEnforcingManagedCatalog",
-  "spark.databricks.sql.initial.catalog.namespace":"main",
-  "spark.databricks.unityCatalog.enabled":"true"},
-  "enable_databricks_compute": "false"}
+  {
+    "spark.databricks.managedCatalog":"com.databricks.sql.managedcatalog.PermissionEnforcingManagedCatalog",
+    "spark.databricks.sql.initial.catalog.namespace":"hive_metastore",
+    "spark.databricks.unityCatalog.enabled":"true",
+    "spark.databricks.cluster.profile": "serverless",
+    "spark.databricks.repl.allowedLanguages": "sql",  
+    "enable_databricks_compute": "false"
+}
 
 response = requests.post(
   host + '/api/2.0/sql/endpoints/',
