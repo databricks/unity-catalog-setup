@@ -385,6 +385,8 @@ displayHTML(f"<a href='#setting/clusters/{cluster_id}/configuration'>Link to clu
 
 # create a UC-enabled SQL endpoint - check for progress in the SQL endpoints screen
 
+import requests
+
 endpoint_name = "uc-endpoint-" + uuid.uuid4().hex[:8]
 endpoint_size = "MEDIUM"
 
@@ -396,12 +398,14 @@ post_body = {
   "test_overrides": {"runtime_version": sql_photon_version},
   "conf_pairs":
   {
-    "spark.databricks.managedCatalog":"com.databricks.sql.managedcatalog.PermissionEnforcingManagedCatalog",
-    "spark.databricks.sql.initial.catalog.namespace":"hive_metastore",
-    "spark.databricks.unityCatalog.enabled":"true",
-    "spark.databricks.cluster.profile": "serverless",
-    "spark.databricks.repl.allowedLanguages": "sql",  
-    "enable_databricks_compute": "false"
+      "spark.databricks.sql.initial.catalog.name": "hive_metastore",
+      "spark.databricks.unityCatalog.enabled": "true",
+      "spark.databricks.cluster.profile": "serverless",
+      "spark.databricks.repl.allowedLanguages": "sql",
+      "spark.databricks.acl.sqlOnly": "true",
+      "spark.databricks.acl.dfAclsEnabled": "true",
+      "enable_databricks_compute": "false"
+  }
 }
 
 response = requests.post(
