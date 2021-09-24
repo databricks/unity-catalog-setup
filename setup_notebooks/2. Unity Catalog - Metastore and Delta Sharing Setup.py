@@ -65,7 +65,7 @@ if not re.match(iam_role_regex, iam_role):
 # COMMAND ----------
 
 #### DOUBLE-CHECK THE CLUSTER IMAGES #####
-spark_version = "custom:custom-local__9.x-snapshot-scala2.12__unknown__head__dc3efb4__12ddf9b__yuchen.huo__0a7f5ed__format-2.lz4"
+spark_version = "custom:custom-local__9.x-snapshot-scala2.12__unknown__master__ea41236__c21ca2b__lin.zhou__6a0c846__format-2.lz4"
 sql_photon_version = "custom:custom-local__9.x-snapshot-photon-scala2.12__unknown__head__dc3efb4__12ddf9b__yuchen.huo__87f7ac2__format-2.lz4"
 
 # COMMAND ----------

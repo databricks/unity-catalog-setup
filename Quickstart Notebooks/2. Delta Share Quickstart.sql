@@ -36,7 +36,7 @@
 
 USE CATALOG quickstart_catalog;
 
-CREATE SHARE quickstart_share
+CREATE SHARE IF NOT EXISTS quickstart_share
 
 -- COMMAND ----------
 
@@ -55,6 +55,11 @@ ALTER SHARE quickstart_share ADD TABLE quickstart_database.quickstart_table
 -- COMMAND ----------
 
 -- View tables assigned to a specific share
+SHOW ALL IN SHARE quickstart_share
+
+-- COMMAND ----------
+
+-- View metadata of a specific share
 DESCRIBE SHARE quickstart_share
 
 -- COMMAND ----------
@@ -78,7 +83,7 @@ SHOW SHARES
 -- COMMAND ----------
 
 -- Create a recipient with a comment
-CREATE RECIPIENT quickstart_recipient COMMENT "Intended recipient for of Delta Share"
+CREATE RECIPIENT IF NOT EXISTS quickstart_recipient COMMENT "Intended recipient for of Delta Share"
 
 -- COMMAND ----------
 
