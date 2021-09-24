@@ -313,8 +313,8 @@ print(f"Current metastore setup: \n {execute_uc(['metastore-summary'])}")
 
 # COMMAND ----------
 
-# Enable Delta Sharing on the metastore
-print(execute_uc(['update-metastore', '--id', metastore_id, '--json', '{"delta_sharing_enabled":true}']))
+# Enable Delta Sharing on the metastore, delta_sharing_recipient_token_lifetime_in_seconds must be provided, use 0 for infinite lifetime. 31536000 seconds = 1 year
+print(execute_uc(['update-metastore', '--id', metastore_id, '--json', '{"delta_sharing_enabled":true, "delta_sharing_recipient_token_lifetime_in_seconds":31536000}']))
 
 # COMMAND ----------
 
