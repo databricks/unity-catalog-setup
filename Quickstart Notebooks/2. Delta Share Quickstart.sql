@@ -122,6 +122,10 @@ SHOW GRANT ON SHARE quickstart_share
 
 -- COMMAND ----------
 
+SHOW GRANT TO RECIPIENT quickstart_recipient
+
+-- COMMAND ----------
+
 -- MAGIC %md
 -- MAGIC ### View Recipients Permissions
 -- MAGIC 
