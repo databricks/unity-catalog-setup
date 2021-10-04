@@ -9,19 +9,21 @@
 # MAGIC %md
 # MAGIC ## READ ME FIRST
 # MAGIC - Make sure you are running this notebook as an **Account Administrator** (role need to be set at account level at https://accounts.cloud.databricks.com/)
-# MAGIC - Fill in the widgets with the required information after Cmd 5 is run
-# MAGIC   - `bucket` - the S3 bucket to be the default storage location for managed tables in Unity Catalog (`s3://<bucket>`)
+# MAGIC - Fill in the widgets with the required information after Cmd 6 is run
+# MAGIC   - `container` - the abfs path to the container to be the default storage location for managed tables in Unity Catalog (`abfss://$CONTAINER_NAME@$STORAGE_ACCOUNT_NAME.dfs.core.windows.net/`)
 # MAGIC   - `dac_name` - unique name for the Data Access Configuration
-# MAGIC   - `iam_role` - the IAM role to be used by Unity Catalog (`arn:aws:iam::<account_id>:role/<role_name>`)
+# MAGIC   - `directory_id` - the directory id of the service principal
+# MAGIC   - `application_id` - the application id of the service principal
+# MAGIC   - `client_secret` - the client secret of the service principal
 # MAGIC   - `metastore` - unique name for the metastore
 # MAGIC   - `metastore_admin_group` - account-level group who will be the metastore admins
-# MAGIC - Double check the UC special images on Cmd 7
+# MAGIC - Double check the UC special images on Cmd 8
 # MAGIC - Unity Catalog set up requires the Databricks CLI with Unity Catalog extension. This is downloaded from Databricks public GDrive link
 
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ## Import necessary libraries, set input variables for metastore name, bucket location, IAM role, DAC name
+# MAGIC ## Import necessary libraries, set input variables for metastore name, container location, SP details, DAC name
 
 # COMMAND ----------
 
@@ -33,34 +35,38 @@ import json
 
 # COMMAND ----------
 
+dbutils.widgets.removeAll()
+
+# COMMAND ----------
+
 dbutils.widgets.text("metastore", "unity-catalog")
-dbutils.widgets.text("bucket", "s3://bucket")
-dbutils.widgets.text("iam_role", "arn:aws:iam::997819012307:role/role")
+dbutils.widgets.text("container", "abfss://$CONTAINER_NAME@$STORAGE_ACCOUNT_NAME.dfs.core.windows.net/")
+dbutils.widgets.text("directory_id", "ed573937-9c53-4ed6-b016-929e765443eb")
+dbutils.widgets.text("application_id", "9f37a392-f0ae-4280-9796-f1864a10effc")
+dbutils.widgets.text("client_secret", "xxxxx")
 dbutils.widgets.text("dac_name", "default-dac")
 dbutils.widgets.text("metastore_admin_group", "metastore-admin-users")
 
 # COMMAND ----------
 
 metastore = dbutils.widgets.get("metastore")
-bucket = dbutils.widgets.get("bucket")
-iam_role = dbutils.widgets.get("iam_role")
+container = dbutils.widgets.get("container")
+directory_id = dbutils.widgets.get("directory_id")
+application_id = dbutils.widgets.get("application_id")
+client_secret = dbutils.widgets.get("client_secret")
 dac_name = dbutils.widgets.get("dac_name")
 metastore_admin = dbutils.widgets.get("metastore_admin_group")
 
 # COMMAND ----------
 
-# format validation of s3 bucket & iam role
+# format validation of abfs path
 
 import re
 
-s3_regex = "^s3:\/\/[a-z0-9\-]{3,63}$"
-iam_role_regex = "^arn:aws:iam::\d{12}:role/.+"
+abfs_regex = "^abfss:\/\/.+\.dfs\.core\.windows\.net(\/)?$"
 
-if not re.match(s3_regex, bucket):
-  raise Exception("Not a valid s3 path")
-  
-if not re.match(iam_role_regex, iam_role):
-  raise Exception("Not a valid IAM role arn")
+if not re.match(abfs_regex, container):
+  raise Exception("Not a valid abfs path")
 
 # COMMAND ----------
 
@@ -205,7 +211,7 @@ def execute_dbcli(args:List[str]) -> str:
 # COMMAND ----------
 
 # Create a Metastore, and store its ID
-metastore_id = execute_uc(['create-metastore', '--name', metastore, '--storage-root', bucket])
+metastore_id = execute_uc(['create-metastore', '--name', metastore, '--storage-root', container])
 metastore_id = json.loads(metastore_id)["metastore_id"]
 print(f"Metastore {metastore_id} has been set up")
 
@@ -223,7 +229,7 @@ print(f"Metastore summary: \n {execute_uc(['get-metastore', '--id', metastore_id
 # COMMAND ----------
 
 # create a DAC named $DAC_NAME, and store its ID
-dac_id = execute_uc(['create-dac', '--metastore-id', metastore_id, '--json', f'{{"name": "{dac_name}", "aws_iam_role": {{"role_arn": "{iam_role}"}}}}'])
+dac_id = execute_uc(['create-dac', '--metastore-id', metastore_id, '--json', f'{{"name": "{dac_name}", "azure_service_principal": {{"directory_id": "{directory_id}", "application_id": "{application_id}", "client_secret":{client_secret}}}}}'])
 dac_id = json.loads(dac_id)["id"]
 print(f"Data access configuration {dac_id} has been set up")
 
