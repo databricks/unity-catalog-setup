@@ -88,23 +88,6 @@ workspace_id = dbutils.notebook.entry_point.getDbutils().notebook().getContext()
 
 # COMMAND ----------
 
-import requests
-import json
-
-# check if the user is admin
-response = requests.get(
-  host + '/api/2.0/preview/scim/v2/Me',
-  headers={"Authorization": "Bearer " + token},
-)
-if response.status_code == 200:
-  is_admin = any([group['display']=='admins' for group in response.json()['groups']])
-  if not is_admin:
-    raise Exception(f'Not an admin')
-else:
-  raise Exception(f'Error: {response.status_code} {response.reason}')
-
-# COMMAND ----------
-
 # MAGIC %md
 # MAGIC ## Create databricks-cli authentication file
 
