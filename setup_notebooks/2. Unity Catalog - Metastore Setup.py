@@ -57,8 +57,8 @@ if cloud == "AWS":
   dbutils.widgets.text("iam_role", "arn:aws:iam::997819012307:role/role")
 elif cloud == "Azure":
   dbutils.widgets.text("bucket", "abfss://$CONTAINER_NAME@$STORAGE_ACCOUNT_NAME.dfs.core.windows.net/")
-  dbutils.widgets.text("directory_id", "ed573937-9c53-4ed6-b016-929e765443eb")
-  dbutils.widgets.text("application_id", "9f37a392-f0ae-4280-9796-f1864a10effc")
+  dbutils.widgets.text("directory_id", "9f37a392-f0ae-4280-9796-f1864a10effc")
+  dbutils.widgets.text("application_id", "ed573937-9c53-4ed6-b016-929e765443eb")
   dbutils.widgets.text("client_secret", "xxxxx")
 dbutils.widgets.text("metastore", "unity-catalog")
 dbutils.widgets.text("dac_name", "default-dac")
@@ -263,7 +263,7 @@ print(f"Metastore summary: \n {execute_uc(['get-metastore', '--id', metastore_id
 if cloud == "AWS":
   dac_id = execute_uc(['create-dac', '--metastore-id', metastore_id, '--json', f'{{"name": "{dac_name}", "aws_iam_role": {{"role_arn": "{iam_role}"}}}}'])
 elif cloud == "Azure":
-  dac_id = execute_uc(['create-dac', '--metastore-id', metastore_id, '--json', f'{{"name": "{dac_name}", "azure_service_principal": {{"directory_id": "{directory_id}", "application_id": "{application_id}", "client_secret":{client_secret}}}}}'])
+  dac_id = execute_uc(['create-dac', '--metastore-id', metastore_id, '--json', f'{{"name": "{dac_name}", "azure_service_principal": {{"directory_id": "{directory_id}", "application_id": "{application_id}", "client_secret":"{client_secret}"}}}}'])
 dac_id = json.loads(dac_id)["id"]
 print(f"Data access configuration {dac_id} has been set up")
 
@@ -356,29 +356,56 @@ print(f"Delta Sharing is {'enabled' if delta_sharing else 'disabled'}")
 
 import uuid
 
-cluster_json = {
-    "num_workers": 1,
-    "cluster_name": "uc-cluster-" + uuid.uuid4().hex[:8],
-    "spark_version": spark_version,
-    "spark_conf": {
-      "spark.databricks.sql.initial.catalog.name": "hive_metastore",
-      "spark.databricks.unityCatalog.enabled": "true",
-      "spark.databricks.cluster.profile": "serverless",
-      "spark.databricks.repl.allowedLanguages": "sql",
-      "spark.databricks.acl.dfAclsEnabled": "true",
-      "spark.databricks.acl.sqlOnly": "true"
-    },
-    "aws_attributes": {
-      "availability": "SPOT"
-    },  
-    "spark_env_vars": {
-        "PYSPARK_PYTHON": "/databricks/python3/bin/python3"
-    },  
-    "node_type_id": "i3.xlarge",
-    "driver_node_type_id": "i3.xlarge",
-    "autotermination_minutes": 120,
-    "enable_elastic_disk": False,
-}
+if cloud == "AWS":
+    cluster_json = {
+        "num_workers": 1,
+        "cluster_name": "uc-cluster-" + uuid.uuid4().hex[:8],
+        "spark_version": spark_version,
+        "spark_conf": {
+          "spark.databricks.sql.initial.catalog.name": "hive_metastore",
+          "spark.databricks.unityCatalog.enabled": "true",
+          "spark.databricks.cluster.profile": "serverless",
+          "spark.databricks.repl.allowedLanguages": "sql",
+          "spark.databricks.acl.dfAclsEnabled": "true",
+          "spark.databricks.acl.sqlOnly": "true"
+        },
+        "aws_attributes": {
+          "availability": "SPOT"
+        },  
+        "spark_env_vars": {
+            "PYSPARK_PYTHON": "/databricks/python3/bin/python3"
+        },  
+        "node_type_id": "i3.xlarge",
+        "driver_node_type_id": "i3.xlarge",
+        "autotermination_minutes": 120,
+        "enable_elastic_disk": False,
+    }
+elif cloud == "Azure":
+    cluster_json = {
+        "num_workers": 1,
+        "cluster_name": "uc-cluster-" + uuid.uuid4().hex[:8],
+        "spark_version": spark_version,
+        "spark_conf": {
+          "spark.databricks.sql.initial.catalog.name": "hive_metastore",
+          "spark.databricks.unityCatalog.enabled": "true",
+          "spark.databricks.cluster.profile": "serverless",
+          "spark.databricks.repl.allowedLanguages": "sql",
+          "spark.databricks.acl.dfAclsEnabled": "true",
+          "spark.databricks.acl.sqlOnly": "true"
+        },
+        "azure_attributes": {
+            "first_on_demand": 1,
+            "availability": "ON_DEMAND_AZURE",
+            "spot_bid_max_price": -1
+        },
+        "node_type_id": "Standard_DS3_v2",
+        "driver_node_type_id": "Standard_DS3_v2",
+        "spark_env_vars": {
+            "PYSPARK_PYTHON": "/databricks/python3/bin/python3"
+        },  
+        "autotermination_minutes": 120,
+        "enable_elastic_disk": False,
+    }
 
 # COMMAND ----------
 
@@ -446,3 +473,18 @@ else:
 
 endpoint_id = response.json()["id"]
 displayHTML(f"<a href='sql/endpoints/{endpoint_id}'>Link to endpoint</a>")
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC 
+# MAGIC ## Create a quickstart catalog
+
+# COMMAND ----------
+
+print(execute_uc(['create-catalog', '--name', 'quickstart_catalog']))
+
+# COMMAND ----------
+
+# Grant full access to main catalog for metastore admin group
+print(execute_uc(['update-permissions', '--catalog', 'quickstart_catalog', '--json', f'{{"changes": [{{"principal": "{metastore_admin}","add": ["CREATE","USAGE"]}}]}}']))
