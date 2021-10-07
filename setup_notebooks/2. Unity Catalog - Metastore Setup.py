@@ -1,6 +1,6 @@
 # Databricks notebook source
 # MAGIC %md
-# MAGIC # UC Metastore setup
+# MAGIC # UC Metastore Setup
 # MAGIC 
 # MAGIC This is based on details in "Unity Catalog Setup Guide"
 
@@ -17,12 +17,12 @@
 # MAGIC   - Credential:
 # MAGIC     - **AWS**: `iam_role` - the IAM role to be used by Unity Catalog (`arn:aws:iam::<account_id>:role/<role_name>`)
 # MAGIC     - **Azure**:
-# MAGIC         - `directory_id` - the directory id of the service principal
+# MAGIC         - `directory_id` - the directory id of the Azure AD tenant
 # MAGIC         - `application_id` - the application id of the service principal
 # MAGIC         - `client_secret` - the client secret of the service principal
 # MAGIC   - `metastore` - unique name for the metastore
 # MAGIC   - `metastore_admin_group` - account-level group who will be the metastore admins
-# MAGIC - Double check the UC special images on Cmd 9
+# MAGIC - Double check the UC special images on Cmd 10
 # MAGIC - Unity Catalog set up requires the Databricks CLI with Unity Catalog extension. This is downloaded from Databricks public GDrive link
 
 # COMMAND ----------
