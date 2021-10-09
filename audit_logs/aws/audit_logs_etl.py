@@ -16,13 +16,12 @@ import json, time
 
 # COMMAND ----------
 
-stream_schema = spark.read.json(f"{log_bucket}/audit-logs").schema
-
 streamDF = (
   spark
   .readStream
-  .format("json")
-  .schema(stream_schema)
+  .format("cloudFiles")
+  .option("cloudFiles.format", "json")
+  .option("cloudFiles.schemaLocation", f"{sink_bucket}/audit_log_schema") \
   .load(f"{log_bucket}/audit-logs")
 )
 
