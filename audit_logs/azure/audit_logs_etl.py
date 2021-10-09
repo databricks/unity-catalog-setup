@@ -13,14 +13,12 @@ spark.conf.set("fs.azure.account.oauth2.client.endpoint.vnadls.dfs.core.windows.
 
 # COMMAND ----------
 
-# log_bucket = dbutils.widgets.get("log_bucket")
-# sink_bucket = dbutils.widgets.get("sink_bucket")
-log_bucket = "abfss://insights-logs-accounts@vnadls.dfs.core.windows.net/resourceId=/SUBSCRIPTIONS/3F2E4D32-8E8D-46D6-82BC-5BB8D962328B/RESOURCEGROUPS/VN-SANDBOX/PROVIDERS/MICROSOFT.DATABRICKS/WORKSPACES/VN-DEMO-WORKSPACE"
-sink_bucket = "abfss://unity-catalog@vnadls.dfs.core.windows.net/"
+log_bucket = dbutils.widgets.get("log_bucket")
+sink_bucket = dbutils.widgets.get("sink_bucket")
 
 # COMMAND ----------
 
-from pyspark.sql.functions import udf, col, from_unixtime, from_utc_timestamp, from_json
+from pyspark.sql.functions import udf, col, from_unixtime, from_utc_timestamp, from_json, expr
 from pyspark.sql.types import StringType, StructField, StructType
 import json, time
 
@@ -32,6 +30,8 @@ streamDF = (
   .format("cloudFiles")
   .option("cloudFiles.format", "json")
   .option("cloudFiles.schemaLocation", f"{sink_bucket}/audit_log_schema")
+  .option("cloudFiles.includeExistingFiles", True)
+  .option("cloudFiles.inferColumnTypes", True)
   .option("cloudFiles.partitionColumns", "")
   .load(log_bucket)
   .withColumn('date',col('time').cast('date'))
@@ -80,20 +80,18 @@ LOCATION '{bronze_path}'
 
 # COMMAND ----------
 
-def stripNulls(raw):
-  return json.dumps({i: raw.asDict()[i] for i in raw.asDict() if raw.asDict()[i] != None})
-strip_udf = udf(stripNulls, StringType())
-
-# COMMAND ----------
-
 bronzeDF = spark.readStream.load(bronze_path)
+
+properties_columns = ["actionName", "logId", "requestId", "requestParams", "response", "serviceName", "sourceIPAddress", "userAgent", "sessionId"]
+
+for property in properties_columns:
+  bronzeDF = bronzeDF.withColumn(property, col(f"properties.{property}"))
 
 query = (
   bronzeDF
-  .withColumn("flattened", strip_udf("properties.requestParams"))
-  .withColumn("email", col("identity.email"))
+  .withColumn("email", expr("identity:email"))
   .withColumn("date_time", from_utc_timestamp(from_unixtime(col("time")/1000), "UTC"))
-  .drop("identity")
+  .drop("identity", "properties", "_rescued_data")
 )
 
 # COMMAND ----------
@@ -151,14 +149,14 @@ def flatten_table(service_name, gold_path):
   
   keys = (
     flattened
-    .filter(col("properties.serviceName") == service_name)
-    .select(just_keys_udf(col("flattened")))
+    .filter(col("serviceName") == service_name)
+    .select(just_keys_udf(col("requestParams")))
     .alias("keys")
     .distinct()
     .collect()
   )
   
-  keysList = [i.asDict()['justKeys(flattened)'][1:-1].split(", ") for i in keys]
+  keysList = [i.asDict()['justKeys(requestParams)'][1:-1].split(", ") for i in keys]
   
   keysDistinct = {j for i in keysList for j in i if j != ""}
   
@@ -169,9 +167,8 @@ def flatten_table(service_name, gold_path):
       schema.add(StructField(i, StringType()))
     
   (flattenedStream
-   .filter(col("properties.serviceName") == service_name)
-   .withColumn("properties.requestParams", from_json(col("flattened"), schema))
-   .drop("flattened")
+   .filter(col("serviceName") == service_name)
+   .withColumn("requestParams", from_json(col("requestParams"), schema))
    .writeStream
    .partitionBy("date")
    .outputMode("append")
@@ -185,7 +182,7 @@ def flatten_table(service_name, gold_path):
 
 # COMMAND ----------
 
-service_name_list = [i['serviceName'] for i in spark.table("az_audit_logs.silver").select("properties.serviceName").distinct().collect()]
+service_name_list = [i['serviceName'] for i in spark.table("az_audit_logs.silver").select("serviceName").distinct().collect()]
 
 # COMMAND ----------
 
