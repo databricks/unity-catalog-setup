@@ -21,6 +21,7 @@ streamDF = (
   .readStream
   .format("cloudFiles")
   .option("cloudFiles.format", "json")
+  .option("cloudFiles.inferColumnTypes", True)
   .option("cloudFiles.schemaLocation", f"{sink_bucket}/audit_log_schema") \
   .load(f"{log_bucket}/audit-logs")
 )
