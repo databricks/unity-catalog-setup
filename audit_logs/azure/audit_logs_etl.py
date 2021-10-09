@@ -1,59 +1,7 @@
 # Databricks notebook source
-# MAGIC %md
-# MAGIC ###Install Event Hub Spark connector
-
-# COMMAND ----------
-
-cntx = dbutils.notebook.entry_point.getDbutils().notebook().getContext()
-host = cntx.apiUrl().getOrElse(None)
-token = cntx.apiToken().getOrElse(None)
-post_body = {
-  "cluster_id": cntx.clusterId().getOrElse(None),
-  "libraries": [
-    {
-      "maven": {
-        "coordinates": "com.microsoft.azure:azure-eventhubs-spark_2.12:2.3.21"
-      }   
-    }
-  ]
-}
-
-# COMMAND ----------
-
-import requests
-
-response = requests.post(
-  host + '/api/2.0/libraries/install',
-  headers={"Authorization": "Bearer " + token},
-  json = post_body
-)
-
-if response.status_code == 200:
-  print(response.json())
-else:
-  raise Exception(f'Error: {response.status_code} {response.reason}')
-
-# COMMAND ----------
-
-# wait until library is installed
-import json, time
-
-while True:
-  response = requests.get(
-    host + f'/api/2.0/libraries/cluster-status?cluster_id={cntx.clusterId().getOrElse(None)}',
-    headers={"Authorization": "Bearer " + token},
-  )
-  status = [library['status'] for library in response.json()['library_statuses'] if 'eventhubs-spark' in json.dumps(library['library'])][0]
-  if status != "INSTALLING":
-    break
-  time.sleep(2)
-  print("Waiting for library to install")
-
-# COMMAND ----------
-
 APPLICATION_ID = "ed573937-9c53-4ed6-b016-929e765443eb"
 DIRECTORY_ID = "9f37a392-f0ae-4280-9796-f1864a10effc"
-APP_KEY = "xxx"
+APP_KEY = ""
 
 # COMMAND ----------
 
@@ -65,76 +13,29 @@ spark.conf.set("fs.azure.account.oauth2.client.endpoint.vnadls.dfs.core.windows.
 
 # COMMAND ----------
 
+# log_bucket = dbutils.widgets.get("log_bucket")
 # sink_bucket = dbutils.widgets.get("sink_bucket")
+log_bucket = "abfss://insights-logs-accounts@vnadls.dfs.core.windows.net/resourceId=/SUBSCRIPTIONS/3F2E4D32-8E8D-46D6-82BC-5BB8D962328B/RESOURCEGROUPS/VN-SANDBOX/PROVIDERS/MICROSOFT.DATABRICKS/WORKSPACES/VN-DEMO-WORKSPACE"
 sink_bucket = "abfss://unity-catalog@vnadls.dfs.core.windows.net/"
 
 # COMMAND ----------
 
-connectionString = dbutils.secrets.get("demo", "shared-eventhub-conn")
-eventhub_name = 'vn-audit-logs'
-
-ehConf = {}
-ehConf['eventhubs.connectionString'] = sc._jvm.org.apache.spark.eventhubs.EventHubsUtils.encrypt(connectionString)
-startingEventPosition = {
-  "offset": "-1",  
-  "seqNo": -1,            #not in use
-  "enqueuedTime": None,   #not in use
-  "isInclusive": True
-}
-ehConf["eventhubs.startingPosition"] = json.dumps(startingEventPosition)
-
-# COMMAND ----------
-
-from pyspark.sql.functions import schema_of_json, lit
-
-log_schema =spark.range(1) \
-    .select(schema_of_json(lit("""{
-    "records": [
-        {
-            "resourceId": "/SUBSCRIPTIONS/3F2E4D32-8E8D-46D6-82BC-5BB8D962328B/RESOURCEGROUPS/VN-SANDBOX/PROVIDERS/MICROSOFT.DATABRICKS/WORKSPACES/VN-DEMO-WORKSPACE",
-            "operationVersion": "1.0.0",
-            "identity": {"email":"vuong.nguyen@databricks.com","subjectName":null},
-            "operationName": "Microsoft.Databricks/accounts/aadBrowserLogin",
-            "time": "2021-10-06T09:06:41Z",
-            "category": "accounts",
-            "properties": {
-                "sourceIPAddress": "18.193.11.166:0",
-                "logId": "c4b0ab3e-cd1e-3952-97ea-c35e37b7b271",
-                "serviceName": "accounts",
-                "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36",
-                "response": {"statusCode":200},
-                "sessionId": null,
-                "actionName": "aadBrowserLogin",
-                "requestId": "6f05d6d6-c457-477c-9692-0addaa1c1797",
-                "requestParams": {"user":"vuong.nguyen@databricks.com"}
-            },
-            "FluentdIngestTimestamp": "2021-10-06T09:08:05.0000000Z",
-            "Host": "1005-155304-lag215-10-139-64-14"
-        }
-    ]
-}"""))) \
-    .collect()[0][0]
-
-# COMMAND ----------
-
-from pyspark.sql.functions import col, from_json, regexp_replace, explode, from_unixtime, from_utc_timestamp, udf
+from pyspark.sql.functions import udf, col, from_unixtime, from_utc_timestamp, from_json
+from pyspark.sql.types import StringType, StructField, StructType
 import json, time
 
-streamDF = (spark
-            .readStream
-            .format('eventhubs')
-            .options(**ehConf)
-            .load()
-            .withColumn('payload', col('body').cast(StringType()))
-            .withColumn('payload', regexp_replace('payload', '\\\\"', '"'))
-            .withColumn('payload', regexp_replace('payload', '"\{', '\{'))
-            .withColumn('payload', regexp_replace('payload', '\}"', '\}'))             
-            .withColumn('json',from_json(col('payload'), log_schema))
-            .select(col('json.*'))
-            .select(explode('records'))
-            .select(col('col.*'))
-            .withColumn('date',col('time').cast('date'))
-           )
+# COMMAND ----------
+
+streamDF = (
+  spark
+  .readStream
+  .format("cloudFiles")
+  .option("cloudFiles.format", "json")
+  .option("cloudFiles.schemaLocation", f"{sink_bucket}/audit_log_schema")
+  .option("cloudFiles.partitionColumns", "")
+  .load(log_bucket)
+  .withColumn('date',col('time').cast('date'))
+)
 
 # COMMAND ----------
 
@@ -162,12 +63,12 @@ while spark.streams.active != []:
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC CREATE DATABASE IF NOT EXISTS audit_logs
+# MAGIC CREATE DATABASE IF NOT EXISTS az_audit_logs
 
 # COMMAND ----------
 
 spark.sql(f"""
-CREATE TABLE IF NOT EXISTS audit_logs.bronze
+CREATE TABLE IF NOT EXISTS az_audit_logs.bronze
 USING DELTA
 LOCATION '{bronze_path}'
 """)
@@ -175,7 +76,7 @@ LOCATION '{bronze_path}'
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC OPTIMIZE audit_logs.bronze
+# MAGIC OPTIMIZE az_audit_logs.bronze
 
 # COMMAND ----------
 
@@ -220,19 +121,19 @@ while spark.streams.active != []:
 # COMMAND ----------
 
 spark.sql(f"""
-CREATE TABLE IF NOT EXISTS audit_logs.silver
+CREATE TABLE IF NOT EXISTS az_audit_logs.silver
 USING DELTA
 LOCATION '{silver_path}'
 """)
 
 # COMMAND ----------
 
-assert(spark.table("audit_logs.bronze").count() == spark.table("audit_logs.silver").count())
+assert(spark.table("az_audit_logs.bronze").count() == spark.table("az_audit_logs.silver").count())
 
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC OPTIMIZE audit_logs.silver
+# MAGIC OPTIMIZE az_audit_logs.silver
 
 # COMMAND ----------
 
@@ -244,7 +145,7 @@ just_keys_udf = udf(justKeys, StringType())
 
 def flatten_table(service_name, gold_path):
   flattenedStream = spark.readStream.load(silver_path)
-  flattened = spark.table("audit_logs.silver")
+  flattened = spark.table("az_audit_logs.silver")
   
   schema = StructType()
   
@@ -284,7 +185,7 @@ def flatten_table(service_name, gold_path):
 
 # COMMAND ----------
 
-service_name_list = [i['serviceName'] for i in spark.table("audit_logs.silver").select("properties.serviceName").distinct().collect()]
+service_name_list = [i['serviceName'] for i in spark.table("az_audit_logs.silver").select("properties.serviceName").distinct().collect()]
 
 # COMMAND ----------
 
@@ -303,13 +204,13 @@ while spark.streams.active != []:
 
 for service_name in service_name_list:
   spark.sql(f"""
-  CREATE TABLE IF NOT EXISTS audit_logs.{service_name}
+  CREATE TABLE IF NOT EXISTS az_audit_logs.{service_name}
   USING DELTA
   LOCATION '{gold_path}/{service_name}'
   """)
-  spark.sql(f"OPTIMIZE audit_logs.{service_name}")
+  spark.sql(f"OPTIMIZE az_audit_logs.{service_name}")
 
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC SHOW TABLES IN audit_logs
+# MAGIC SHOW TABLES IN az_audit_logs
