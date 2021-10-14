@@ -416,10 +416,10 @@ cluster_id = json.loads(cluster_id)["cluster_id"]
 import time
 while True:
   status = json.loads(execute_dbcli(['clusters', 'get', '--cluster-id', cluster_id]))["state"]
-  time.sleep(20)
-  print("Waiting for cluster to start")
   if status != "PENDING":
     break
+  time.sleep(20)
+  print("Waiting for cluster to start")    
 print(f"UC-enabled cluster {cluster_id} status is {status}")
 
 # COMMAND ----------
@@ -465,13 +465,26 @@ response = requests.post(
 )
 
 if response.status_code == 200:
-  print(response.json())
+    endpoint_id = response.json()['id']
 else:
-  raise Exception(f'Error: {response.status_code} {response.reason}')
+    raise Exception(f'Error: {response.status_code} {response.reason}')
+
+    
+while True:
+    response = requests.get(
+      host + '/api/2.0/sql/endpoints/' + endpoint_id,
+      headers={"Authorization": "Bearer " + token}
+    )
+    status = response.json()['state']
+    if status != "STARTING":
+        break      
+    time.sleep(20)
+    print("Waiting for endpoint to start")      
+        
+print(f"UC-enabled SQL endpoint {endpoint_id} status is {status}")
 
 # COMMAND ----------
 
-endpoint_id = response.json()["id"]
 displayHTML(f"<a href='sql/endpoints/{endpoint_id}'>Link to endpoint</a>")
 
 # COMMAND ----------
