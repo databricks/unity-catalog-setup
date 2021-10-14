@@ -453,9 +453,9 @@ post_body = {
       "spark.databricks.cluster.profile": "serverless",
       "spark.databricks.repl.allowedLanguages": "sql",
       "spark.databricks.acl.sqlOnly": "true",
-      "spark.databricks.acl.dfAclsEnabled": "true",
-      "enable_databricks_compute": "false"
-  }
+      "spark.databricks.acl.dfAclsEnabled": "true"
+  },
+  "enable_serverless_compute": "false" # DBSQL serverless does not support UC images yet
 }
 
 response = requests.post(
