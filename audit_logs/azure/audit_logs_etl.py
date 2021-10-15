@@ -21,21 +21,10 @@ database = dbutils.widgets.get("database")
 
 # COMMAND ----------
 
-resource_id ="resourceId=/SUBSCRIPTIONS/3F2E4D32-8E8D-46D6-82BC-5BB8D962328B/RESOURCEGROUPS/IFI-UCTEST/PROVIDERS/MICROSOFT.DATABRICKS/WORKSPACES/IFI-AZUREUC-E2E-TEST"
-storage_account_name = "ifiucteste2e"
-log_category = "sqlpermissions"
-database = "az_audit_log"
-
-# COMMAND ----------
-
 # Fixed value, do not change (used for parsing log_category)
 container_name = f"insights-logs-{log_category}"
 # Path for where the logs are located (constructed dynamically)
 log_bucket = f"abfss://{container_name}@{storage_account_name}.dfs.core.windows.net/{resource_id}"
-
-# Set up the key for this storage account.
-storage_account_access_key = "yATZZzEE/K+hVrUmQkiMPuGhO2mNA4XKbX+Ze7MjqmOgU7qbrHGcETMGL071MNG9s9NmrvNzJEjMqdmwd1+5Sw=="
-spark.conf.set(f"fs.azure.account.key.{storage_account_name}.dfs.core.windows.net", storage_account_access_key)
 
 # Output to the same container.
 sink_bucket = f"abfss://{container_name}@{storage_account_name}.dfs.core.windows.net"
