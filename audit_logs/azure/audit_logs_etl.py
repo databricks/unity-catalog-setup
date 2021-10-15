@@ -13,8 +13,32 @@ spark.conf.set("fs.azure.account.oauth2.client.endpoint.vnadls.dfs.core.windows.
 
 # COMMAND ----------
 
-log_bucket = dbutils.widgets.get("log_bucket")
-sink_bucket = dbutils.widgets.get("sink_bucket")
+log_category = dbutils.widgets.get("log_category")
+storage_account_name = dbutils.widgets.get("storage_account")
+resource_id = dbutils.widgets.get("resource_id")
+sink_bucket = dbutils.widgets.get("sink_bucket").strip("/")
+database = dbutils.widgets.get("database")
+
+# COMMAND ----------
+
+resource_id ="resourceId=/SUBSCRIPTIONS/3F2E4D32-8E8D-46D6-82BC-5BB8D962328B/RESOURCEGROUPS/IFI-UCTEST/PROVIDERS/MICROSOFT.DATABRICKS/WORKSPACES/IFI-AZUREUC-E2E-TEST"
+storage_account_name = "ifiucteste2e"
+log_category = "sqlpermissions"
+database = "az_audit_log"
+
+# COMMAND ----------
+
+# Fixed value, do not change (used for parsing log_category)
+container_name = f"insights-logs-{log_category}"
+# Path for where the logs are located (constructed dynamically)
+log_bucket = f"abfss://{container_name}@{storage_account_name}.dfs.core.windows.net/{resource_id}"
+
+# Set up the key for this storage account.
+storage_account_access_key = "yATZZzEE/K+hVrUmQkiMPuGhO2mNA4XKbX+Ze7MjqmOgU7qbrHGcETMGL071MNG9s9NmrvNzJEjMqdmwd1+5Sw=="
+spark.conf.set(f"fs.azure.account.key.{storage_account_name}.dfs.core.windows.net", storage_account_access_key)
+
+# Output to the same container.
+sink_bucket = f"abfss://{container_name}@{storage_account_name}.dfs.core.windows.net"
 
 # COMMAND ----------
 
@@ -39,7 +63,7 @@ streamDF = (
 
 # COMMAND ----------
 
-bronze_path = f"{sink_bucket}/audit_logs_streaming/bronze"
+bronze_path = f"{sink_bucket}/audit_logs_streaming/bronze/{log_category}"
 checkpoint_path = f"{sink_bucket}/checkpoints"
 
 (streamDF
@@ -47,7 +71,7 @@ checkpoint_path = f"{sink_bucket}/checkpoints"
  .format("delta")
  .partitionBy("date")
  .outputMode("append")
- .option("checkpointLocation", f"{checkpoint_path}/bronze")
+ .option("checkpointLocation", f"{checkpoint_path}/bronze/{log_category}")
  .option("path", bronze_path) 
  .option("mergeSchema", True)
  .trigger(once=True)
@@ -62,21 +86,19 @@ while spark.streams.active != []:
 
 # COMMAND ----------
 
-# MAGIC %sql
-# MAGIC CREATE DATABASE IF NOT EXISTS az_audit_logs
+spark.sql(f"CREATE DATABASE IF NOT EXISTS {database}")
 
 # COMMAND ----------
 
 spark.sql(f"""
-CREATE TABLE IF NOT EXISTS az_audit_logs.bronze
+CREATE TABLE IF NOT EXISTS {database}.bronze_{log_category}
 USING DELTA
 LOCATION '{bronze_path}'
 """)
 
 # COMMAND ----------
 
-# MAGIC %sql
-# MAGIC OPTIMIZE az_audit_logs.bronze
+spark.sql(f"OPTIMIZE {database}.bronze_{log_category}")
 
 # COMMAND ----------
 
@@ -96,14 +118,14 @@ query = (
 
 # COMMAND ----------
 
-silver_path = f"{sink_bucket}/audit_logs_streaming/silver"
+silver_path = f"{sink_bucket}/audit_logs_streaming/silver/{log_category}"
 
 (query
  .writeStream
  .format("delta")
  .partitionBy("date")
  .outputMode("append")
- .option("checkpointLocation", f"{checkpoint_path}/silver")
+ .option("checkpointLocation", f"{checkpoint_path}/silver/{log_category}")
  .option("path", silver_path)
  .option("mergeSchema", True)
  .trigger(once=True)
@@ -119,19 +141,18 @@ while spark.streams.active != []:
 # COMMAND ----------
 
 spark.sql(f"""
-CREATE TABLE IF NOT EXISTS az_audit_logs.silver
+CREATE TABLE IF NOT EXISTS {database}.silver_{log_category}
 USING DELTA
 LOCATION '{silver_path}'
 """)
 
 # COMMAND ----------
 
-assert(spark.table("az_audit_logs.bronze").count() == spark.table("az_audit_logs.silver").count())
+assert(spark.table(f"{database}.bronze_{log_category}").count() == spark.table(f"{database}.silver_{log_category}").count())
 
 # COMMAND ----------
 
-# MAGIC %sql
-# MAGIC OPTIMIZE az_audit_logs.silver
+spark.sql(f"OPTIMIZE {database}.silver_{log_category}")
 
 # COMMAND ----------
 
@@ -143,7 +164,7 @@ just_keys_udf = udf(justKeys, StringType())
 
 def flatten_table(service_name, gold_path):
   flattenedStream = spark.readStream.load(silver_path)
-  flattened = spark.table("az_audit_logs.silver")
+  flattened = spark.table(f"{database}.silver_{log_category}")
   
   schema = StructType()
   
@@ -182,7 +203,7 @@ def flatten_table(service_name, gold_path):
 
 # COMMAND ----------
 
-service_name_list = [i['serviceName'] for i in spark.table("az_audit_logs.silver").select("serviceName").distinct().collect()]
+service_name_list = [i['serviceName'] for i in spark.table(f"{database}.silver_{log_category}").select("serviceName").distinct().collect()]
 
 # COMMAND ----------
 
@@ -201,13 +222,12 @@ while spark.streams.active != []:
 
 for service_name in service_name_list:
   spark.sql(f"""
-  CREATE TABLE IF NOT EXISTS az_audit_logs.{service_name}
+  CREATE TABLE IF NOT EXISTS {database}.{service_name}
   USING DELTA
   LOCATION '{gold_path}/{service_name}'
   """)
-  spark.sql(f"OPTIMIZE az_audit_logs.{service_name}")
+  spark.sql(f"OPTIMIZE {database}.{service_name}")
 
 # COMMAND ----------
 
-# MAGIC %sql
-# MAGIC SHOW TABLES IN az_audit_logs
+display(spark.sql(f"SHOW TABLES IN {database}"))
