@@ -1,23 +1,23 @@
 # Databricks notebook source
-APPLICATION_ID = "ed573937-9c53-4ed6-b016-929e765443eb"
-DIRECTORY_ID = "9f37a392-f0ae-4280-9796-f1864a10effc"
-APP_KEY = ""
-
-# COMMAND ----------
-
-spark.conf.set("fs.azure.account.auth.type.vnadls.dfs.core.windows.net", "OAuth")
-spark.conf.set("fs.azure.account.oauth.provider.type.vnadls.dfs.core.windows.net", "org.apache.hadoop.fs.azurebfs.oauth2.ClientCredsTokenProvider")
-spark.conf.set("fs.azure.account.oauth2.client.id.vnadls.dfs.core.windows.net", APPLICATION_ID)
-spark.conf.set("fs.azure.account.oauth2.client.secret.vnadls.dfs.core.windows.net", APP_KEY)
-spark.conf.set("fs.azure.account.oauth2.client.endpoint.vnadls.dfs.core.windows.net", f"https://login.microsoftonline.com/{DIRECTORY_ID}/oauth2/token")
-
-# COMMAND ----------
-
 log_category = dbutils.widgets.get("log_category")
 storage_account_name = dbutils.widgets.get("storage_account")
 resource_id = dbutils.widgets.get("resource_id")
 sink_bucket = dbutils.widgets.get("sink_bucket").strip("/")
 database = dbutils.widgets.get("database")
+
+# COMMAND ----------
+
+# set sp authentication for storage account. if using storage account key, set fs.azure.account.key.{storage_account_name}.dfs.core.windows.net instead
+
+APPLICATION_ID = "ed573937-9c53-4ed6-b016-929e765443eb"
+DIRECTORY_ID = "9f37a392-f0ae-4280-9796-f1864a10effc"
+APP_KEY = ""
+
+spark.conf.set(f"fs.azure.account.auth.type.{storage_account_name}.dfs.core.windows.net", "OAuth")
+spark.conf.set(f"fs.azure.account.oauth.provider.type.{storage_account_name}.dfs.core.windows.net", "org.apache.hadoop.fs.azurebfs.oauth2.ClientCredsTokenProvider")
+spark.conf.set(f"fs.azure.account.oauth2.client.id.{storage_account_name}.dfs.core.windows.net", APPLICATION_ID)
+spark.conf.set(f"fs.azure.account.oauth2.client.secret.{storage_account_name}.dfs.core.windows.net", APP_KEY)
+spark.conf.set(f"fs.azure.account.oauth2.client.endpoint.{storage_account_name}.dfs.core.windows.net", f"https://login.microsoftonline.com/{DIRECTORY_ID}/oauth2/token")
 
 # COMMAND ----------
 
