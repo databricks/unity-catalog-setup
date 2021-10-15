@@ -54,6 +54,10 @@ def display_img(path):
 # MAGIC 
 # MAGIC `az ad app create --display-name $SP_NAME`
 # MAGIC 
+# MAGIC Capture the appId in the output as `SP_ID`
+# MAGIC 
+# MAGIC `az role assignment create --assignee $SP_ID`
+# MAGIC 
 # MAGIC or via the UI [here](https://docs.microsoft.com/en-us/azure/databricks/dev-tools/api/latest/aad/service-prin-aad-token#--provision-a-service-principal-in-azure-portal)
 
 # COMMAND ----------
@@ -62,6 +66,8 @@ def display_img(path):
 # MAGIC ### Step 2.2: Generate client secret for the Azure service principal
 # MAGIC Via the cli:
 # MAGIC `az ad app credential reset --id $SP_ID --append`
+# MAGIC 
+# MAGIC Capture the appId (`$APPLICATION_ID`), password (`$CLIENT_SECRET`) and tenant (`$TENANT_ID`) in the output
 
 # COMMAND ----------
 
@@ -70,8 +76,14 @@ def display_img(path):
 # MAGIC 
 # MAGIC Via cli
 # MAGIC 
-# MAGIC `az role assignment create --assignee $SP_ID \
+# MAGIC ```
+# MAGIC az role assignment create --assignee $SP_ID \
 # MAGIC --role "Storage Blob Data Contributor" \
-# MAGIC --scope "/subscriptions/$SUBSCRIPTION_ID/resourceGroups/$RESOURCE_GROUP/providers/Microsoft.Storage/storageAccounts/$STORAGE_ACCOUNT/blobServices/default/containers/$CONTAINER"`
+# MAGIC --scope "/subscriptions/$SUBSCRIPTION_ID/resourceGroups/$RESOURCE_GROUP/providers/Microsoft.Storage/storageAccounts/$STORAGE_ACCOUNT/blobServices/default/containers/$CONTAINER"
+# MAGIC ```
 # MAGIC 
 # MAGIC or via the UI [here](https://docs.microsoft.com/en-us/azure/databricks/data/data-sources/azure/adls-gen2/azure-datalake-gen2-sp-access#assign-roles)
+
+# COMMAND ----------
+
+

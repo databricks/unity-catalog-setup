@@ -5,8 +5,9 @@
 
 # COMMAND ----------
 
+database = dbutils.widgets.get("database")
 log_bucket = dbutils.widgets.get("log_bucket")
-sink_bucket = dbutils.widgets.get("sink_bucket")
+sink_bucket = dbutils.widgets.get("sink_bucket").strip("/")
 
 # COMMAND ----------
 
@@ -16,13 +17,14 @@ import json, time
 
 # COMMAND ----------
 
-stream_schema = spark.read.json(f"{log_bucket}/audit-logs").schema
-
 streamDF = (
   spark
   .readStream
-  .format("json")
-  .schema(stream_schema)
+  .format("cloudFiles")
+  .option("cloudFiles.format", "json")
+  .option("cloudFiles.inferColumnTypes", True)
+  .option("cloudFiles.schemaHints", "workspaceId long")  
+  .option("cloudFiles.schemaLocation", f"{sink_bucket}/audit_log_schema")
   .load(f"{log_bucket}/audit-logs")
 )
 
@@ -51,21 +53,19 @@ while spark.streams.active != []:
 
 # COMMAND ----------
 
-# MAGIC %sql
-# MAGIC CREATE DATABASE IF NOT EXISTS audit_logs
+spark.sql(f"CREATE DATABASE IF NOT EXISTS {database}")
 
 # COMMAND ----------
 
 spark.sql(f"""
-CREATE TABLE IF NOT EXISTS audit_logs.bronze
+CREATE TABLE IF NOT EXISTS {database}.bronze
 USING DELTA
 LOCATION '{bronze_path}'
 """)
 
 # COMMAND ----------
 
-# MAGIC %sql
-# MAGIC OPTIMIZE audit_logs.bronze
+spark.sql(f"OPTIMIZE {database}.bronze")
 
 # COMMAND ----------
 
@@ -111,19 +111,18 @@ while spark.streams.active != []:
 # COMMAND ----------
 
 spark.sql(f"""
-CREATE TABLE IF NOT EXISTS audit_logs.silver
+CREATE TABLE IF NOT EXISTS {database}.silver
 USING DELTA
 LOCATION '{silver_path}'
 """)
 
 # COMMAND ----------
 
-assert(spark.table("audit_logs.bronze").count() == spark.table("audit_logs.silver").count())
+assert(spark.table(f"{database}.bronze").count() == spark.table(f"{database}.silver").count())
 
 # COMMAND ----------
 
-# MAGIC %sql
-# MAGIC OPTIMIZE audit_logs.silver
+spark.sql(f"OPTIMIZE {database}.silver")
 
 # COMMAND ----------
 
@@ -135,7 +134,7 @@ just_keys_udf = udf(justKeys, StringType())
 
 def flatten_table(service_name, gold_path):
   flattenedStream = spark.readStream.load(silver_path)
-  flattened = spark.table("audit_logs.silver")
+  flattened = spark.table(f"{database}.silver")
   
   schema = StructType()
   
@@ -175,7 +174,7 @@ def flatten_table(service_name, gold_path):
 
 # COMMAND ----------
 
-service_name_list = [i['serviceName'] for i in spark.table("audit_logs.silver").select("serviceName").distinct().collect()]
+service_name_list = [i['serviceName'] for i in spark.table(f"{database}.silver").select("serviceName").distinct().collect()]
 
 # COMMAND ----------
 
@@ -194,13 +193,12 @@ while spark.streams.active != []:
 
 for service_name in service_name_list:
   spark.sql(f"""
-  CREATE TABLE IF NOT EXISTS audit_logs.{service_name}
+  CREATE TABLE IF NOT EXISTS {database}.{service_name}
   USING DELTA
   LOCATION '{gold_path}/{service_name}'
   """)
-  spark.sql(f"OPTIMIZE audit_logs.{service_name}")
+  spark.sql(f"OPTIMIZE {database}.{service_name}")
 
 # COMMAND ----------
 
-# MAGIC %sql
-# MAGIC SHOW TABLES IN audit_logs
+display(spark.sql(f"SHOW TABLES IN {database}"))
