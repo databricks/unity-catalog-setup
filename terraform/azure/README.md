@@ -1,3 +1,5 @@
+# Terraform setup for Azure UC resources
+
 This Terraform stack creates the storage account, container and service principal required to setup Unity Catalog
 
 ## Inputs
@@ -13,7 +15,7 @@ This Terraform stack creates the storage account, container and service principa
 | tags | Tags applied to all resources created | `map(string)` | n/a | yes |
 
 ## Outputs
-# Terraform setup for Azure UC resources
+
 | Name | Description |
 |------|-------------|
 | sp_application_id | Application ID of the service principal |
