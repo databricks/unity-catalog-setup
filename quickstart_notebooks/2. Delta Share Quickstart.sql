@@ -118,7 +118,10 @@ Grant SELECT ON SHARE quickstart_share TO RECIPIENT quickstart_recipient
 
 -- COMMAND ----------
 
-SHOW GRANT ON SHARE quickstart_share
+-- MAGIC %md
+-- MAGIC ### View Recipients Permissions
+-- MAGIC 
+-- MAGIC The following code can be used to view all of the shares that have been granted to inividual recipients.
 
 -- COMMAND ----------
 
@@ -127,24 +130,11 @@ SHOW GRANT TO RECIPIENT quickstart_recipient
 -- COMMAND ----------
 
 -- MAGIC %md
--- MAGIC ### View Recipients Permissions
--- MAGIC 
--- MAGIC The following code can be used to view all of the permissions that have been granted to inividual recipients.
+-- MAGIC You can check also check all Recipients that are granted permission to read a specific Share
 
 -- COMMAND ----------
 
--- MAGIC %python
--- MAGIC from pyspark.sql.functions import col
--- MAGIC 
--- MAGIC recipient = "quickstart_recipient"
--- MAGIC 
--- MAGIC shares = spark.sql("""SHOW shares""").select("share").collect()
--- MAGIC for share in shares:
--- MAGIC   rec_exists = spark.sql(f"SHOW GRANT ON SHARE `{share.share}`").filter(col("recipient") == recipient).collect()
--- MAGIC   for rec in rec_exists:
--- MAGIC     shared_tables = spark.sql(f" DESC SHARE `{share.share}`").select("name").collect()
--- MAGIC     for tab in shared_tables:
--- MAGIC       print(f"{rec.recipient} has {rec.privilege} on table {tab.name} via share {share.share} ")
+SHOW GRANT ON SHARE quickstart_share
 
 -- COMMAND ----------
 
