@@ -79,7 +79,7 @@ def display_img(path):
 # MAGIC ```
 # MAGIC az role assignment create --assignee $SP_ID \
 # MAGIC --role "Storage Blob Data Contributor" \
-# MAGIC --scope "/subscriptions/$SUBSCRIPTION_ID/resourceGroups/$RESOURCE_GROUP/providers/Microsoft.Storage/storageAccounts/$STORAGE_ACCOUNT/blobServices/default/containers/$CONTAINER"
+# MAGIC --scope "/subscriptions/$SUBSCRIPTION_ID/resourceGroups/$RESOURCE_GROUP/providers/Microsoft.Storage/storageAccounts/$STORAGE_ACCOUNT"
 # MAGIC ```
 # MAGIC 
 # MAGIC or via the UI [here](https://docs.microsoft.com/en-us/azure/databricks/data/data-sources/azure/adls-gen2/azure-datalake-gen2-sp-access#assign-roles)
