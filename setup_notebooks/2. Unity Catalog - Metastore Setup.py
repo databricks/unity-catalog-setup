@@ -102,7 +102,7 @@ elif cloud == "Azure":
 # COMMAND ----------
 
 #### DOUBLE-CHECK THE CLUSTER IMAGES #####
-spark_version = "custom:custom-local__9.x-snapshot-scala2.12__unknown__head__dfac5b8__62428b8__yuchen.huo__9ccc574__format-2.lz4"
+spark_version = "custom:custom-local__9.x-snapshot-scala2.12__unknown__master__ed485b9__7d4fea6__lin.zhou__992a059__format-2.lz4"
 sql_photon_version = "custom:custom-local__9.x-snapshot-photon-scala2.12__unknown__head__dfac5b8__62428b8__yuchen.huo__57c2e42__format-2.lz4"
 
 # COMMAND ----------
