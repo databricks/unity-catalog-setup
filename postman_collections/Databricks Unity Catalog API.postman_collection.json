@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "c13af8cd-5c80-47a6-9800-c525ac267357",
+		"_postman_id": "eab4d57d-05f6-4a1f-a9d3-4db32d294bcf",
 		"name": "Databricks Unity Catalog API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -11,14 +11,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://{{host}}/api/2.0/unity-catalog/shares",
+					"raw": "https://{{prefix}}/unity-catalog/shares",
 					"protocol": "https",
 					"host": [
-						"{{host}}"
+						"{{prefix}}"
 					],
 					"path": [
-						"api",
-						"2.0",
 						"unity-catalog",
 						"shares"
 					]
@@ -40,14 +38,12 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": "https://{{host}}/api/2.0/unity-catalog/shares/{{share_name}}",
+					"raw": "https://{{prefix}}/unity-catalog/shares/{{share_name}}",
 					"protocol": "https",
 					"host": [
-						"{{host}}"
+						"{{prefix}}"
 					],
 					"path": [
-						"api",
-						"2.0",
 						"unity-catalog",
 						"shares",
 						"{{share_name}}"
@@ -72,14 +68,12 @@
 					}
 				},
 				"url": {
-					"raw": "https://{{host}}/api/2.0/unity-catalog/shares/{{share_name}}/permissions",
+					"raw": "https://{{prefix}}/unity-catalog/shares/{{share_name}}/permissions",
 					"protocol": "https",
 					"host": [
-						"{{host}}"
+						"{{prefix}}"
 					],
 					"path": [
-						"api",
-						"2.0",
 						"unity-catalog",
 						"shares",
 						"{{share_name}}",
@@ -95,14 +89,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://{{host}}/api/2.0/unity-catalog/shares/{{share_name}}/permissions",
+					"raw": "https://{{prefix}}/unity-catalog/shares/{{share_name}}/permissions",
 					"protocol": "https",
 					"host": [
-						"{{host}}"
+						"{{prefix}}"
 					],
 					"path": [
-						"api",
-						"2.0",
 						"unity-catalog",
 						"shares",
 						"{{share_name}}",
@@ -128,14 +120,12 @@
 					}
 				},
 				"url": {
-					"raw": "https://{{host}}/api/2.0/unity-catalog/shares",
+					"raw": "https://{{prefix}}/unity-catalog/shares",
 					"protocol": "https",
 					"host": [
-						"{{host}}"
+						"{{prefix}}"
 					],
 					"path": [
-						"api",
-						"2.0",
 						"unity-catalog",
 						"shares"
 					]
@@ -159,14 +149,12 @@
 					}
 				},
 				"url": {
-					"raw": "https://{{host}}/api/2.0/unity-catalog/shares/{{share_name}}",
+					"raw": "https://{{prefix}}/unity-catalog/shares/{{share_name}}",
 					"protocol": "https",
 					"host": [
-						"{{host}}"
+						"{{prefix}}"
 					],
 					"path": [
-						"api",
-						"2.0",
 						"unity-catalog",
 						"shares",
 						"{{share_name}}"
@@ -191,14 +179,12 @@
 					}
 				},
 				"url": {
-					"raw": "https://{{host}}/api/2.0/unity-catalog/recipients/",
+					"raw": "https://{{prefix}}/unity-catalog/recipients/",
 					"protocol": "https",
 					"host": [
-						"{{host}}"
+						"{{prefix}}"
 					],
 					"path": [
-						"api",
-						"2.0",
 						"unity-catalog",
 						"recipients",
 						""
@@ -218,14 +204,12 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": "https://{{host}}/api/2.0/unity-catalog/shares/{{share_name}}",
+					"raw": "https://{{prefix}}/unity-catalog/shares/{{share_name}}",
 					"protocol": "https",
 					"host": [
-						"{{host}}"
+						"{{prefix}}"
 					],
 					"path": [
-						"api",
-						"2.0",
 						"unity-catalog",
 						"shares",
 						"{{share_name}}"
@@ -241,14 +225,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://{{host}}/api/2.0/unity-catalog/recipients",
+					"raw": "https://{{prefix}}/unity-catalog/recipients",
 					"protocol": "https",
 					"host": [
-						"{{host}}"
+						"{{prefix}}"
 					],
 					"path": [
-						"api",
-						"2.0",
 						"unity-catalog",
 						"recipients"
 					]
@@ -263,14 +245,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://{{host}}/api/2.0/unity-catalog/recipients/{{recipient_name}}",
+					"raw": "https://{{prefix}}/unity-catalog/recipients/{{recipient_name}}",
 					"protocol": "https",
 					"host": [
-						"{{host}}"
+						"{{prefix}}"
 					],
 					"path": [
-						"api",
-						"2.0",
 						"unity-catalog",
 						"recipients",
 						"{{recipient_name}}"
@@ -286,14 +266,12 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "https://{{host}}/api/2.0/unity-catalog/recipients/{{recipient_name}}",
+					"raw": "https://{{prefix}}/unity-catalog/recipients/{{recipient_name}}",
 					"protocol": "https",
 					"host": [
-						"{{host}}"
+						"{{prefix}}"
 					],
 					"path": [
-						"api",
-						"2.0",
 						"unity-catalog",
 						"recipients",
 						"{{recipient_name}}"
@@ -308,18 +286,41 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://{{host}}/api/2.0/unity-catalog/public/data_sharing_activation/{{activation_nonce}}",
+					"raw": "https://{{prefix}}/unity-catalog/public/data_sharing_activation/{{activation_nonce}}",
 					"protocol": "https",
 					"host": [
-						"{{host}}"
+						"{{prefix}}"
 					],
 					"path": [
-						"api",
-						"2.0",
 						"unity-catalog",
 						"public",
 						"data_sharing_activation",
 						"{{activation_nonce}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Rotate Recipient Token",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"existing_token_expire_in_seconds\": 86400\n}"
+				},
+				"url": {
+					"raw": "https://{{prefix}}/unity-catalog/recipients/{{recipient_name}}/rotate-token",
+					"protocol": "https",
+					"host": [
+						"{{prefix}}"
+					],
+					"path": [
+						"unity-catalog",
+						"recipients",
+						"{{recipient_name}}",
+						"rotate-token"
 					]
 				}
 			},

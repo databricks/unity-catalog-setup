@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "8b02b497-478d-4783-a107-e0199feb50a0",
+		"_postman_id": "f3a20bfb-804a-4801-8c31-faf76da92617",
 		"name": "Databricks Delta Sharing Recipient API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -11,17 +11,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://{{host}}/api/2.0/delta-sharing/metastores/{{metastore_id}}/shares",
+					"raw": "https://{{prefix}}/shares",
 					"protocol": "https",
 					"host": [
-						"{{host}}"
+						"{{prefix}}"
 					],
 					"path": [
-						"api",
-						"2.0",
-						"delta-sharing",
-						"metastores",
-						"{{metastore_id}}",
 						"shares"
 					]
 				}
@@ -34,17 +29,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://{{host}}/api/2.0/delta-sharing/metastores/{{metastore_id}}/shares/{{share_name}}/schemas",
+					"raw": "https://{{prefix}}/shares/{{share_name}}/schemas",
 					"protocol": "https",
 					"host": [
-						"{{host}}"
+						"{{prefix}}"
 					],
 					"path": [
-						"api",
-						"2.0",
-						"delta-sharing",
-						"metastores",
-						"{{metastore_id}}",
 						"shares",
 						"{{share_name}}",
 						"schemas"
@@ -59,17 +49,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://{{host}}/api/2.0/delta-sharing/metastores/{{metastore_id}}/shares/{{share_name}}/schemas/{{schema_name}}/tables",
+					"raw": "https://{{prefix}}/shares/{{share_name}}/schemas/{{schema_name}}/tables",
 					"protocol": "https",
 					"host": [
-						"{{host}}"
+						"{{prefix}}"
 					],
 					"path": [
-						"api",
-						"2.0",
-						"delta-sharing",
-						"metastores",
-						"{{metastore_id}}",
 						"shares",
 						"{{share_name}}",
 						"schemas",
@@ -86,17 +71,12 @@
 				"method": "HEAD",
 				"header": [],
 				"url": {
-					"raw": "https://{{host}}/api/2.0/delta-sharing/metastores/{{metastore_id}}/shares/{{share_name}}/schemas/{{schema_name}}/tables/{{table_name}}",
+					"raw": "https://{{prefix}}/shares/{{share_name}}/schemas/{{schema_name}}/tables/{{table_name}}",
 					"protocol": "https",
 					"host": [
-						"{{host}}"
+						"{{prefix}}"
 					],
 					"path": [
-						"api",
-						"2.0",
-						"delta-sharing",
-						"metastores",
-						"{{metastore_id}}",
 						"shares",
 						"{{share_name}}",
 						"schemas",
@@ -114,17 +94,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://{{host}}/api/2.0/delta-sharing/metastores/{{metastore_id}}/shares/{{share_name}}/schemas/{{schema_name}}/tables/{{table_name}}/metadata",
+					"raw": "https://{{prefix}}/shares/{{share_name}}/schemas/{{schema_name}}/tables/{{table_name}}/metadata",
 					"protocol": "https",
 					"host": [
-						"{{host}}"
+						"{{prefix}}"
 					],
 					"path": [
-						"api",
-						"2.0",
-						"delta-sharing",
-						"metastores",
-						"{{metastore_id}}",
 						"shares",
 						"{{share_name}}",
 						"schemas",
@@ -152,17 +127,12 @@
 					}
 				},
 				"url": {
-					"raw": "https://{{host}}/api/2.0/delta-sharing/metastores/{{metastore_id}}/shares/{{share_name}}/schemas/{{schema_name}}/tables/{{table_name}}/query",
+					"raw": "https://{{prefix}}/shares/{{share_name}}/schemas/{{schema_name}}/tables/{{table_name}}/query",
 					"protocol": "https",
 					"host": [
-						"{{host}}"
+						"{{prefix}}"
 					],
 					"path": [
-						"api",
-						"2.0",
-						"delta-sharing",
-						"metastores",
-						"{{metastore_id}}",
 						"shares",
 						"{{share_name}}",
 						"schemas",
