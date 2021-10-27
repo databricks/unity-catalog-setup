@@ -108,7 +108,7 @@ sql_photon_version = "custom:custom-local__9.x-snapshot-photon-scala2.12__unknow
 # COMMAND ----------
 
 #### Check the databricks-cli-uc gdrive link ####
-databricks_cli_gdrive = "14d0du3rENjwqWfGcIcNFmnx7Fz3FRcLg"
+databricks_cli_gdrive = "18Zyfyo8kCRSFp-ISHw_hj3oBGK_TTBz7"
 
 # COMMAND ----------
 
