@@ -123,7 +123,9 @@ SELECT * FROM quickstart_catalog.quickstart_database.quickstart_table
 -- COMMAND ----------
 
 -- MAGIC %python
--- MAGIC # won't work yet
+-- MAGIC 
+-- MAGIC # require multi-language cluster
+-- MAGIC 
 -- MAGIC df = spark.read.table("quickstart_catalog.quickstart_database.quickstart_table")
 -- MAGIC display(df)
 
@@ -328,7 +330,7 @@ REVOKE SELECT ON TABLE quickstart_database.quickstart_table FROM `account users`
 -- COMMAND ----------
 
 -- MAGIC %python
--- MAGIC # Check access on an external file location - wont work
+-- MAGIC # Check access on an external file location - run on multi-language cluster
 -- MAGIC 
 -- MAGIC file_location = "s3://databricks-corp-training/common/City-Data.delta"
 -- MAGIC 
