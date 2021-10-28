@@ -10,6 +10,11 @@ dbutils.widgets.dropdown("runtime", "Select one", ["Select one","Standard", "Mac
 # COMMAND ----------
 
 # DBTITLE 1,Run all the remaining cells!
+import uuid
+import requests
+import json
+import time
+
 cloud = dbutils.widgets.get("cloud")
 runtime = dbutils.widgets.get("runtime")
 
@@ -17,8 +22,8 @@ runtime = dbutils.widgets.get("runtime")
 
 #### DOUBLE-CHECK THE CLUSTER IMAGES #####
 spark_version = "custom:snapshot__10.x-snapshot-scala2.12__databricks-universe__head__dee9ef1__1b7c9d0__jenkins__6908155__format-2.lz4"
-sql_photon_version = "custom:custom-local__10.x-snapshot-cpu-ml-scala2.12__unknown__head__dee9ef1__1b7c9d0__yuchen.huo__c68890b__format-2.lz4"
-mlr_version = "custom:custom-local__10.x-snapshot-photon-scala2.12__unknown__head__dee9ef1__1b7c9d0__yuchen.huo__9526afc__format-2.lz4"
+sql_photon_version = "custom:custom-local__10.x-snapshot-photon-scala2.12__unknown__head__dee9ef1__1b7c9d0__yuchen.huo__9526afc__format-2.lz4"
+mlr_version = "custom:custom-local__10.x-snapshot-cpu-ml-scala2.12__unknown__head__dee9ef1__1b7c9d0__yuchen.huo__c68890b__format-2.lz4"
 
 if runtime=="Machine Learning":
     image = mlr_version
@@ -31,11 +36,6 @@ else:
     cluster_name = "uc-endpoint-" + uuid.uuid4().hex[:8]
 
 # COMMAND ----------
-
-import uuid
-import requests
-import json
-import time
 
 host = dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiUrl().getOrElse(None)
 token = dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiToken().getOrElse(None)
@@ -90,17 +90,27 @@ elif cloud == "Azure":
     
 if runtime=="Machine Learning":
     cluster_json["single_user_name"] = user
+    
+if runtime=="Standard":
+    cluster_json["spark_conf"] = {
+      "spark.databricks.sql.initial.catalog.name": "hive_metastore",
+      "spark.databricks.unityCatalog.enabled": "true",
+      "spark.databricks.cluster.profile": "serverless",
+      "spark.databricks.repl.allowedLanguages": "sql",
+      "spark.databricks.acl.sqlOnly": "true",
+      "spark.databricks.acl.dfAclsEnabled": "true"        
+    }
 
 # declare SQL endpoint config    
 
 endpoint_size = "MEDIUM"
 endpoint_json = {
     "name": cluster_name,
-     "size": endpoint_size,
-     "max_num_clusters":1,
-     "enable_photon": "true",         
-     "test_overrides": {"runtime_version": image},
-     "conf_pairs":
+    "size": endpoint_size,
+    "max_num_clusters":1,
+    "enable_photon": "true",         
+    "test_overrides": {"runtime_version": image},
+    "conf_pairs":
     {
         "spark.databricks.sql.initial.catalog.name": "hive_metastore",
         "spark.databricks.unityCatalog.enabled": "true",
