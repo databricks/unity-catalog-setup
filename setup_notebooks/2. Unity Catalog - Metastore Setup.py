@@ -101,14 +101,8 @@ elif cloud == "Azure":
 
 # COMMAND ----------
 
-#### DOUBLE-CHECK THE CLUSTER IMAGES #####
-spark_version = "custom:custom-local__9.x-snapshot-scala2.12__unknown__master__ed485b9__7d4fea6__lin.zhou__992a059__format-2.lz4"
-sql_photon_version = "custom:custom-local__9.x-snapshot-photon-scala2.12__unknown__head__dfac5b8__62428b8__yuchen.huo__57c2e42__format-2.lz4"
-
-# COMMAND ----------
-
 #### Check the databricks-cli-uc gdrive link ####
-databricks_cli_gdrive = "18Zyfyo8kCRSFp-ISHw_hj3oBGK_TTBz7"
+databricks_cli_gdrive = "1DLeAT4FpK6MWTbC6dTzW7f9CzFIl1jDK"
 
 # COMMAND ----------
 
