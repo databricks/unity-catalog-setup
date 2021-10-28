@@ -45,7 +45,12 @@ DESCRIBE audit_logs.unitycatalog
 -- COMMAND ----------
 
 -- What types of Actions are captured by the Audit Logs?
-SELECT distinct actionName from audit_logs.unitycatalog order by actionName
+SELECT
+  distinct actionName
+from
+  audit_logs.unitycatalog
+order by
+  actionName
 
 -- COMMAND ----------
 
@@ -56,7 +61,13 @@ SELECT distinct actionName from audit_logs.unitycatalog order by actionName
 -- COMMAND ----------
 
 -- What are the most popular Actions?
-SELECT actionName, count(actionName) as actionCount from audit_logs.unitycatalog group by actionName
+SELECT
+  actionName,
+  count(actionName) as actionCount
+from
+  audit_logs.unitycatalog
+group by
+  actionName
 
 -- COMMAND ----------
 
@@ -66,9 +77,20 @@ SELECT actionName, count(actionName) as actionCount from audit_logs.unitycatalog
 -- COMMAND ----------
 
 -- Find out who Created, Updated and Deleted Delta Shares
-SELECT email, date_time, actionName, requestParams.name, requestParams.updates, requestParams.changes, response.result
-FROM audit_logs.unitycatalog 
-WHERE actionName LIKE "%Share" OR actionName = "getActivationUrlInfo" OR actionName = "updateSharePermissions"
+SELECT
+  email,
+  date_time,
+  actionName,
+  requestParams.name,
+  requestParams.updates,
+  requestParams.changes,
+  response.result
+FROM
+  audit_logs.unitycatalog
+WHERE
+  actionName LIKE "%Share"
+  OR actionName = "getActivationUrlInfo"
+  OR actionName = "updateSharePermissions"
 
 -- COMMAND ----------
 
@@ -78,7 +100,15 @@ WHERE actionName LIKE "%Share" OR actionName = "getActivationUrlInfo" OR actionN
 -- COMMAND ----------
 
 -- Which Users are Most Active Overall?
-SELECT email, count(actionName) AS numActions FROM audit_logs.unitycatalog group by email order by numActions desc
+SELECT
+  email,
+  count(actionName) AS numActions
+FROM
+  audit_logs.unitycatalog
+group by
+  email
+order by
+  numActions desc
 
 -- COMMAND ----------
 
@@ -88,7 +118,17 @@ SELECT email, count(actionName) AS numActions FROM audit_logs.unitycatalog group
 -- COMMAND ----------
 
 -- Which Users are the Most Active Sharers?
-SELECT email, count(actionName) AS numActions FROM audit_logs.unitycatalog WHERE actionName like '%Share' group by email order by numActions desc
+SELECT
+  email,
+  count(actionName) AS numActions
+FROM
+  audit_logs.unitycatalog
+WHERE
+  actionName like '%Share'
+group by
+  email
+order by
+  numActions desc
 
 -- COMMAND ----------
 
@@ -98,7 +138,15 @@ SELECT email, count(actionName) AS numActions FROM audit_logs.unitycatalog WHERE
 -- COMMAND ----------
 
 -- Find out who Created and Retrieved Recipients
-SELECT email, date_time, actionName, requestParams.name  FROM audit_logs.unitycatalog where actionName Like "%Recipient"
+SELECT
+  email,
+  date_time,
+  actionName,
+  requestParams.name
+FROM
+  audit_logs.unitycatalog
+where
+  actionName Like "%Recipient"
 
 -- COMMAND ----------
 
@@ -107,8 +155,18 @@ SELECT email, date_time, actionName, requestParams.name  FROM audit_logs.unityca
 
 -- COMMAND ----------
 
--- Who are the Delta Sharing Recepients? 
-SELECT requestParams.name, count(requestParams.name)  FROM audit_logs.unitycatalog where actionName Like "%Recipient" group by requestParams.name
+-- Who are the Delta Sharing Recepients?
+SELECT
+  requestParams.name,
+  count(requestParams.name) AS numActions
+FROM
+  audit_logs.unitycatalog
+where
+  actionName Like "%Recipient"
+group by
+  requestParams.name
+order by
+  numActions desc
 
 -- COMMAND ----------
 
@@ -118,7 +176,39 @@ SELECT requestParams.name, count(requestParams.name)  FROM audit_logs.unitycatal
 -- COMMAND ----------
 
 -- Audit all Delta Sharing Activities
-SELECT requestParams.recipient_id, requestParams.metastore_id, date_time, requestParams.share, requestParams.schema, actionName, requestParams  FROM audit_logs.unitycatalog where actionName Like "%deltaSharing%"
+SELECT
+  requestParams.recipient_name,
+  date_time,
+  requestParams.share,
+  requestParams.schema,
+  actionName,
+  requestParams
+FROM
+  audit_logs.unitycatalog
+where
+  requestParams.share is not null
+
+-- COMMAND ----------
+
+select
+  requestParams.recipient_name,
+  sourceIPAddress,
+  actionName,
+  date,
+  concat_ws('.', requestParams.share,  requestParams.`schema`,  requestParams.`name`) as tableName,
+  count(requestId)
+from
+  unitycatalog
+where
+  requestParams.share is not null
+group by
+  1,
+  2,
+  3,
+  4,
+  5
+order by
+  4 desc
 
 -- COMMAND ----------
 
@@ -128,12 +218,32 @@ SELECT requestParams.recipient_id, requestParams.metastore_id, date_time, reques
 -- COMMAND ----------
 
 -- Tracking Usage of Delta Sharing (external shares) vs Unity Catalog (internal shares)?
-SELECT actionName, count(actionName) FROM audit_logs.unitycatalog where actionName Like "%deltaSharing%" group by actionName order by count(actionName) desc
+SELECT
+  actionName,
+  count(actionName) as numActions
+FROM
+  audit_logs.unitycatalog
+where
+  actionName Like "%deltaSharing%"
+group by
+  actionName
+order by
+  numActions desc
 
 -- COMMAND ----------
 
 -- Tracking Usage of Delta Sharing (external shares) vs Unity Catalog (internal shares)?
-SELECT actionName, count(actionName) FROM audit_logs.unitycatalog where actionName not Like "%deltaSharing%" group by actionName order by count(actionName) desc
+SELECT
+  actionName,
+  count(actionName)
+FROM
+  audit_logs.unitycatalog
+where
+  actionName not Like "%deltaSharing%"
+group by
+  actionName
+order by
+  count(actionName) desc
 
 -- COMMAND ----------
 
@@ -142,8 +252,16 @@ SELECT actionName, count(actionName) FROM audit_logs.unitycatalog where actionNa
 
 -- COMMAND ----------
 
--- Tracking Unity Catalog & Delta Sharing Activity by Date 
-SELECT count(actionName), to_date(date_time) as date from audit_logs.unitycatalog group by to_date(date_time) order by date
+-- Tracking Unity Catalog & Delta Sharing Activity by Date
+SELECT
+  count(actionName),
+  to_date(date_time) as date
+from
+  audit_logs.unitycatalog
+group by
+  to_date(date_time)
+order by
+  date
 
 -- COMMAND ----------
 
@@ -153,22 +271,12 @@ SELECT count(actionName), to_date(date_time) as date from audit_logs.unitycatalo
 -- COMMAND ----------
 
 -- Tracking Delta Sharing Table Query Requests
-SELECT * FROM audit_logs.unitycatalog where actionName = "deltaSharingQueryTable" order by date desc
-
--- COMMAND ----------
-
--- Tracking Delta Sharing Table Query Requests
 SELECT
-  CONCAT(
-    requestParams.share,
-    '.',
-    requestParams.schema,
-    '.',
-    requestParams.name
-  ) as sharedTable,
-  requestParams.recipient_name as recipient,
+  requestParams.recipient_name,
+  sourceIPAddress,
   date,
-  count(actionName) as queries
+  concat_ws('.', requestParams.share,  requestParams.`schema`,  requestParams.`name`) as tableName,
+  count(requestId) as requestsNum
 FROM
   audit_logs.unitycatalog
 where
@@ -176,9 +284,9 @@ where
 group by
   1,
   2,
-  3
-order by
-  3 desc
+  3,
+  4
+order by 3 desc
 
 -- COMMAND ----------
 
@@ -187,12 +295,32 @@ order by
 
 -- COMMAND ----------
 
-SELECT workspaceId, date_time, email, requestParams FROM audit_logs.unitycatalog where actionName = "createCredentials" order by date_time desc
+SELECT
+  date_time,
+  email,
+  actionName,
+  requestParams.full_name_arg as table_name
+FROM
+  audit_logs.unitycatalog
+where
+  actionName in ("getTable", "privilegedGetTable")
+order by
+  date_time desc
 
 -- COMMAND ----------
 
-SELECT email, date, requestParams.table_id as table_id, count(actionName) as queries FROM audit_logs.unitycatalog where actionName = "createCredentials" group by 1, 2, 3 order by 2 desc
-
--- COMMAND ----------
-
-SELECT workspaceId, date_time, email, actionName, requestParams.full_name_arg FROM audit_logs.unitycatalog where actionName = "getTable" order by date_time desc
+SELECT
+  email,
+  date,
+  requestParams.full_name_arg as table_name,
+  count(actionName) as queries
+FROM
+  audit_logs.unitycatalog
+where
+  actionName in ("getTable", "privilegedGetTable")
+group by
+  1,
+  2,
+  3
+order by
+  2 desc
