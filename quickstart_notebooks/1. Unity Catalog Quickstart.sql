@@ -47,6 +47,14 @@ USE CATALOG quickstart_catalog
 
 -- COMMAND ----------
 
+--- grant create & usage permissions to all users on the account
+--- this also works for other account-level groups and individual users
+GRANT CREATE,
+USAGE on CATALOG quickstart_catalog TO `account users`
+
+-- COMMAND ----------
+
+--- check that the grants are correct on the quickstart catalog
 SHOW GRANT on CATALOG quickstart_catalog
 
 -- COMMAND ----------
@@ -57,8 +65,8 @@ SHOW GRANT on CATALOG quickstart_catalog
 
 -- COMMAND ----------
 
-CREATE SCHEMA IF NOT EXISTS quickstart_database
-COMMENT "A new Unity Catalog schema called quickstart_database"
+--- create a new schema under the quick start catalog
+CREATE SCHEMA IF NOT EXISTS quickstart_database COMMENT "A new Unity Catalog schema called quickstart_database"
 
 -- COMMAND ----------
 
@@ -91,8 +99,11 @@ USE quickstart_database
 
 -- Create managed Delta table
 CREATE TABLE IF NOT EXISTS quickstart_table (columnA Int, columnB String);
-
-INSERT INTO TABLE quickstart_table VALUES (1, "one"), (2, "two")
+INSERT INTO
+  TABLE quickstart_table
+VALUES
+  (1, "one"),
+  (2, "two")
 
 -- COMMAND ----------
 
@@ -118,7 +129,10 @@ DESCRIBE TABLE EXTENDED quickstart_table
 -- COMMAND ----------
 
 -- Query the table using the three part namespace
-SELECT * FROM quickstart_catalog.quickstart_database.quickstart_table
+SELECT
+  *
+FROM
+  quickstart_catalog.quickstart_database.quickstart_table
 
 -- COMMAND ----------
 
@@ -133,14 +147,20 @@ SELECT * FROM quickstart_catalog.quickstart_database.quickstart_table
 
 -- Set the default catalog and query the table using the schema and table name
 USE CATALOG quickstart_catalog;
-SELECT * FROM quickstart_database.quickstart_table
+SELECT
+  *
+FROM
+  quickstart_database.quickstart_table
 
 -- COMMAND ----------
 
 -- Set the default catalog and default schema and query the table using the table name
 USE CATALOG quickstart_catalog;
 USE quickstart_database;
-SELECT * FROM quickstart_table
+SELECT
+  *
+FROM
+  quickstart_table
 
 -- COMMAND ----------
 
@@ -155,20 +175,18 @@ SELECT * FROM quickstart_table
 -- COMMAND ----------
 
 USE CATALOG quickstart_catalog;
-
-CREATE TABLE IF NOT EXISTS quickstart_database.city_data
-(
+CREATE TABLE IF NOT EXISTS quickstart_database.city_data (
   rankIn2016 INT,
   state STRING,
   stateAbbrev STRING,
   population2010 LONG,
   estPopulation2016 LONG,
   city STRING
-)
-USING Delta
-LOCATION "s3://databricks-corp-training/common/City-Data.delta";
-
-SELECT * FROM quickstart_database.city_data;
+) USING Delta LOCATION "s3://databricks-corp-training/common/City-Data.delta";
+SELECT
+  *
+FROM
+  quickstart_database.city_data;
 
 -- COMMAND ----------
 
@@ -196,9 +214,11 @@ DROP TABLE quickstart_database.city_data
 -- COMMAND ----------
 
 USE CATALOG quickstart_catalog;
-
 CREATE TABLE quickstart_database.migrated_table AS
-SELECT * FROM hive_metastore.{database_name}.{table_name};
+SELECT
+  *
+FROM
+  hive_metastore.{ database_name }.{ table_name };
 
 -- COMMAND ----------
 
@@ -208,9 +228,7 @@ SELECT * FROM hive_metastore.{database_name}.{table_name};
 -- COMMAND ----------
 
 USE CATALOG quickstart_catalog;
-
-CREATE TABLE IF NOT EXISTS quickstart_database.migrated_table 
-DEEP CLONE hive_metastore.default.city_data
+CREATE TABLE IF NOT EXISTS quickstart_database.migrated_table DEEP CLONE hive_metastore.default.city_data
 
 -- COMMAND ----------
 
@@ -223,17 +241,14 @@ DEEP CLONE hive_metastore.default.city_data
 
 -- Create example external table in legacy store
 USE CATALOG hive_metastore;
-CREATE TABLE IF NOT EXISTS default.external_table
-(
+CREATE TABLE IF NOT EXISTS default.external_table (
   rankIn2016 INT,
   state STRING,
   stateAbbrev STRING,
   population2010 LONG,
   estPopulation2016 LONG,
   city STRING
-)
-USING PARQUET
-LOCATION "s3a://databricks-corp-training/common/City-Data.parquet";
+) USING PARQUET LOCATION "s3a://databricks-corp-training/common/City-Data.parquet";
 
 -- COMMAND ----------
 
@@ -244,18 +259,14 @@ DESCRIBE TABLE EXTENDED default.external_table
 
 --Create the external table in the Unity Catalog
 USE CATALOG quickstart_catalog;
-
-CREATE TABLE quickstart_database.migrated_external_table
-(
+CREATE TABLE quickstart_database.migrated_external_table (
   rankIn2016 INT,
   state STRING,
   stateAbbrev STRING,
   population2010 LONG,
   estPopulation2016 LONG,
   city STRING
-)
-USING PARQUET
-LOCATION "s3://databricks-corp-training/common/City-Data.parquet";
+) USING PARQUET LOCATION "s3://databricks-corp-training/common/City-Data.parquet";
 
 -- COMMAND ----------
 
@@ -297,7 +308,9 @@ GRANT USAGE ON SCHEMA quickstart_database TO `account users`
 -- COMMAND ----------
 
 -- Grants read privilege on the table to a principal
-GRANT SELECT ON TABLE quickstart_database.quickstart_table TO `account users`
+GRANT
+SELECT
+  ON TABLE quickstart_database.quickstart_table TO `account users`
 
 -- COMMAND ----------
 
@@ -307,11 +320,11 @@ GRANT SELECT ON TABLE quickstart_database.quickstart_table TO `account users`
 -- COMMAND ----------
 
 -- Lists all privileges that are granted on a securable
-SHOW GRANTS `account users` ON TABLE quickstart_database.quickstart_table
+SHOW GRANTS ON TABLE quickstart_catalog.quickstart_database.quickstart_table
 
 -- COMMAND ----------
 
-SHOW GRANTS `account users` ON SCHEMA quickstart_database
+SHOW GRANTS ON SCHEMA quickstart_catalog.quickstart_database
 
 -- COMMAND ----------
 
@@ -320,7 +333,11 @@ SHOW GRANTS `account users` ON SCHEMA quickstart_database
 
 -- COMMAND ----------
 
-REVOKE SELECT ON TABLE quickstart_database.quickstart_table FROM `account users`
+REVOKE
+SELECT
+  ON TABLE quickstart_database.quickstart_table
+FROM
+  `account users`
 
 -- COMMAND ----------
 
