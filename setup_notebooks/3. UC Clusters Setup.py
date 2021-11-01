@@ -5,7 +5,7 @@ dbutils.widgets.removeAll()
 
 # DBTITLE 1,After running this cell, select your Cloud and Runtime Version
 dbutils.widgets.dropdown("cloud", "Select one", ["Select one", "AWS", "Azure"])
-dbutils.widgets.dropdown("runtime", "Select one", ["Select one","Standard", "Machine Learning", "SQL Endpoint"])
+dbutils.widgets.dropdown("runtime", "Select one", ["Select one","Standard - SQL Only", "Standard - Multi Language", "Machine Learning - Multi Language", "SQL Endpoint"])
 
 # COMMAND ----------
 
@@ -25,12 +25,15 @@ spark_version = "custom:snapshot__10.x-snapshot-scala2.12__databricks-universe__
 sql_photon_version = "custom:custom-local__10.x-snapshot-photon-scala2.12__unknown__head__dee9ef1__1b7c9d0__yuchen.huo__9526afc__format-2.lz4"
 mlr_version = "custom:custom-local__10.x-snapshot-cpu-ml-scala2.12__unknown__head__dee9ef1__1b7c9d0__yuchen.huo__c68890b__format-2.lz4"
 
-if runtime=="Machine Learning":
+if runtime=="Machine Learning - Multi Language":
     image = mlr_version
-    cluster_name = "uc-multi-language-cluster-" + uuid.uuid4().hex[:8]
-elif runtime=="Standard":
+    cluster_name = "uc-mlr-multi-language-cluster-" + uuid.uuid4().hex[:8]
+elif runtime=="Standard - SQL Only":
     image = spark_version
     cluster_name = "uc-sql-cluster-" + uuid.uuid4().hex[:8]
+elif runtime=="Standard - Multi Language":
+    image = spark_version
+    cluster_name = "uc-multi-language-cluster-" + uuid.uuid4().hex[:8]    
 else:
     image = sql_photon_version
     cluster_name = "uc-endpoint-" + uuid.uuid4().hex[:8]
@@ -88,10 +91,10 @@ elif cloud == "Azure":
     cluster_json["node_type_id"] = "Standard_DS3_v2"
     cluster_json["driver_node_type_id"] = "Standard_DS3_v2"
     
-if runtime=="Machine Learning":
+if runtime in ["Standard - Multi Language", "Machine Learning - Multi Language"]:
     cluster_json["single_user_name"] = user
     
-if runtime=="Standard":
+if runtime=="Standard - SQL Only":
     cluster_json["spark_conf"] = {
       "spark.databricks.sql.initial.catalog.name": "hive_metastore",
       "spark.databricks.unityCatalog.enabled": "true",
