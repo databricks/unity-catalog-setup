@@ -136,15 +136,6 @@ FROM
 
 -- COMMAND ----------
 
--- MAGIC %python
--- MAGIC 
--- MAGIC # require multi-language cluster
--- MAGIC 
--- MAGIC df = spark.read.table("quickstart_catalog.quickstart_database.quickstart_table")
--- MAGIC display(df)
-
--- COMMAND ----------
-
 -- Set the default catalog and query the table using the schema and table name
 USE CATALOG quickstart_catalog;
 SELECT
@@ -343,12 +334,3 @@ FROM
 
 -- MAGIC %md
 -- MAGIC ## Troubleshooting Queries
-
--- COMMAND ----------
-
--- MAGIC %python
--- MAGIC # Check access on an external file location - run on multi-language cluster
--- MAGIC 
--- MAGIC file_location = "s3://databricks-corp-training/common/City-Data.delta"
--- MAGIC 
--- MAGIC spark.read.format("delta").load(file_location)
