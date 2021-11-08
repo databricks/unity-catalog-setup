@@ -21,9 +21,9 @@ runtime = dbutils.widgets.get("runtime")
 # COMMAND ----------
 
 #### DOUBLE-CHECK THE CLUSTER IMAGES #####
-spark_version = "custom:snapshot__10.x-snapshot-scala2.12__databricks-universe__head__dee9ef1__1b7c9d0__jenkins__6908155__format-2.lz4"
+spark_version = "10.1.x-scala2.12"
 sql_photon_version = "custom:custom-local__10.x-snapshot-photon-scala2.12__unknown__head__dee9ef1__1b7c9d0__yuchen.huo__9526afc__format-2.lz4"
-mlr_version = "custom:custom-local__10.x-snapshot-cpu-ml-scala2.12__unknown__head__dee9ef1__1b7c9d0__yuchen.huo__c68890b__format-2.lz4"
+mlr_version = "10.1.x-cpu-ml-scala2.12"
 
 if runtime=="Machine Learning - Multi Language":
     image = mlr_version
