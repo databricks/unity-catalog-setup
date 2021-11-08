@@ -31,9 +31,7 @@
 
 -- COMMAND ----------
 
---- this currently does not work, requires API/CLI calls instead.
---- can call print(execute_uc(['create-catalog', '--name', 'quickstart_catalog'])) in setup notebook instead
---- CREATE CATALOG quickstart_catalog
+CREATE CATALOG IF NOT EXISTS quickstart_catalog
 
 -- COMMAND ----------
 

@@ -340,17 +340,3 @@ delta_sharing = execute_uc(['get-metastore', '--id', metastore_id])
 delta_sharing = json.loads(delta_sharing)["delta_sharing_enabled"]
 
 print(f"Delta Sharing is {'enabled' if delta_sharing else 'disabled'}")
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC ## Create a quickstart catalog
-
-# COMMAND ----------
-
-print(execute_uc(['create-catalog', '--name', 'quickstart_catalog']))
-
-# COMMAND ----------
-
-# Grant full access to main catalog for metastore admin group
-print(execute_uc(['update-permissions', '--catalog', 'quickstart_catalog', '--json', f'{{"changes": [{{"principal": "{metastore_admin}","add": ["CREATE","USAGE"]}}]}}']))
