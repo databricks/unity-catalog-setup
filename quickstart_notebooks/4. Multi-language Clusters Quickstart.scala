@@ -1,6 +1,6 @@
 // Databricks notebook source
 // MAGIC %md
-// MAGIC # Unity Catalog Quickstart (SQL)
+// MAGIC ## Unity Catalog Data Access Controls | Multi-language Support
 // MAGIC 
 // MAGIC A notebook that provides an example workflow for using multi-language clusters, and how ACL is enforced by UC across all languages
 // MAGIC 
@@ -26,13 +26,11 @@
 // COMMAND ----------
 
 // MAGIC %sql
-// MAGIC --- I cannot select from the table
 // MAGIC SELECT * FROM quickstart_catalog.quickstart_database.quickstart_table
 
 // COMMAND ----------
 
 // MAGIC %sql
-// MAGIC --- cannot insert either
 // MAGIC INSERT INTO quickstart_catalog.quickstart_database.quickstart_table VALUES (60, 'SQL')
 
 // COMMAND ----------
@@ -50,7 +48,6 @@
 // COMMAND ----------
 
 // MAGIC %scala
-// MAGIC // write is blocked
 // MAGIC val writeDF = Seq(
 // MAGIC   (60, "SCALA"),
 // MAGIC ).toDF("columnA", "columnB")
@@ -59,20 +56,17 @@
 // COMMAND ----------
 
 // MAGIC %md
-// MAGIC ## And Python
+// MAGIC ## Python
 
 // COMMAND ----------
 
 // MAGIC %python
-// MAGIC # and in Python as well
 // MAGIC df = spark.table("quickstart_catalog.quickstart_database.quickstart_table")
 // MAGIC display(df)
 
 // COMMAND ----------
 
 // MAGIC %python
-// MAGIC 
-// MAGIC # write is also blocked here
 // MAGIC 
 // MAGIC from pyspark.sql.types import StructType,StructField, StringType, IntegerType
 // MAGIC 
@@ -99,10 +93,31 @@
 // MAGIC %r
 // MAGIC r_df <- data.frame(
 // MAGIC    columnA = c (as.integer(60)), 
-// MAGIC    columnB = c("R")
+// MAGIC    columnB = c("SparkR")
 // MAGIC   )
 // MAGIC df <- as.DataFrame(r_df)
 // MAGIC saveAsTable(df, "quickstart_catalog.quickstart_database.quickstart_table", mode="append")
+
+// COMMAND ----------
+
+// MAGIC %r
+// MAGIC library(sparklyr)
+// MAGIC library(dplyr)
+// MAGIC # create a sparklyr connection
+// MAGIC sc <- spark_connect(method = "databricks")
+// MAGIC df <- sdf_sql(sc, "SELECT * FROM quickstart_catalog.quickstart_database.quickstart_table")
+// MAGIC head(df)
+
+// COMMAND ----------
+
+// MAGIC %r
+// MAGIC r_df <- data.frame(
+// MAGIC    columnA = c (as.integer(60)), 
+// MAGIC    columnB = c("sparklyr")
+// MAGIC   )
+// MAGIC 
+// MAGIC df <- copy_to(sc, r_df, overwrite=TRUE)
+// MAGIC spark_write_table(df, "quickstart_catalog.quickstart_database.quickstart_table", mode="append")
 
 // COMMAND ----------
 
@@ -113,8 +128,8 @@
 
 // MAGIC %sql
 // MAGIC --- need USAGE permission on DATABASE level as well
+// MAGIC GRANT USAGE on DATABASE quickstart_catalog.quickstart_database to `account users`;
 // MAGIC GRANT SELECT on quickstart_catalog.quickstart_database.quickstart_table to `account users`;
-// MAGIC GRANT USAGE on DATABASE quickstart_catalog.quickstart_database to `account users`
 
 // COMMAND ----------
 
@@ -146,4 +161,8 @@
 // COMMAND ----------
 
 // MAGIC %sql
-// MAGIC REVOKE ALL PRIVILEGES on quickstart_catalog.quickstart_database.quickstart_table FROM `account users`
+// MAGIC REVOKE ALL PRIVILEGES on quickstart_catalog.quickstart_database.quickstart_table FROM `account users`;
+
+// COMMAND ----------
+
+
