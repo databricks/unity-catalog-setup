@@ -31,6 +31,7 @@
 
 -- COMMAND ----------
 
+--- create a new catalog
 CREATE CATALOG IF NOT EXISTS quickstart_catalog
 
 -- COMMAND ----------
@@ -40,8 +41,8 @@ USE CATALOG quickstart_catalog
 
 -- COMMAND ----------
 
---- Show all existing catalogs, does not work currently
---- SHOW CATALOG
+--- Show all existing catalogs
+SHOW CATALOGS
 
 -- COMMAND ----------
 
