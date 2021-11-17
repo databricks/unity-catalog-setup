@@ -97,7 +97,7 @@ USE quickstart_database
 -- COMMAND ----------
 
 -- Create managed Delta table
-CREATE TABLE IF NOT EXISTS quickstart_table (columnA Int, columnB String);
+CREATE TABLE IF NOT EXISTS quickstart_table (columnA Int, columnB String) PARTITIONED BY (columnA);
 INSERT INTO
   TABLE quickstart_table
 VALUES

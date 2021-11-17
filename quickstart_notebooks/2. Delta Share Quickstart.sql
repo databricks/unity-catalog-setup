@@ -50,6 +50,16 @@ ALTER SHARE quickstart_share ADD TABLE quickstart_database.quickstart_table
 -- COMMAND ----------
 
 -- MAGIC %md
+-- MAGIC You can also specify partition specification when adding a table to a Share, to share table’s data by its pre-defined partitions.
+
+-- COMMAND ----------
+
+ALTER SHARE quickstart_share ADD TABLE quickstart_database.quickstart_table
+PARTITION (columnA = "1") AS quickstart_database.quickstart_table_partition_1
+
+-- COMMAND ----------
+
+-- MAGIC %md
 -- MAGIC The `DESCRIBE SHARE` command can be used to view all tables inside of a given Share.
 
 -- COMMAND ----------
@@ -104,6 +114,11 @@ DESCRIBE RECIPIENT quickstart_recipient
 -- COMMAND ----------
 
 SHOW RECIPIENTS
+
+-- COMMAND ----------
+
+--- You can also drop a recipient
+--- DROP RECIPIENT quickstart_recipient
 
 -- COMMAND ----------
 
