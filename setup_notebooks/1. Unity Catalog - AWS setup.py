@@ -77,6 +77,18 @@ def display_img(path):
 # MAGIC             ],
 # MAGIC             "Effect": "Allow"
 # MAGIC         }
+# MAGIC       // If you have kms encryption enabled on the bucket
+# MAGIC       {
+# MAGIC           "Action": [
+# MAGIC               "kms:Decrypt",
+# MAGIC               "kms:Encrypt",
+# MAGIC               "kms:GenerateDataKey*"
+# MAGIC           ],
+# MAGIC           "Resource": [
+# MAGIC               "arn:aws:kms:$YOUR_KMS_KEY"
+# MAGIC           ],
+# MAGIC           "Effect": "Allow"
+# MAGIC       }       
 # MAGIC     ]
 # MAGIC }
 # MAGIC ```
