@@ -60,7 +60,8 @@ cluster_json = {
     "spark_version": image,
     "spark_conf": {
         "spark.databricks.unityCatalog.enabled": "true",
-        "spark.databricks.unityCatalog.enforce.permissions": "false"
+        "spark.databricks.unityCatalog.enforce.permissions": "false",
+        "spark.databricks.passthrough.enabled": "false"
     },
     "ssh_public_keys": [],
     "custom_tags": {},
