@@ -22,7 +22,7 @@ runtime = dbutils.widgets.get("runtime")
 
 #### DOUBLE-CHECK THE CLUSTER IMAGES #####
 spark_version = "10.1.x-scala2.12"
-sql_photon_version = "custom:custom-local__10.x-snapshot-photon-scala2.12__unknown__head__dee9ef1__1b7c9d0__yuchen.huo__9526afc__format-2.lz4"
+sql_photon_version = "10.1.x-photon-scala2.12"
 mlr_version = "10.1.x-cpu-ml-scala2.12"
 
 if runtime=="Machine Learning - Multi Language":
