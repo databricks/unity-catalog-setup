@@ -299,11 +299,14 @@ SELECT
   date_time,
   email,
   actionName,
-  requestParams.full_name_arg as table_name
+  requestParams.operation as operation,
+  requestParams.is_permissions_enforcing_client as pe_client,
+  requestParams.table_full_name as table_name,
+  response
 FROM
   audit_logs.unitycatalog
 where
-  actionName in ("getTable", "privilegedGetTable")
+  actionName in ("generateTemporaryTableCredential")
 order by
   date_time desc
 
@@ -312,15 +315,17 @@ order by
 SELECT
   email,
   date,
-  requestParams.full_name_arg as table_name,
+  requestParams.operation as operation,  
+  requestParams.table_full_name as table_name,
   count(actionName) as queries
 FROM
   audit_logs.unitycatalog
 where
-  actionName in ("getTable", "privilegedGetTable")
+  actionName in ("generateTemporaryTableCredential")
 group by
   1,
   2,
-  3
+  3,
+  4
 order by
   2 desc
