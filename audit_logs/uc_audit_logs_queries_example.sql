@@ -71,6 +71,53 @@ group by
 
 -- COMMAND ----------
 
+-- MAGIC %md
+-- MAGIC # Unity Catalog audit logs
+
+-- COMMAND ----------
+
+-- MAGIC %md 
+-- MAGIC ### Tracking UC Table Query Requests
+
+-- COMMAND ----------
+
+SELECT
+  date_time,
+  email,
+  actionName,
+  requestParams.operation as operation,
+  requestParams.is_permissions_enforcing_client as pe_client,
+  requestParams.table_full_name as table_name,
+  response.errorMessage as error
+FROM
+  audit_logs.unitycatalog
+where
+  actionName in ("generateTemporaryTableCredential")
+order by
+  date_time desc
+
+-- COMMAND ----------
+
+SELECT
+  email,
+  date,
+  requestParams.operation as operation,  
+  requestParams.table_full_name as table_name,
+  count(actionName) as queries
+FROM
+  audit_logs.unitycatalog
+where
+  actionName in ("generateTemporaryTableCredential")
+group by
+  1,
+  2,
+  3,
+  4
+order by
+  2 desc
+
+-- COMMAND ----------
+
 -- MAGIC %md 
 -- MAGIC ### Find out who Created, Updated and Deleted Delta Shares
 
@@ -275,57 +322,63 @@ SELECT
   requestParams.recipient_name,
   sourceIPAddress,
   date,
-  concat_ws('.', requestParams.share,  requestParams.`schema`,  requestParams.`name`) as tableName,
-  count(requestId) as requestsNum
-FROM
-  audit_logs.unitycatalog
-where
-  actionName = "deltaSharingQueryTable"
-group by
-  1,
-  2,
-  3,
-  4
-order by 3 desc
-
--- COMMAND ----------
-
--- MAGIC %md 
--- MAGIC ### Tracking UC Table Query Requests
-
--- COMMAND ----------
-
-SELECT
-  date_time,
-  email,
   actionName,
-  requestParams.operation as operation,
-  requestParams.is_permissions_enforcing_client as pe_client,
-  requestParams.table_full_name as table_name,
-  response
+  concat_ws(
+    '.',
+    requestParams.share,
+    requestParams.`schema`,
+    requestParams.`name`
+  ) as tableName,
+  count(requestId) as numRequests
 FROM
   audit_logs.unitycatalog
-where
-  actionName in ("generateTemporaryTableCredential")
-order by
-  date_time desc
-
--- COMMAND ----------
-
-SELECT
-  email,
-  date,
-  requestParams.operation as operation,  
-  requestParams.table_full_name as table_name,
-  count(actionName) as queries
-FROM
-  audit_logs.unitycatalog
-where
-  actionName in ("generateTemporaryTableCredential")
+WHERE
+  actionName like "deltaSharingQuer%"
 group by
   1,
   2,
   3,
-  4
+  4,
+  5
 order by
-  2 desc
+  3 desc
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC ## Tracking Shared Data Volume from Recipient
+
+-- COMMAND ----------
+
+select
+  recipient_name,
+  date,
+  sum(numBytes) as numBytes,
+  sum(numRecords) as numRecords,
+  sum(numFiles) as numFiles
+from
+  (
+    select
+      requestParams.recipient_name as recipient_name,
+      date,
+      CAST(
+        from_json(response.result, 'scannedAddFileSize STRING').scannedAddFileSize AS INT
+      ) as numBytes,
+      CAST(
+        from_json(response.result, 'numRecords STRING').numRecords AS INT
+      ) as numRecords,
+      CAST(
+        from_json(response.result, 'activeAddFiles STRING').activeAddFiles AS INT
+      ) as numFiles,
+      actionName
+    from
+      audit_logs.unitycatalog
+    where
+      requestParams.recipient_name is not null
+      and actionName = "deltaSharingQueriedTable"
+  )
+group by
+  recipient_name,
+  date
+order by
+  numBytes desc;
