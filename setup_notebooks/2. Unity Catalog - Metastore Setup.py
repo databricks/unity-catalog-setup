@@ -223,10 +223,8 @@ def execute_dbcli(args:List[str]) -> str:
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ## Create the Unity Catalog metastore (only once per Databricks account)
-# MAGIC **Note:** Each Databricks account only requires 1 metastore to be created, so the following command will throw an error when running on a workspace where the account-level metastore already exists
-# MAGIC 
-# MAGIC **Skip to Cmd 29 if that is the case **
+# MAGIC ## Create a Unity Catalog metastore
+# MAGIC **Note:** This below command would fail if a metastore with the same name already exists (e.g. from previous set-up). Just pick a different name in that case
 
 # COMMAND ----------
 
@@ -249,7 +247,7 @@ print(f"Metastore summary: \n {execute_uc(['get-metastore', '--id', metastore_id
 
 # MAGIC %md
 # MAGIC #### Data access configuration
-# MAGIC **Note** This would fail if a DAC with the same name already exists (e.g. from previous set-up)
+# MAGIC **Note:** This would fail if a DAC with the same name already exists (e.g. from previous set-up). Just pick a different name in that case
 
 # COMMAND ----------
 
@@ -290,13 +288,12 @@ print(execute_uc(['update-metastore', '--id', metastore_id, '--json', f'{{"owner
 
 # COMMAND ----------
 
-# For workspaces where account-level metastore already exists, need to specify the metastore_id
-
-# metastore_id = "66b5fa0c-adb2-4e47-be71-770ee996a290"
+print(execute_uc(['assign-metastore', '--metastore-id', metastore_id, '--workspace-id', workspace_id]))
 
 # COMMAND ----------
 
-print(execute_uc(['assign-metastore', '--metastore-id', metastore_id, '--workspace-id', workspace_id]))
+# MAGIC %md
+# MAGIC The above command can be repeated for other workspaces to be assigned to this newly created metastore
 
 # COMMAND ----------
 
