@@ -45,6 +45,11 @@ variable "databricks_account_id" {
   type        = string
 }
 
+variable "databricks_workspace_host" {
+  description = "Databricks workspace url"
+  type        = string
+}
+
 variable "databricks_account_username" {
   description = "Databricks account owner credentials"
   type        = string

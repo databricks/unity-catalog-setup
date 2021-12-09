@@ -35,6 +35,8 @@ provider "databricks" {
 // authentication using one of the described approaches at
 // https://registry.terraform.io/providers/databrickslabs/databricks/latest/docs#authentication
 provider "databricks" {
-  alias   = "workspace"
-  profile = "UC-TEST"
+  alias    = "workspace"
+  host     = var.databricks_workspace_host
+  username = var.databricks_account_username
+  password = var.databricks_account_password
 }
