@@ -45,11 +45,12 @@ resource "databricks_catalog" "quickstart_catalog" {
   provider = databricks.workspace
   name     = "quickstart_catalog"
   comment  = "A new Unity Catalog catalog called quickstart"
+  depends_on = [module.unity_catalog_metastore]
 }
 
 resource "databricks_schema" "quickstart_schema" {
   provider     = databricks.workspace
   name         = "quickstart_schema"
-  catalog_name = "quickstart_catalog"
+  catalog_name = databricks_catalog.quickstart_catalog.name
   comment      = "A new Unity Catalog schema called quickstart_database"
 }

@@ -1,6 +1,6 @@
 <!-- BEGIN_TF_DOCS -->
-Create AWS Objects for Unity Catalog Metastore
-******************************************************************/
+Create a Unity Catalog metastore (and the AWS bucket & IAM role if required)
+****************************************************************************************/
 
 ## Requirements
 

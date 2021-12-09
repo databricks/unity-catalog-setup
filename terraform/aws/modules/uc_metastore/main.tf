@@ -1,6 +1,6 @@
 
 resource "databricks_metastore" "unity" {
-  name          = "unity-catalog"
+  name          = "unity-catalog-tf"
   storage_root  = "s3://${var.unity_metastore_bucket}"
   force_destroy = true
 }
@@ -15,7 +15,7 @@ resource "databricks_metastore_data_access" "default_dac" {
 }
 
 resource "databricks_metastore_assignment" "default_metastore" {
-  for_each     = toset(var.workspace_ids)
+  for_each     = toset(var.databricks_workspace_ids)
   workspace_id = each.key
   metastore_id = databricks_metastore.unity.id
 }

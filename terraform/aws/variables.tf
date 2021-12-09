@@ -32,12 +32,12 @@ variable "unity_metastore_iam" {
 
 variable "databricks_workspace_ids" {
   description = "List of Databricks workspace ids to be enabled with Unity Catalog"
-  type        = list[string]
+  type        = list(string)
 }
 
 variable "databricks_users" {
   description = "List of Databricks users to be added at account-level for Unity Catalog"
-  type        = list[string]
+  type        = list(string)
 }
 
 variable "databricks_account_id" {

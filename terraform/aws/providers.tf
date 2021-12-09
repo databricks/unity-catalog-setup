@@ -2,7 +2,7 @@ terraform {
   required_providers {
     databricks = {
       source  = "databrickslabs/databricks"
-      version = "~>0.3.12"
+      version = "~>0.4.0"
     }
     aws = {
       source  = "hashicorp/aws"
@@ -36,5 +36,5 @@ provider "databricks" {
 // https://registry.terraform.io/providers/databrickslabs/databricks/latest/docs#authentication
 provider "databricks" {
   alias   = "workspace"
-  profile = "UC-DEC"
+  profile = "UC-TEST"
 }
