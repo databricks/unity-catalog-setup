@@ -35,19 +35,6 @@ resource "aws_iam_policy" "unity_metastore" {
           "${aws_s3_bucket.unity_metastore.arn}/*"
         ],
         "Effect": "Allow"
-      },
-      {
-        "Action": [
-          "s3:GetObject",
-          "s3:GetObjectVersion",
-          "s3:ListBucket",
-          "s3:GetBucketLocation"
-        ],
-        "Resource": [
-          "arn:aws:s3:::databricks-corp-training/*",
-          "arn:aws:s3:::databricks-corp-training"
-        ],
-        "Effect": "Allow"
       }
     ]
   })
