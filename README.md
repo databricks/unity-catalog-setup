@@ -17,10 +17,10 @@ Replace variable values as needed and run terraform
 
 ```commandline
 terraform apply -var 'aws_region=us-east-1'
-                -var 'aws_profile=aws-field-eng_databricks-power-user'
+                -var 'aws_profile='
                 -var 'create_aws_resources=true'
-                -var 'unity_metastore_bucket=zp_uc_testing'
-                -var 'unity_metastore_iam=arn:aws:iam::414351767826:role/unity-catalog-prod-UCMasterRole-14S5ZJVKOTYTL'
+                -var 'unity_metastore_bucket='
+                -var 'unity_metastore_iam='
                 -var 'databricks_workspace_ids='
                 -var 'databricks_users='
                 -var 'databricks_account_id='

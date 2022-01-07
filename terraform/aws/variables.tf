@@ -1,13 +1,15 @@
 variable "aws_region" {
+  description = "The AWS Region to deploy into, i.e. us-east-1"
   type = string
 }
 
 variable "aws_profile" {
+  description = "The AWS Profile to use."
   type = string
 }
 
 variable "create_aws_resources" {
-  description = "Specify whether to create new AWS resources for Unity Catalog or not."
+  description = "Specify whether to create new AWS resources (S3 bucket, roles) for Unity Catalog or not."
   type        = bool
 }
 
