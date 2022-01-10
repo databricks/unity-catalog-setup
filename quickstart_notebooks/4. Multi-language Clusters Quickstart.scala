@@ -4,7 +4,7 @@
 // MAGIC 
 // MAGIC A notebook that provides an example workflow for using multi-language clusters, and how ACL is enforced by UC across all languages
 // MAGIC 
-// MAGIC **Note**: create a multi-cluster first using the Cluster Setup notebook, and attach this notebook to it
+// MAGIC **Note**: create a multi-language cluster first (Single User security mode), and attach this notebook to it
 // MAGIC 
 // MAGIC **Note 2**: make sure to revoke all permissions from `quickstart_catalog.quickstart_database.quickstart_table`, via the Data Explorer tab under SQL view
 
