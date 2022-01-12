@@ -2,22 +2,42 @@
 echo "Welcome to Unity Catalog Guided Setup"
 echo "#######################################"
 
-if ! command -v terraform &> /dev/null
-then
-    echo "terraform could not be found"
-    if ! command -v brew &> /dev/null
-    then
-      brew install terraform
-    else
-      echo "brew is not installed"
-      if ! command -v snap &> /dev/null
+
+confirm() {
+  echo "Please confirm before continuing (y/n)".
+  read -r confirmed
+  if [[ $confirmed == 'n' ]]; then
+    exit 2
+  fi
+}
+
+#Setup installers
+if [[ $OSTYPE == "linux-gnu"* ]]; then
+      echo "This tool will ensure that required dependencies are installed. Your permissions may be elevated via sudo during this process and you may be prompted, please do not run this command as root."
+      confirm;
+      if command -v yum &> /dev/null
       then
-        sudo snap install terraform-snap
-      else
-        echo "snap is not installed, please install terraform cli manually"
-        exit;
+         sudo yum install -y wget unzip
       fi
-    fi
+      if command -v apt-get &> /dev/null
+      then
+        sudo apt-get install wget unzip
+      fi
+      if ! command -v terraform &> /dev/null
+      then
+        sudo wget https://releases.hashicorp.com/terraform/1.1.3/terraform_1.1.3_linux_amd64.zip
+        sudo unzip ./ terraform_0.12.2_linux_amd64.zip –d /usr/local/bin
+      fi
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+      echo "This tool will ensure that required dependencies are installed. Your permissions may be elevated during this process and you may be prompted to enter your credentials or to confirm, please do not run this command as root."
+      confirm;
+      if ! command -v brew &> /dev/null
+      then
+          echo "brew is not installed, installing..."
+          -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+          brew update
+          brew install terraform
+      fi
 fi
 
 echo "Please select 1 for Azure, 2 for AWS".
@@ -40,4 +60,3 @@ if [[ $cloud_type == "2" ]] ; then
   terraform apply
   popd || exit
 fi
-
