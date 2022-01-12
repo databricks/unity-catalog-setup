@@ -1,5 +1,5 @@
 # Unity Catalog Setup
-This repository provides documentation, guidance, and scripting to support the automatic setup of Unity Catalog within your Databricks environment's.
+This repository provides documentation, guidance, and scripting to support the automatic setup of Unity Catalog within your Databricks environment.
 
 # Login to your Cloud Provider
 `az login`
