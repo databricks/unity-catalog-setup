@@ -9,7 +9,7 @@ or
 `aws configure`
 
 # Run the Guided Setup
-Run the guided setup from a Mac/Linux machine. This will gather required values in Q/A and pass them to terraform.
+Run the guided setup from a Mac/Linux machine. This will attempt to install terraform for you, and then gather required values in Q/A and pass them to terraform.
 
 ```commandline
 ./run.sh
