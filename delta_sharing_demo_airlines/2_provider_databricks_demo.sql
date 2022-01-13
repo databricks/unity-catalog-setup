@@ -9,13 +9,15 @@
 
 -- MAGIC %md
 -- MAGIC In Delta Sharing, it all starts with a Delta Lake table registered in the Delta Sharing Server by the data provider. This is where access permissions are established as to whom may receive the data.
--- MAGIC <img src="https://raw.githubusercontent.com/databricks/tech-talks/master/images/delta_share_overview.png" width="700">
+-- MAGIC <br>
+-- MAGIC <br>
+-- MAGIC <img src="https://raw.githubusercontent.com/databricks/tech-talks/master/images/delta_share_overview.png" width="700"> 
 
 -- COMMAND ----------
 
 -- DBTITLE 1,Scenario 1: The Data Provider is a Databricks Customer
 -- MAGIC %md
--- MAGIC ####Unity Catalog as your Entitlement Layer Managed by Databricks
+-- MAGIC #### Unity Catalog will be your Entitlement Layer Managed by Databricks
 -- MAGIC As a data provider, you can make your Unity Catalog Metastore act as a Delta Sharing Server and share data on Unity Catalog with other organizations.  
 -- MAGIC These organizations can then access the data using open source Apache Spark or pandas on any computing platform (including, but not limited to, Databricks). <br> <br>
 -- MAGIC <img src="https://i.ibb.co/QJny676/Screen-Shot-2021-11-16-at-10-46-49-AM.png" width="600" height="480" /><br>

@@ -6,35 +6,19 @@
 
 # COMMAND ----------
 
-# DBTITLE 1,Delta Sharing: An Open Protocol for Secure Data Sharing
-# MAGIC %md
-# MAGIC  Delta Sharing is an open protocol for secure data sharing with other organizations regardless of which computing platforms they use. It can share large datasets in an S3 data lake in real time without copying them, so that data recipients can immediately begin working with the latest version of the shared data
-# MAGIC <br>
-# MAGIC <br>
-# MAGIC <b>Highlights:</b>
-# MAGIC - **Scale** to massive datasets
-# MAGIC - Share **Live** data directly **No-Copying**
-# MAGIC - Strong **security**, auditing and governance  
-# MAGIC - **Simple** administration
-# MAGIC - Direct **integration** with the rest of **Databricks** (In Progress)
-# MAGIC - **No** compute 
-# MAGIC </br> </br>
-# MAGIC 
-# MAGIC <img src="https://raw.githubusercontent.com/databricks/tech-talks/master/images/delta_share_overview.png" width="700">
+slide_id = '1iLoMJH4OixxGu2kF_azgYGA3PhRBRU6GUL-S4-oy4Bc'
+slide_number = '1'
 
-# COMMAND ----------
+displayHTML(f'''
 
-# DBTITLE 1,Flexibility - Open Source, Vendor-Independent with a Fast Growing Community
-# MAGIC %md
-# MAGIC <img src="https://i.ibb.co/R0wsczm/Screen-Shot-2021-11-16-at-8-33-52-AM.png" width="1000"> 
+<iframe
+  src="https://docs.google.com/presentation/d/{slide_id}/embed?slide={slide_number}&rm=minimal"
+  frameborder="0"
+  width="80%"
+  height="700"
+></iframe>
 
-# COMMAND ----------
-
-# DBTITLE 1,Simple, Secure, Governance with Databricks Unity Catalog
-# MAGIC %md
-# MAGIC Unity Catalog as your Databricks hosted entitlement layer will provide a secure, scalable Delta Sharing service for you. 
-# MAGIC 
-# MAGIC Without Unity Catalog, data providers will need to host their own [Delta Sharing Server](https://github.com/delta-io/delta-sharing#delta-sharing-reference-server) </br> <img src=https://i.ibb.co/vVZMZVs/Screen-Shot-2021-11-16-at-8-13-41-AM.png width=800px></a>
+''')
 
 # COMMAND ----------
 
