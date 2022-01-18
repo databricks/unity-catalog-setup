@@ -1,0 +1,10 @@
+{
+    "spark_version": {
+      "type": "regex",
+      "pattern": "10\\.[1-9].*"
+    },
+    "data_security_mode": {
+      "type": "fixed",
+      "value": "SINGLE_USER"
+    }
+  }

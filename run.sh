@@ -26,7 +26,7 @@ if [[ $OSTYPE == "linux-gnu"* ]]; then
       if ! command -v terraform &> /dev/null
       then
         sudo wget https://releases.hashicorp.com/terraform/1.1.3/terraform_1.1.3_linux_amd64.zip
-        sudo unzip ./ terraform_0.12.2_linux_amd64.zip –d /usr/local/bin
+        sudo unzip ./ terraform_1.1.3_linux_amd64.zip –d /usr/local/bin
       fi
 elif [[ "$OSTYPE" == "darwin"* ]]; then
       echo "This tool will ensure that required dependencies are installed. Your permissions may be elevated during this process and you may be prompted to enter your credentials or to confirm, please do not run this command as root."
@@ -35,6 +35,9 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
       then
           echo "brew is not installed, installing..."
           -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      fi
+      if ! command -v terraform &> /dev/null
+      then
           brew update
           brew install terraform
       fi
@@ -50,6 +53,7 @@ fi
 
 if [[ $cloud_type == "1" ]] ; then
   pushd terraform/azure || exit
+  terraform init
   terraform apply
   popd || exit
 fi

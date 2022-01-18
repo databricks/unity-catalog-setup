@@ -1,26 +1,31 @@
 # Unity Catalog Setup
-This repository provides documentation, guidance, and scripting to support the automatic setup of Unity Catalog within your Databricks environments.
+This repository provides documentation, guidance, and scripting to support the automatic setup of Unity Catalog within your Databricks environment.
 
+Either follow the Guided Setup or the Manual Setup instructions
 
+# Prerequisites
+### Install/Login to your Cloud Provider
+For whichever cloud you plan to install for, install the appropriate Cloud CLI tool and then login with your credentials.
 
-# Installation Instructions
-### Login to your Cloud Provider/CLI
 
 `az login`
 
 or 
 
 `aws configure`
+### Manual Setup Only
+* terraform 1.1.2 or higher.
 
-### Either run
-# Run the Guided Setup
-Run the guided setup from a Mac/Linux machine. This will gather required values in Q/A and pass them to terraform.
+# Guided Setup
+Run the guided setup from a Mac/Linux machine. This will attempt to install terraform for you, and then gather required values in Q/A and pass them to terraform.
 
 ```commandline
 ./run.sh
 ```
 
-# Terraform AWS Instructions
+# Manual Setup
+Manual setup is performed via terraform, ensure that you have terraform installed before continuing.
+## AWS
 Change to the aws directory
 ```commandline
 cd terraform/aws
@@ -42,7 +47,7 @@ terraform apply -var 'aws_region=us-east-1'
                 -var 'databricks_account_password='
 ```
 
-# Terraform Azure Instructions
+## Azure
 Change to the azure directory
 ```
 cd terraform/azure
@@ -56,10 +61,5 @@ terraform apply -var 'rg_name=unity-catalog-testing'
                 -var 'tenant_id=value' 
                 -var 'subscription_id=value' 
                 -var 'prefix=zp' 
-                -var 'metastore_name=' 
-                -var 'metastore_owner=' 
-                -var 'catalog_name=' 
-                -var 'schema_name=' 
-                -var 'workspace_id='
                 -var tags='{"donotdelete":true}'
 ```

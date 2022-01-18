@@ -1,0 +1,11 @@
+{
+    "spark_version": {
+      "type": "regex",
+      "pattern": "10\\.[1-9]*\\.x-scala.*"
+    },
+    "data_security_mode": {
+      "type": "fixed",
+      "value": "USER_ISOLATION",
+      "hidden": true
+    }
+  }
