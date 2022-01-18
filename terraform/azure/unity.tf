@@ -25,9 +25,9 @@ resource "databricks_metastore_data_access" "first" {
 }
 
 resource "databricks_metastore_assignment" "this" {
+  for_each     = toset(var.workspace_ids)
+  workspace_id = each.key
   metastore_id = databricks_metastore.this.id
-  // TODO: add a variable for a workspace
-  workspace_id = var.workspace_id //
 }
 
 resource "databricks_catalog" "catalog" {
@@ -37,13 +37,14 @@ resource "databricks_catalog" "catalog" {
   properties = {
     purpose = "testing"
   }
+  depends_on = [databricks_metastore_assignment.this]  
 }
 
 resource "databricks_schema" "things" {
   catalog_name = databricks_catalog.catalog.id
   name = var.schema_name // needs to come from a var, default to things
  
-  comment = "this database is managed by terraform"
+  comment = "This database is managed by terraform"
   properties = {
     kind = "various"
   }
