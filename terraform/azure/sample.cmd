@@ -1,1 +1,1 @@
-terraform apply -var 'rg_name=unity-catalog-testing' -var 'location=US East' -var 'reuse_rg=true' -var 'tenant_id=9f37a392-f0ae-4280-9796-f1864a10effc' -var 'subscription_id=3f2e4d32-8e8d-46d6-82bc-5bb8d962328b' -var 'prefix=zp' -var tags='{"donotdelete":true}'
+terraform apply -var-file "unity_catalog.tfvars"
