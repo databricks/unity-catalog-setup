@@ -19,6 +19,9 @@ No modules.
 
 | Name | Type |
 |------|------|
+| [databricks_metastore.unity](https://registry.terraform.io/providers/databrickslabs/databricks/latest/docs/resources/metastore) | resource |
+| [databricks_metastore_assignment.default_metastore](https://registry.terraform.io/providers/databrickslabs/databricks/latest/docs/resources/metastore_assignment) | resource |
+| [databricks_metastore_data_access.default_dac](https://registry.terraform.io/providers/databrickslabs/databricks/latest/docs/resources/metastore_data_access) | resource |
 
 ## Inputs
 

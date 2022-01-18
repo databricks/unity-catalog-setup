@@ -27,15 +27,17 @@ Create a Unity Catalog metastore (and the AWS bucket & IAM role if required)
 
 | Name | Type |
 |------|------|
+| [databricks_catalog.quickstart_catalog](https://registry.terraform.io/providers/databrickslabs/databricks/latest/docs/resources/catalog) | resource |
+| [databricks_schema.quickstart_schema](https://registry.terraform.io/providers/databrickslabs/databricks/latest/docs/resources/schema) | resource |
 | [databricks_user.unity_users](https://registry.terraform.io/providers/databrickslabs/databricks/latest/docs/resources/user) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_aws_profile"></a> [aws\_profile](#input\_aws\_profile) | n/a | `string` | n/a | yes |
-| <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | n/a | `string` | n/a | yes |
-| <a name="input_create_aws_resources"></a> [create\_aws\_resources](#input\_create\_aws\_resources) | Specify whether to create new AWS resources for Unity Catalog or not. | `bool` | n/a | yes |
+| <a name="input_aws_profile"></a> [aws\_profile](#input\_aws\_profile) | The AWS Profile to use. | `string` | n/a | yes |
+| <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | The AWS Region to deploy into, i.e. us-east-1 | `string` | n/a | yes |
+| <a name="input_create_aws_resources"></a> [create\_aws\_resources](#input\_create\_aws\_resources) | Specify whether to create new AWS resources (S3 bucket, roles) for Unity Catalog or not. | `bool` | n/a | yes |
 | <a name="input_databricks_account_id"></a> [databricks\_account\_id](#input\_databricks\_account\_id) | Account Id that could be found in the bottom left corner of https://accounts.cloud.databricks.com/. Not your AWS account id, or Databricks workspace id | `string` | n/a | yes |
 | <a name="input_databricks_account_password"></a> [databricks\_account\_password](#input\_databricks\_account\_password) | Databricks account owner credentials | `string` | n/a | yes |
 | <a name="input_databricks_account_username"></a> [databricks\_account\_username](#input\_databricks\_account\_username) | Databricks account owner credentials | `string` | n/a | yes |
