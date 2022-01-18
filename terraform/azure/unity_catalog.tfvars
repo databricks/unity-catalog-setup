@@ -16,5 +16,5 @@ metastore_name = "zpuc"
 metastore_owner = "zeashan.pappa@databricks.com"
 catalog_name = "awesomecatalog"
 schema_name = "awesomeschema"
-workspace_id = 8874075304749540
+workspace_ids = ["8874075304749540"]
 

@@ -9,7 +9,7 @@ variable "location" {
 }
 
 variable "reuse_rg" {
-  description = "Reuse resource group, do not create a new resource group"
+  description = "Reuse resource group, do not create a new resource group (enter true/false)"
   type = bool
 }
 
@@ -48,9 +48,9 @@ variable "schema_name" {
   type = string
 }
 
-variable "workspace_id" {
-  description = "Enter your workspace id"
-  type = number
+variable "workspace_ids" {
+  description = "List of Databricks workspace ids to be enabled with Unity Catalog"
+  type        = list(string)
 }
 
 variable tags {
