@@ -13,6 +13,7 @@ For whichever cloud you plan to install for, install the appropriate Cloud CLI t
 or 
 
 `aws configure`
+
 ### Manual Setup Only
 * terraform 1.1.2 or higher.
 
@@ -31,7 +32,7 @@ Change to the aws directory
 cd terraform/aws
 ```
 
-Replace variable values as needed and run terraform
+Replace variable values as needed and run `terraform apply`
 
 ```commandline
 terraform apply -var 'aws_region=us-east-1'
@@ -53,13 +54,7 @@ Change to the azure directory
 cd terraform/azure
 ```
 
-Replace variable values as needed and run terraform
+Replace variable values as needed in `unity_catalog.tfvars` and run `terraform apply`
 ```commandline
-terraform apply -var 'rg_name=unity-catalog-testing' 
-                -var 'location=US East'
-                -var 'reuse_rg=true' 
-                -var 'tenant_id=value' 
-                -var 'subscription_id=value' 
-                -var 'prefix=zp' 
-                -var tags='{"donotdelete":true}'
+terraform apply -var-file "unity_catalog.tfvars"
 ```
