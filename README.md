@@ -24,7 +24,9 @@ Once this is done, your groups and users from this SCIM will be synchronized to 
 
 # Guided Setup
 - Run the guided setup from a Mac/Linux machine. This will attempt to install terraform for you, and then gather required values in Q&A mode and pass them to terraform.
-
+- You will be prompted for variable input as part of this guided process
+  - Review the variables needed for Azure [here](terraform/azure/README.md).
+  - Review the variables needed for AWS [here](terraform/aws/README.md).
 ```commandline
 ./run.sh
 ```
@@ -51,7 +53,7 @@ Change to the aws directory
 ```commandline
 cd terraform/aws
 ```
-
+Review the variables needed for AWS [here](terraform/aws/README.md).
 Replace variable values as needed in `unity_catalog.tfvars` and run `terraform apply`
 
 ```commandline
@@ -63,7 +65,7 @@ Change to the azure directory
 ```
 cd terraform/azure
 ```
-
+Review the variables needed for Azure [here](terraform/azure/README.md).
 Replace variable values as needed in `unity_catalog.tfvars` and run `terraform apply`
 ```commandline
 terraform apply -var-file "unity_catalog.tfvars"
