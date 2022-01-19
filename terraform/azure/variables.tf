@@ -49,7 +49,11 @@ variable "schema_name" {
 }
 
 variable "workspace_ids" {
-  description = "List of Databricks workspace ids to be enabled with Unity Catalog"
+  description = <<EOT
+  List of Databricks workspace ids to be enabled with Unity Catalog
+  Enter with square brackets and double quotes
+  e.g. ["111111111", "222222222"]  
+  EOT
   type        = list(string)
 }
 
