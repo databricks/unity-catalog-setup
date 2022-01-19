@@ -1,5 +1,5 @@
 variable "aws_region" {
-  description = "The AWS Region to deploy into, i.e. us-east-1"
+  description = "The AWS Region to deploy into, e.g. us-east-1"
   type = string
 }
 
@@ -9,7 +9,7 @@ variable "aws_profile" {
 }
 
 variable "create_aws_resources" {
-  description = "Specify whether to create new AWS resources (S3 bucket, roles) for Unity Catalog or not."
+  description = "Specify whether to create new AWS resources (S3 bucket, IAM roles) for Unity Catalog or not. Enter true/false"
   type        = bool
 }
 
@@ -33,12 +33,20 @@ variable "unity_metastore_iam" {
 }
 
 variable "databricks_workspace_ids" {
-  description = "List of Databricks workspace ids to be enabled with Unity Catalog"
+  description = <<EOT
+  List of Databricks workspace ids to be enabled with Unity Catalog.
+  Enter with square brackets and double quotes
+  e.g. ["111111111", "222222222"]
+  EOT
   type        = list(string)
 }
 
 variable "databricks_users" {
-  description = "List of Databricks users to be added at account-level for Unity Catalog"
+  description = <<EOT
+  List of Databricks users to be added at account-level for Unity Catalog.
+  Enter with square brackets and double quotes
+  e.g ["first.last@domain.com", "second.last@domain.com"]
+  EOT
   type        = list(string)
 }
 
@@ -60,4 +68,5 @@ variable "databricks_account_username" {
 variable "databricks_account_password" {
   description = "Databricks account owner credentials"
   type        = string
+  sensitive   = true
 }
