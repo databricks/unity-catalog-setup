@@ -34,13 +34,6 @@ Once this is done, your groups and users from this SCIM will be synchronized to 
 
     **Cluster Requirements**
     - **DBR Requirements**: You must use DBR 10.1+
-    - **Spark Var Requirements**: You must set the following spark vars on all clusters that will use UC:
-    ```
-             spark.databricks.passthrough.enabled false
-             spark.databricks.unityCatalog.enforce.permissions false
-             spark.databricks.unityCatalog.enabled true
-             spark.databricks.delta.preview.enabled true
-    ```
     - **Security Mode Requirements**
       - Use Security Mode in the cluster creation UI for clusters with access to Unity Catalog (DBR 10.1+)
           - **User isolation** - This provides a cluster that can use SQL only, but can be shared by multiple users
@@ -59,20 +52,10 @@ Change to the aws directory
 cd terraform/aws
 ```
 
-Replace variable values as needed and run `terraform apply`
+Replace variable values as needed in `unity_catalog.tfvars` and run `terraform apply`
 
 ```commandline
-terraform apply -var 'aws_region=us-east-1'
-                -var 'aws_profile='
-                -var 'create_aws_resources=true'
-                -var 'unity_metastore_bucket='
-                -var 'unity_metastore_iam='
-                -var 'databricks_workspace_ids='
-                -var 'databricks_users='
-                -var 'databricks_account_id='
-                -var 'databricks_workspace_host='
-                -var 'databricks_account_username='
-                -var 'databricks_account_password='
+terraform apply -var-file "unity_catalog.tfvars"
 ```
 
 ## Azure
