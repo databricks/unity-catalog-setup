@@ -1,7 +1,8 @@
 
 resource "databricks_metastore" "unity" {
-  name          = "unity-catalog-tf-zp-uc1"
+  name          = "unity-metastore"
   storage_root  = "s3://${var.unity_metastore_bucket}"
+  owner         = var.unity_admin_group
   force_destroy = true
 }
 

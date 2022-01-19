@@ -10,8 +10,8 @@ module "aws_metastore" {
 
   count = var.create_aws_resources ? 1 : 0
 
-  databricks_account_id = var.databricks_account_id
-  unity_metastore_bucket  = var.unity_metastore_bucket
+  databricks_account_id  = var.databricks_account_id
+  unity_metastore_bucket = var.unity_metastore_bucket
 }
 
 /***************************************************************************************
@@ -19,8 +19,20 @@ module "aws_metastore" {
 ****************************************************************************************/
 resource "databricks_user" "unity_users" {
   provider  = databricks.mws
-  for_each  = toset(var.databricks_users)
+  for_each  = toset(concat(var.databricks_users, var.databricks_unity_admins))
   user_name = each.key
+}
+
+resource "databricks_group" "admin_group" {
+  provider     = databricks.mws
+  display_name = var.unity_admin_group
+}
+
+resource "databricks_group_member" "admin_group_member" {
+  provider  = databricks.mws
+  for_each  = toset(var.databricks_unity_admins)
+  group_id  = databricks_group.admin_group.id
+  member_id = databricks_user.unity_users[each.value].id
 }
 
 /***************************************************************************************
@@ -36,15 +48,16 @@ module "unity_catalog_metastore" {
   databricks_workspace_ids = var.databricks_workspace_ids
   unity_metastore_bucket   = var.create_aws_resources ? module.aws_metastore[0].unity_metastore_bucket : var.unity_metastore_bucket
   unity_metastore_iam      = var.create_aws_resources ? module.aws_metastore[0].unity_metastore_iam : var.unity_metastore_iam
+  unity_admin_group        = var.unity_admin_group
 }
 
 /***************************************************************************************
 * Create quickstart catalogs & quickstart schemas
 ****************************************************************************************/
 resource "databricks_catalog" "quickstart_catalog" {
-  provider = databricks.workspace
-  name     = "quickstart_catalog"
-  comment  = "A new Unity Catalog catalog called quickstart"
+  provider   = databricks.workspace
+  name       = "quickstart_catalog"
+  comment    = "A new Unity Catalog catalog called quickstart"
   depends_on = [module.unity_catalog_metastore]
 }
 
