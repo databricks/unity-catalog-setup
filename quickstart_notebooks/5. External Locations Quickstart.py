@@ -46,11 +46,14 @@ else:
 # MAGIC %sql
 # MAGIC -- Now, you will create your own external location using your  storage credential. Run the following command. Note that this will create all the directories specified as location path. 
 # MAGIC 
-# MAGIC CREATE EXTERNAL LOCATION <your_location_name>
+# MAGIC CREATE EXTERNAL LOCATION `<your_location_name>`
 # MAGIC 
-# MAGIC URL 's3://<your_location_path>' 
+# MAGIC URL "s3://<your_location_path>" 
 # MAGIC 
-# MAGIC WITH STORAGE CREDENTIAL test_cred; --Use the storage credential you created that has the ARN that will connect to the URL where the data is
+# MAGIC WITH STORAGE CREDENTIAL `test_cred`; --Use the storage credential you created that has the ARN that will connect to the URL where the data is
+# MAGIC 
+# MAGIC -- Note the use of backticks around the <your_location_name> and <credential name>
+# MAGIC -- Either single or double quotes can be used around <your_location_path>
 
 # COMMAND ----------
 
@@ -58,13 +61,17 @@ else:
 # MAGIC -- grant your users ( e.g. data engineers) permission to create tables using the CREATE TABLE permission on the external location
 # MAGIC -- To be able to navigate and list data in the external cloud storage, users also need READ FILES permission.
 # MAGIC -- For the purpose of this quickstart, we are granting permissions to all users, i.e. account users
+# MAGIC
+# MAGIC -- Note the use of backticks around the <your_location_name> and <account users>
+# MAGIC
 # MAGIC GRANT CREATE TABLE, READ FILES 
-# MAGIC ON EXTERNAL LOCATION <your_location_name>
+# MAGIC ON EXTERNAL LOCATION `<your_location_name>`
 # MAGIC TO `account users`;
 
 # COMMAND ----------
 
 # MAGIC %sql
+# MAGIC -- Note: either single quotes or double-quotes can be used around <your_location_path>, but not backticks
 # MAGIC LIST 's3://<your_location_path>'
 
 # COMMAND ----------
