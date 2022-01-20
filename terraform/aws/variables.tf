@@ -50,6 +50,20 @@ variable "databricks_users" {
   type        = list(string)
 }
 
+variable "databricks_unity_admins" {
+  description = <<EOT
+  List of Admins to be added at account-level for Unity Catalog.
+  Enter with square brackets and double quotes
+  e.g ["first.admin@domain.com", "second.admin@domain.com"]
+  EOT
+  type        = list(string)
+}
+
+variable "unity_admin_group" {
+  description = "Name of the admin group. This group will be set as the owner of the Unity Catalog metastore"
+  type        = string
+}
+
 variable "databricks_account_id" {
   description = "Account Id that could be found in the bottom left corner of https://accounts.cloud.databricks.com/. Not your AWS account id, or Databricks workspace id"
   type        = string
