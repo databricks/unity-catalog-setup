@@ -85,15 +85,14 @@ terraform apply -var-file "unity_catalog.tfvars"
 
 ### Step 5 - After Running Guided or Manual Setup
 - Once the setup script finished, log into the workspace and look for the 3 level data catalog in the Data tab
-
-    **Cluster Requirements**
-    - **DBR Requirements**: You must use DBR 10.1+
-    - **Security Mode Requirements**
-      - Use Security Mode in the cluster creation UI for clusters with access to Unity Catalog (DBR 10.1+)
-          - **User isolation** - This provides a cluster that can use SQL only, but can be shared by multiple users
-          - **Single User** - This provides a cluster that supports multiple languages (SQL, python, scala, R), but one user must be nominated to use it exclusively.
+- Create a new cluster to use Unity Catalog
+  - **Cluster Requirements**
+      - **DBR Requirements**: You must use DBR 10.1+
+      - **Security Mode Requirements**
+        - Use Security Mode in the cluster creation UI for clusters with access to Unity Catalog (DBR 10.1+)
+            - **User isolation** - This provides a cluster that can use SQL only, but can be shared by multiple users
+            - **Single User** - This provides a cluster that supports multiple languages (SQL, python, scala, R), but one user must be nominated to use it exclusively.
 - Import this repo into the Databricks workspace, and use the notebooks under `quickstart_notebooks` to get familiar with Unity Catalog journeys
-- 
 - Switch to the SQL persona and use the Data Explorer to browse through the 3 level data catalogs and view tables metadata & permissions, without a running endpoint
 
 - **SQL Endpoints** - Under the ‘Advanced Settings’ select the ‘Preview Channel’ when creating a UC-enabled SQL endpoint
