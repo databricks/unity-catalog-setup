@@ -15,11 +15,12 @@ You will need the following 3 roles in Azure to successfully run this script.
 * Application Administrator (To create a service principal)
 * Cloud Application Administrator (To create a role assignment for ADLS access to the service principal)
 
-This script will perform the following actions in Azure:
+This script will perform the following actions in Azure and Databricks:
 * Create an ADLS Gen 2 Storage Account with the specified prefix
 * Create a new Service Principal in your Active Directory
 * Create a role assignment for this service Principal to your new Storage Account
-* Create a new Metastore and assign the service principal and storage account
+* Create a new Unity Catalog metastore using the service principal and storage account
+* Assign the UC metastore to the specified workspaces
 * Create a Catalog in the Unity Catalog Metastore
 * Create a Schema in the Unity Catalog Metastore
 ### AWS
@@ -38,14 +39,14 @@ You will need at minimum the following rights in AWS to successfully run this sc
 * iam:ListRolePolicies
 * iam:ListAttachedRolePolicies
 
-This script will perform the following actions in AWS:
-* Create Account Level Users as specified
+This script will perform the following actions in AWS and Databricks:
 * Create an S3 Bucket with the specified prefix
 * Create a new IAM Policy to access this bucket
-* Create a new IAM Role to access this bucket
-* Assign the Policy to the Role
-* Create a trust relationship for Unity Catalog to assume this role
-* Create a new Metastore assign the IAM Role/Policy/Bucket
+* Create a new IAM Role and assign the newly created Policy to the Role
+* Add a trust relationship for Unity Catalog master role to assume this role
+* Create a new Unity Catalog metastore using the IAM Role and Bucket
+* Assign the UC metastore to the specified workspaces
+* Create Databricks users at account level, to use Unity Catalog
 * Create a Catalog in the Unity Catalog Metastore
 * Create a Schema in the Unity Catalog Metastore
 
