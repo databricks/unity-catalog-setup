@@ -288,7 +288,7 @@ print(execute_uc(['update-metastore', '--id', metastore_id, '--json', f'{{"owner
 
 # COMMAND ----------
 
-print(execute_uc(['assign-metastore', '--metastore-id', metastore_id, '--workspace-id', workspace_id]))
+print(execute_uc(['assign-metastore', '--metastore-id', metastore_id, '--workspace-id', workspace_id, '--default-catalog-name', 'hive_metastore']))
 
 # COMMAND ----------
 
