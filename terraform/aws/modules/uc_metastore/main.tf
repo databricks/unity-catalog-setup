@@ -16,8 +16,9 @@ resource "databricks_metastore_data_access" "default_dac" {
 }
 
 resource "databricks_metastore_assignment" "default_metastore" {
-  for_each     = toset(var.databricks_workspace_ids)
-  workspace_id = each.key
-  metastore_id = databricks_metastore.unity.id
+  for_each             = toset(var.databricks_workspace_ids)
+  workspace_id         = each.key
+  metastore_id         = databricks_metastore.unity.id
+  default_catalog_name = "hive_metastore"
 }
 
