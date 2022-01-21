@@ -17,11 +17,17 @@ You will need the following 3 roles in Azure to successfully run this script.
 ### AWS
 You will need at minimum the following rights in AWS to successfully run this script.
 * s3:CreateBucket
+* s3:ListBucket
 * s3:PutBucketPolicy
 * iam:CreateRole
 * iam:CreatePolicy
 * iam:PutRolePolicy
 * iam:AttachRolePolicy
+* iam:UpdateAssumeRolePolicy
+* iam:ListRoles
+* iam:ListPolicies
+* iam:ListRolePolicies
+* iam:ListAttachedRolePolicies
 
 ## Instructions
 ### Step 1 - Azure Only - Create a new workspace and setup SCIM
