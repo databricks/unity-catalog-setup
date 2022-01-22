@@ -5,6 +5,7 @@ resource "databricks_user" "unity_users" {
   provider  = databricks.mws
   for_each  = toset(concat(var.databricks_users, var.databricks_unity_admins))
   user_name = each.key
+  force     = true
 }
 
 resource "databricks_group" "admin_group" {
@@ -20,8 +21,8 @@ resource "databricks_group_member" "admin_group_member" {
 }
 
 resource "databricks_user_role" "my_user_account_admin" {
-  provider  = databricks.mws
-  for_each  = toset(var.databricks_unity_admins)
-  user_id = databricks_user.unity_users[each.value].id
-  role    = "account_admin"
+  provider = databricks.mws
+  for_each = toset(var.databricks_unity_admins)
+  user_id  = databricks_user.unity_users[each.value].id
+  role     = "account_admin"
 }
