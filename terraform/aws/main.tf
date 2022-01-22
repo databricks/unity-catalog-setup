@@ -15,27 +15,6 @@ module "aws_metastore" {
 }
 
 /***************************************************************************************
-* Create account-level users for UC
-****************************************************************************************/
-resource "databricks_user" "unity_users" {
-  provider  = databricks.mws
-  for_each  = toset(concat(var.databricks_users, var.databricks_unity_admins))
-  user_name = each.key
-}
-
-resource "databricks_group" "admin_group" {
-  provider     = databricks.mws
-  display_name = var.unity_admin_group
-}
-
-resource "databricks_group_member" "admin_group_member" {
-  provider  = databricks.mws
-  for_each  = toset(var.databricks_unity_admins)
-  group_id  = databricks_group.admin_group.id
-  member_id = databricks_user.unity_users[each.value].id
-}
-
-/***************************************************************************************
 * Create the first Unity Catalog metastore and assign it to the chosen workspaces
 ****************************************************************************************/
 module "unity_catalog_metastore" {
