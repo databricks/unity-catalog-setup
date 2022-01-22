@@ -46,7 +46,7 @@ This script will perform the following actions in AWS and Databricks:
 * Add a trust relationship for Unity Catalog master role to assume this role
 * Create a new Unity Catalog metastore using the IAM Role and Bucket
 * Assign the UC metastore to the specified workspaces
-* Create Databricks users at account level, to use Unity Catalog
+* Create Databricks admins & users at account level, to use Unity Catalog
 * Create a Catalog in the Unity Catalog Metastore
 * Create a Schema in the Unity Catalog Metastore
 
