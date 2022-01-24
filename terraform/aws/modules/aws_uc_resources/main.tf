@@ -44,6 +44,34 @@ resource "aws_iam_policy" "unity_metastore" {
   }  
 }
 
+resource "aws_iam_policy" "sample_data" {
+  # Terraform's "jsonencode" function converts a
+  # Terraform expression's result to valid JSON syntax.
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Id      = "databricks-sample-data"
+    Statement = [
+      {
+        "Action": [
+          "s3:GetObject",
+          "s3:GetObjectVersion",
+          "s3:ListBucket",
+          "s3:GetBucketLocation"
+        ],
+        "Resource": [
+          "arn:aws:s3:::databricks-datasets-oregon/*",
+          "arn:aws:s3:::databricks-datasets-oregon"
+
+        ],
+        "Effect": "Allow"
+      }
+    ]
+  })
+  tags = {
+    Name = "Databricks Unity Catalog sample data policy"
+  }
+}
+
 
 data "aws_iam_policy_document" "unity_trust_relationship" {
   statement {
@@ -66,7 +94,7 @@ resource "aws_iam_role" "unity_metastore" {
   name = "databricks_unity_catalog"
   description = "allows access to s3 bucket for the unity metastore root and creates trust relationship to the Databricks Unity Catalog Service Account"
   assume_role_policy  = data.aws_iam_policy_document.unity_trust_relationship.json
-  managed_policy_arns = [aws_iam_policy.unity_metastore.arn]
+  managed_policy_arns = [aws_iam_policy.unity_metastore.arn, aws_iam_policy.sample_data.arn]
 
   tags = {
     Name = "Databricks Unity Catalog IAM role"
