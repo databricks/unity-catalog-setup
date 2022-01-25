@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "eab4d57d-05f6-4a1f-a9d3-4db32d294bcf",
+		"_postman_id": "46ea5cd9-deed-4c09-a846-13aefc9eff98",
 		"name": "Databricks Unity Catalog API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -321,6 +321,535 @@
 						"recipients",
 						"{{recipient_name}}",
 						"rotate-token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Storage Credentials",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"catalog_name\": \"main\",\n        \"schema_name\": \"default\",\n        \"name\": \"testTable\",\n        \"table_type\": \"MANAGED\",\n        \"data_source_format\": \"DELTA\",\n        \"columns\": [{\n                \"name\": \"name\",\n                \"nullable\": true,\n                \"position\": 0,\n                \"type_json\": \"{\\\"name\\\":\\\"name\\\",\\\"type\\\":\\\"varchar(64)\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"STRING\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"varchar(64)\"\n        }, {\n                \"name\": \"address\",\n                \"nullable\": true,\n                \"position\": 1,\n                \"type_json\": \"{\\\"name\\\":\\\"address\\\",\\\"type\\\":\\\"varchar(64)\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"STRING\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"varchar(64)\"\n        }, {\n                \"name\": \"student_id\",\n                \"nullable\": true,\n                \"position\": 2,\n                \"type_json\": \"{\\\"name\\\":\\\"student_id\\\",\\\"type\\\":\\\"integer\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"INT\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"int\"\n        }]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{prefix}}/unity-catalog/storage-credentials",
+					"protocol": "https",
+					"host": [
+						"{{prefix}}"
+					],
+					"path": [
+						"unity-catalog",
+						"storage-credentials"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Storage Credential",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"catalog_name\": \"main\",\n        \"schema_name\": \"default\",\n        \"name\": \"testTable\",\n        \"table_type\": \"MANAGED\",\n        \"data_source_format\": \"DELTA\",\n        \"columns\": [{\n                \"name\": \"name\",\n                \"nullable\": true,\n                \"position\": 0,\n                \"type_json\": \"{\\\"name\\\":\\\"name\\\",\\\"type\\\":\\\"varchar(64)\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"STRING\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"varchar(64)\"\n        }, {\n                \"name\": \"address\",\n                \"nullable\": true,\n                \"position\": 1,\n                \"type_json\": \"{\\\"name\\\":\\\"address\\\",\\\"type\\\":\\\"varchar(64)\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"STRING\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"varchar(64)\"\n        }, {\n                \"name\": \"student_id\",\n                \"nullable\": true,\n                \"position\": 2,\n                \"type_json\": \"{\\\"name\\\":\\\"student_id\\\",\\\"type\\\":\\\"integer\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"INT\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"int\"\n        }]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{prefix}}/unity-catalog/storage-credentials/{{storage_credential_name}}",
+					"protocol": "https",
+					"host": [
+						"{{prefix}}"
+					],
+					"path": [
+						"unity-catalog",
+						"storage-credentials",
+						"{{storage_credential_name}}"
+					],
+					"query": [
+						{
+							"key": "table_name_regex",
+							"value": "testTable",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Tables",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"catalog_name\": \"main\",\n        \"schema_name\": \"default\",\n        \"name\": \"testTable\",\n        \"table_type\": \"MANAGED\",\n        \"data_source_format\": \"DELTA\",\n        \"columns\": [{\n                \"name\": \"name\",\n                \"nullable\": true,\n                \"position\": 0,\n                \"type_json\": \"{\\\"name\\\":\\\"name\\\",\\\"type\\\":\\\"varchar(64)\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"STRING\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"varchar(64)\"\n        }, {\n                \"name\": \"address\",\n                \"nullable\": true,\n                \"position\": 1,\n                \"type_json\": \"{\\\"name\\\":\\\"address\\\",\\\"type\\\":\\\"varchar(64)\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"STRING\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"varchar(64)\"\n        }, {\n                \"name\": \"student_id\",\n                \"nullable\": true,\n                \"position\": 2,\n                \"type_json\": \"{\\\"name\\\":\\\"student_id\\\",\\\"type\\\":\\\"integer\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"INT\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"int\"\n        }]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{prefix}}/unity-catalog/tables?catalog_name=main&schema_name=default",
+					"protocol": "https",
+					"host": [
+						"{{prefix}}"
+					],
+					"path": [
+						"unity-catalog",
+						"tables"
+					],
+					"query": [
+						{
+							"key": "catalog_name",
+							"value": "main"
+						},
+						{
+							"key": "schema_name",
+							"value": "default"
+						},
+						{
+							"key": "table_name_regex",
+							"value": "testTable",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Tables Summaries",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"catalog_name\": \"main\",\n        \"schema_name\": \"default\",\n        \"name\": \"testTable\",\n        \"table_type\": \"MANAGED\",\n        \"data_source_format\": \"DELTA\",\n        \"columns\": [{\n                \"name\": \"name\",\n                \"nullable\": true,\n                \"position\": 0,\n                \"type_json\": \"{\\\"name\\\":\\\"name\\\",\\\"type\\\":\\\"varchar(64)\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"STRING\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"varchar(64)\"\n        }, {\n                \"name\": \"address\",\n                \"nullable\": true,\n                \"position\": 1,\n                \"type_json\": \"{\\\"name\\\":\\\"address\\\",\\\"type\\\":\\\"varchar(64)\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"STRING\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"varchar(64)\"\n        }, {\n                \"name\": \"student_id\",\n                \"nullable\": true,\n                \"position\": 2,\n                \"type_json\": \"{\\\"name\\\":\\\"student_id\\\",\\\"type\\\":\\\"integer\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"INT\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"int\"\n        }]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{prefix}}/unity-catalog/table-summaries?catalog_name=main",
+					"protocol": "https",
+					"host": [
+						"{{prefix}}"
+					],
+					"path": [
+						"unity-catalog",
+						"table-summaries"
+					],
+					"query": [
+						{
+							"key": "catalog_name",
+							"value": "main"
+						},
+						{
+							"key": "table_name_regex",
+							"value": "testTable",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Table",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"catalog_name\": \"main\",\n        \"schema_name\": \"default\",\n        \"name\": \"testTable_api\",\n        \"table_type\": \"MANAGED\",\n        \"data_source_format\": \"DELTA\",\n        \"columns\": [{\n                \"name\": \"name\",\n                \"nullable\": true,\n                \"position\": 0,\n                \"type_json\": \"{\\\"name\\\":\\\"name\\\",\\\"type\\\":\\\"varchar(64)\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"STRING\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"varchar(64)\"\n        }, {\n                \"name\": \"address\",\n                \"nullable\": true,\n                \"position\": 1,\n                \"type_json\": \"{\\\"name\\\":\\\"address\\\",\\\"type\\\":\\\"varchar(64)\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"STRING\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"varchar(64)\"\n        }, {\n                \"name\": \"student_id\",\n                \"nullable\": true,\n                \"position\": 2,\n                \"type_json\": \"{\\\"name\\\":\\\"student_id\\\",\\\"type\\\":\\\"integer\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"INT\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"int\"\n        }]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{prefix}}/unity-catalog/tables",
+					"protocol": "https",
+					"host": [
+						"{{prefix}}"
+					],
+					"path": [
+						"unity-catalog",
+						"tables"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Table",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"catalog_name\": \"main\",\n        \"schema_name\": \"default\",\n        \"name\": \"testTable\",\n        \"table_type\": \"MANAGED\",\n        \"data_source_format\": \"DELTA\",\n        \"columns\": [{\n                \"name\": \"name\",\n                \"nullable\": true,\n                \"position\": 0,\n                \"type_json\": \"{\\\"name\\\":\\\"name\\\",\\\"type\\\":\\\"varchar(64)\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"STRING\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"varchar(64)\"\n        }, {\n                \"name\": \"address\",\n                \"nullable\": true,\n                \"position\": 1,\n                \"type_json\": \"{\\\"name\\\":\\\"address\\\",\\\"type\\\":\\\"varchar(64)\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"STRING\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"varchar(64)\"\n        }, {\n                \"name\": \"student_id\",\n                \"nullable\": true,\n                \"position\": 2,\n                \"type_json\": \"{\\\"name\\\":\\\"student_id\\\",\\\"type\\\":\\\"integer\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"INT\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"int\"\n        }]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{prefix}}/unity-catalog/tables/main.default.abc",
+					"protocol": "https",
+					"host": [
+						"{{prefix}}"
+					],
+					"path": [
+						"unity-catalog",
+						"tables",
+						"main.default.abc"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Schemas",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"catalog_name\": \"main\",\n        \"schema_name\": \"default\",\n        \"name\": \"testTable\",\n        \"table_type\": \"MANAGED\",\n        \"data_source_format\": \"DELTA\",\n        \"columns\": [{\n                \"name\": \"name\",\n                \"nullable\": true,\n                \"position\": 0,\n                \"type_json\": \"{\\\"name\\\":\\\"name\\\",\\\"type\\\":\\\"varchar(64)\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"STRING\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"varchar(64)\"\n        }, {\n                \"name\": \"address\",\n                \"nullable\": true,\n                \"position\": 1,\n                \"type_json\": \"{\\\"name\\\":\\\"address\\\",\\\"type\\\":\\\"varchar(64)\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"STRING\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"varchar(64)\"\n        }, {\n                \"name\": \"student_id\",\n                \"nullable\": true,\n                \"position\": 2,\n                \"type_json\": \"{\\\"name\\\":\\\"student_id\\\",\\\"type\\\":\\\"integer\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"INT\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"int\"\n        }]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{prefix}}/unity-catalog/schemas?catalog_name=main",
+					"protocol": "https",
+					"host": [
+						"{{prefix}}"
+					],
+					"path": [
+						"unity-catalog",
+						"schemas"
+					],
+					"query": [
+						{
+							"key": "catalog_name",
+							"value": "main"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Schema",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"catalog_name\": \"main\",\n        \"schema_name\": \"default\",\n        \"name\": \"testTable\",\n        \"table_type\": \"MANAGED\",\n        \"data_source_format\": \"DELTA\",\n        \"columns\": [{\n                \"name\": \"name\",\n                \"nullable\": true,\n                \"position\": 0,\n                \"type_json\": \"{\\\"name\\\":\\\"name\\\",\\\"type\\\":\\\"varchar(64)\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"STRING\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"varchar(64)\"\n        }, {\n                \"name\": \"address\",\n                \"nullable\": true,\n                \"position\": 1,\n                \"type_json\": \"{\\\"name\\\":\\\"address\\\",\\\"type\\\":\\\"varchar(64)\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"STRING\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"varchar(64)\"\n        }, {\n                \"name\": \"student_id\",\n                \"nullable\": true,\n                \"position\": 2,\n                \"type_json\": \"{\\\"name\\\":\\\"student_id\\\",\\\"type\\\":\\\"integer\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"INT\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"int\"\n        }]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{prefix}}/unity-catalog/schemas/main.default",
+					"protocol": "https",
+					"host": [
+						"{{prefix}}"
+					],
+					"path": [
+						"unity-catalog",
+						"schemas",
+						"main.default"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Catalogs",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"catalog_name\": \"main\",\n        \"schema_name\": \"default\",\n        \"name\": \"testTable\",\n        \"table_type\": \"MANAGED\",\n        \"data_source_format\": \"DELTA\",\n        \"columns\": [{\n                \"name\": \"name\",\n                \"nullable\": true,\n                \"position\": 0,\n                \"type_json\": \"{\\\"name\\\":\\\"name\\\",\\\"type\\\":\\\"varchar(64)\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"STRING\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"varchar(64)\"\n        }, {\n                \"name\": \"address\",\n                \"nullable\": true,\n                \"position\": 1,\n                \"type_json\": \"{\\\"name\\\":\\\"address\\\",\\\"type\\\":\\\"varchar(64)\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"STRING\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"varchar(64)\"\n        }, {\n                \"name\": \"student_id\",\n                \"nullable\": true,\n                \"position\": 2,\n                \"type_json\": \"{\\\"name\\\":\\\"student_id\\\",\\\"type\\\":\\\"integer\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"INT\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"int\"\n        }]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{prefix}}/unity-catalog/catalogs",
+					"protocol": "https",
+					"host": [
+						"{{prefix}}"
+					],
+					"path": [
+						"unity-catalog",
+						"catalogs"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Catalog",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"catalog_name\": \"main\",\n        \"schema_name\": \"default\",\n        \"name\": \"testTable\",\n        \"table_type\": \"MANAGED\",\n        \"data_source_format\": \"DELTA\",\n        \"columns\": [{\n                \"name\": \"name\",\n                \"nullable\": true,\n                \"position\": 0,\n                \"type_json\": \"{\\\"name\\\":\\\"name\\\",\\\"type\\\":\\\"varchar(64)\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"STRING\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"varchar(64)\"\n        }, {\n                \"name\": \"address\",\n                \"nullable\": true,\n                \"position\": 1,\n                \"type_json\": \"{\\\"name\\\":\\\"address\\\",\\\"type\\\":\\\"varchar(64)\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"STRING\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"varchar(64)\"\n        }, {\n                \"name\": \"student_id\",\n                \"nullable\": true,\n                \"position\": 2,\n                \"type_json\": \"{\\\"name\\\":\\\"student_id\\\",\\\"type\\\":\\\"integer\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"INT\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"int\"\n        }]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{prefix}}/unity-catalog/catalogs/main",
+					"protocol": "https",
+					"host": [
+						"{{prefix}}"
+					],
+					"path": [
+						"unity-catalog",
+						"catalogs",
+						"main"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Metastore Assignment",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"metastore_id\": \"{{metastore_id}}\",\n    \"default_catalog_name\": \"main\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{prefix}}/unity-catalog/workspaces/{{workspace_id}}/metastore",
+					"protocol": "https",
+					"host": [
+						"{{prefix}}"
+					],
+					"path": [
+						"unity-catalog",
+						"workspaces",
+						"{{workspace_id}}",
+						"metastore"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Metastore Assignment",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"metastore_id\": \"{{metastore_id}}\",\n    \"default_catalog_name\": \"hive_metastore\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{prefix}}/unity-catalog/workspaces/{{workspace_id}}/metastore",
+					"protocol": "https",
+					"host": [
+						"{{prefix}}"
+					],
+					"path": [
+						"unity-catalog",
+						"workspaces",
+						"{{workspace_id}}",
+						"metastore"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Metastores",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{prefix}}/unity-catalog/metastores",
+					"protocol": "https",
+					"host": [
+						"{{prefix}}"
+					],
+					"path": [
+						"unity-catalog",
+						"metastores"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Metastore Summary",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{prefix}}/unity-catalog/metastore_summary",
+					"protocol": "https",
+					"host": [
+						"{{prefix}}"
+					],
+					"path": [
+						"unity-catalog",
+						"metastore_summary"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Permissions",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{prefix}}/unity-catalog/permissions/{{securable}}/{{sec_name}}",
+					"protocol": "https",
+					"host": [
+						"{{prefix}}"
+					],
+					"path": [
+						"unity-catalog",
+						"permissions",
+						"{{securable}}",
+						"{{sec_name}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Permissions",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"changes\": [\n        {\n            \"principal\": \"account users\",\n            \"add\": [],\n            \"remove\": [\"CREATE\",\"USAGE\"]\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{prefix}}/unity-catalog/permissions/{{securable}}/{{sec_name}}",
+					"protocol": "https",
+					"host": [
+						"{{prefix}}"
+					],
+					"path": [
+						"unity-catalog",
+						"permissions",
+						"{{securable}}",
+						"{{sec_name}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Replace Permissions",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"changes\": [\n        {\n            \"principal\": \"account users\",\n            \"add\": [],\n            \"remove\": [\"CREATE\",\"USAGE\"]\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{prefix}}/unity-catalog/permissions/{{securable}}/{{sec_name}}",
+					"protocol": "https",
+					"host": [
+						"{{prefix}}"
+					],
+					"path": [
+						"unity-catalog",
+						"permissions",
+						"{{securable}}",
+						"{{sec_name}}"
 					]
 				}
 			},
