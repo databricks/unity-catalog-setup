@@ -802,7 +802,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"changes\": [\n        {\n            \"principal\": \"account users\",\n            \"add\": [],\n            \"remove\": [\"CREATE\",\"USAGE\"]\n        }\n    ]\n}",
+					"raw": "{\n    \"changes\": [\n        {\n            \"principal\": \"{{principal}}\",\n            \"add\": [\"CREATE\", \"USAGE\"],\n            \"remove\": []\n        }\n    ]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -832,7 +832,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"changes\": [\n        {\n            \"principal\": \"account users\",\n            \"add\": [],\n            \"remove\": [\"CREATE\",\"USAGE\"]\n        }\n    ]\n}",
+					"raw": "{\n    \"changes\": [\n        {\n            \"principal\": \"{{principal}}\",\n            \"privileges\": [\"USAGE\"]\n        }\n    ]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
