@@ -1,10 +1,13 @@
 # Databricks notebook source
-# MAGIC %sql
-# MAGIC -- this is only required if running on a UC-enabled cluster
-# MAGIC --USE CATALOG hive_metastore
+# MAGIC %md
+# MAGIC ### Example audit logs ETL notebook
+# MAGIC 
+# MAGIC - Need to run on a single-user cluster, DBR 10.2+
+# MAGIC - Require an instance profile for access to the log bucket (where audit logs are delivered), and the sink bucket (location for AutoLoader schema and streaming checkpoints)
 
 # COMMAND ----------
 
+catalog = dbutils.widgets.get("catalog")
 database = dbutils.widgets.get("database")
 log_bucket = dbutils.widgets.get("log_bucket")
 sink_bucket = dbutils.widgets.get("sink_bucket").strip("/")
@@ -17,89 +20,82 @@ import json, time
 
 # COMMAND ----------
 
+spark.sql(f"CREATE CATALOG IF NOT EXISTS {catalog}")
+spark.sql(f"CREATE DATABASE IF NOT EXISTS {catalog}.{database}")
+
+# COMMAND ----------
+
 streamDF = (
-  spark
-  .readStream
-  .format("cloudFiles")
-  .option("cloudFiles.format", "json")
-  .option("cloudFiles.inferColumnTypes", True)
-  .option("cloudFiles.schemaHints", "workspaceId long")  
-  .option("cloudFiles.schemaLocation", f"{sink_bucket}/audit_log_schema")
-  .load(f"{log_bucket}/audit-logs")
+    spark
+    .readStream
+    .format("cloudFiles")
+    .option("cloudFiles.format", "json")
+    .option("cloudFiles.inferColumnTypes", True)
+    .option("cloudFiles.schemaHints", "workspaceId long")  
+    .option("cloudFiles.schemaLocation", f"{sink_bucket}/audit_log_schema")
+    .load(f"{log_bucket}/audit-logs")
 )
 
 # COMMAND ----------
 
-bronze_path = f"{sink_bucket}/audit_logs_streaming/bronze"
+bronze_table = f"{catalog}.{database}.bronze"
 checkpoint_path = f"{sink_bucket}/checkpoints"
 
 (streamDF
- .writeStream
- .format("delta")
- .partitionBy("date")
- .outputMode("append")
- .option("checkpointLocation", f"{checkpoint_path}/bronze")
- .option("path", bronze_path) 
- .option("mergeSchema", True)
- .trigger(once=True)
- .start()
+    .writeStream
+    .format("delta")
+    .partitionBy("date")
+    .outputMode("append")
+    .option("checkpointLocation", f"{checkpoint_path}/bronze") 
+    .option("cloudFiles.maxBytesPerTrigger", "1g")
+    .option("mergeSchema", True)
+    .trigger(availableNow=True)
+    .toTable(bronze_table)
 )
 
 # COMMAND ----------
 
 while spark.streams.active != []:
-  print("Waiting for streaming query to finish.")
-  time.sleep(5)
+    print("Waiting for streaming query to finish.")
+    time.sleep(5)
 
 # COMMAND ----------
 
-spark.sql(f"CREATE DATABASE IF NOT EXISTS {database}")
-
-# COMMAND ----------
-
-spark.sql(f"""
-CREATE TABLE IF NOT EXISTS {database}.bronze
-USING DELTA
-LOCATION '{bronze_path}'
-""")
-
-# COMMAND ----------
-
-spark.sql(f"OPTIMIZE {database}.bronze")
+spark.sql(f"OPTIMIZE {bronze_table}")
 
 # COMMAND ----------
 
 def stripNulls(raw):
-  return json.dumps({i: raw.asDict()[i] for i in raw.asDict() if raw.asDict()[i] != None})
+    return json.dumps({i: raw.asDict()[i] for i in raw.asDict() if raw.asDict()[i] != None})
 strip_udf = udf(stripNulls, StringType())
 
 # COMMAND ----------
 
-bronzeDF = spark.readStream.load(bronze_path)
+bronzeDF = spark.readStream.table(bronze_table)
 
 query = (
-  bronzeDF
-  .withColumn("flattened", strip_udf("requestParams"))
-  .withColumn("email", col("userIdentity.email"))
-  .withColumn("date_time", from_utc_timestamp(from_unixtime(col("timestamp")/1000), "UTC"))
-  .drop("requestParams")
-  .drop("userIdentity")
+    bronzeDF
+    .withColumn("flattened", strip_udf("requestParams"))
+    .withColumn("email", col("userIdentity.email"))
+    .withColumn("date_time", from_utc_timestamp(from_unixtime(col("timestamp")/1000), "UTC"))
+    .drop("requestParams")
+    .drop("userIdentity")
 )
 
 # COMMAND ----------
 
-silver_path = f"{sink_bucket}/audit_logs_streaming/silver"
+silver_table = f"{catalog}.{database}.silver"
 
-(query
- .writeStream
- .format("delta")
- .partitionBy("date")
- .outputMode("append")
- .option("checkpointLocation", f"{checkpoint_path}/silver")
- .option("path", silver_path)
- .option("mergeSchema", True)
- .trigger(once=True)
- .start()
+(
+    query
+    .writeStream
+    .format("delta")
+    .partitionBy("date")
+    .outputMode("append")
+    .option("checkpointLocation", f"{checkpoint_path}/silver")
+    .option("mergeSchema", True)
+    .trigger(availableNow=True)
+    .toTable(silver_table)
 )
 
 # COMMAND ----------
@@ -110,95 +106,87 @@ while spark.streams.active != []:
 
 # COMMAND ----------
 
-spark.sql(f"""
-CREATE TABLE IF NOT EXISTS {database}.silver
-USING DELTA
-LOCATION '{silver_path}'
-""")
+assert(spark.table(bronze_table).count() == spark.table(silver_table).count())
 
 # COMMAND ----------
 
-assert(spark.table(f"{database}.bronze").count() == spark.table(f"{database}.silver").count())
+spark.sql(f"OPTIMIZE {silver_table}")
 
 # COMMAND ----------
 
-spark.sql(f"OPTIMIZE {database}.silver")
+@udf(StringType())
+def just_keys_udf(string):
+    return [i for i in json.loads(string).keys()]
 
 # COMMAND ----------
 
-def justKeys(string):
-  return [i for i in json.loads(string).keys()]
-just_keys_udf = udf(justKeys, StringType())
-
-# COMMAND ----------
-
-def flatten_table(service_name, gold_path):
-  flattenedStream = spark.readStream.load(silver_path)
-  flattened = spark.table(f"{database}.silver")
-  
-  schema = StructType()
-  
-  keys = (
-    flattened
-    .filter(col("serviceName") == service_name)
-    .select(just_keys_udf(col("flattened")))
-    .alias("keys")
-    .distinct()
-    .collect()
-  )
-  
-  keysList = [i.asDict()['justKeys(flattened)'][1:-1].split(", ") for i in keys]
-  
-  keysDistinct = {j for i in keysList for j in i if j != ""}
-  
-  if len(keysDistinct) == 0:
-    schema.add(StructField('placeholder', StringType()))
-  else:
-    for i in keysDistinct:
-      schema.add(StructField(i, StringType()))
+def flatten_table(service):
     
-  (flattenedStream
-   .filter(col("serviceName") == service_name)
-   .withColumn("requestParams", from_json(col("flattened"), schema))
-   .drop("flattened")
-   .writeStream
-   .partitionBy("date")
-   .outputMode("append")
-   .format("delta")
-   .option("checkpointLocation", f"{checkpoint_path}/gold/{service_name}")
-   .option("path", f"{gold_path}/{service_name}")
-   .option("mergeSchema", True)
-   .trigger(once=True)
-   .start()
-  )
+    service_name = service.replace("-","_")
+    
+    flattenedStream = spark.readStream.table(silver_table)
+    flattened = spark.table(silver_table)
+    
+    schema = StructType()
+    
+    keys = (
+        flattened
+        .filter(col("serviceName") == service_name)
+        .select(just_keys_udf(col("flattened")).alias("keys"))
+        .distinct()
+        .collect()
+    )
+    
+    keysList = [i.asDict()['keys'][1:-1].split(", ") for i in keys]
+    
+    keysDistinct = {key for keys in keysList for key in keys if key != ""}
+    
+    if len(keysDistinct) == 0:
+        schema.add(StructField('placeholder', StringType()))
+    else:
+        for key in keysDistinct:
+            schema.add(StructField(key, StringType()))
+        
+    # write the df with the correct schema to table
+    (flattenedStream
+     .filter(col("serviceName") == service_name)
+     .withColumn("requestParams", from_json(col("flattened"), schema))
+     .drop("flattened")
+     .writeStream
+     .partitionBy("date")
+     .outputMode("append")
+     .format("delta")
+     .option("checkpointLocation", f"{checkpoint_path}/gold/{service_name}")
+     .option("mergeSchema", True)
+     .trigger(availableNow=True)
+     .toTable(f"{catalog}.{database}.{service_name}")
+    )
+    
+    # optimize the table as well
+    spark.sql(f"OPTIMIZE {catalog}.{database}.{service_name}")
 
 # COMMAND ----------
 
-service_name_list = [i['serviceName'] for i in spark.table(f"{database}.silver").select("serviceName").distinct().collect()]
+import threading
 
-# COMMAND ----------
+#For each table name (i.e. event type) create a separate thread and run the ThreadWorker function to save the data to Delta tables.
+threads = [
+    threading.Thread(target=flatten_table, args=(service)) 
+    for service in spark.table(silver_table).select("serviceName").distinct().collect()
+]
 
-gold_path = f"{sink_bucket}/audit_logs_streaming/gold"
+for thread in threads:
+    thread.start()
 
-for service_name in service_name_list:
-  flatten_table(service_name, gold_path)
+for thread in threads:
+    thread.join()
 
 # COMMAND ----------
 
 while spark.streams.active != []:
-  print("Waiting for streaming query to finish.")
-  time.sleep(5)
+    print("Waiting for streaming query to finish.")
+    time.sleep(5)
 
 # COMMAND ----------
 
-for service_name in service_name_list:
-  spark.sql(f"""
-  CREATE TABLE IF NOT EXISTS {database}.{service_name}
-  USING DELTA
-  LOCATION '{gold_path}/{service_name}'
-  """)
-  spark.sql(f"OPTIMIZE {database}.{service_name}")
-
-# COMMAND ----------
-
-display(spark.sql(f"SHOW TABLES IN {database}"))
+display(spark.sql(f"SHOW TABLES IN {catalog}.{database}"))
