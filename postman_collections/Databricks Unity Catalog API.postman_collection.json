@@ -397,6 +397,69 @@
 			"response": []
 		},
 		{
+			"name": "List External Locations",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"catalog_name\": \"main\",\n        \"schema_name\": \"default\",\n        \"name\": \"testTable\",\n        \"table_type\": \"MANAGED\",\n        \"data_source_format\": \"DELTA\",\n        \"columns\": [{\n                \"name\": \"name\",\n                \"nullable\": true,\n                \"position\": 0,\n                \"type_json\": \"{\\\"name\\\":\\\"name\\\",\\\"type\\\":\\\"varchar(64)\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"STRING\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"varchar(64)\"\n        }, {\n                \"name\": \"address\",\n                \"nullable\": true,\n                \"position\": 1,\n                \"type_json\": \"{\\\"name\\\":\\\"address\\\",\\\"type\\\":\\\"varchar(64)\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"STRING\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"varchar(64)\"\n        }, {\n                \"name\": \"student_id\",\n                \"nullable\": true,\n                \"position\": 2,\n                \"type_json\": \"{\\\"name\\\":\\\"student_id\\\",\\\"type\\\":\\\"integer\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"INT\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"int\"\n        }]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{prefix}}/unity-catalog/external-locations",
+					"protocol": "https",
+					"host": [
+						"{{prefix}}"
+					],
+					"path": [
+						"unity-catalog",
+						"external-locations"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get External Location",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"catalog_name\": \"main\",\n        \"schema_name\": \"default\",\n        \"name\": \"testTable\",\n        \"table_type\": \"MANAGED\",\n        \"data_source_format\": \"DELTA\",\n        \"columns\": [{\n                \"name\": \"name\",\n                \"nullable\": true,\n                \"position\": 0,\n                \"type_json\": \"{\\\"name\\\":\\\"name\\\",\\\"type\\\":\\\"varchar(64)\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"STRING\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"varchar(64)\"\n        }, {\n                \"name\": \"address\",\n                \"nullable\": true,\n                \"position\": 1,\n                \"type_json\": \"{\\\"name\\\":\\\"address\\\",\\\"type\\\":\\\"varchar(64)\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"STRING\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"varchar(64)\"\n        }, {\n                \"name\": \"student_id\",\n                \"nullable\": true,\n                \"position\": 2,\n                \"type_json\": \"{\\\"name\\\":\\\"student_id\\\",\\\"type\\\":\\\"integer\\\",\\\"nullable\\\":true,\\\"metadata\\\":{}}\",\n                \"type_name\": \"INT\",\n                \"type_precision\": 0,\n                \"type_scale\": 0,\n                \"type_text\": \"int\"\n        }]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{prefix}}/unity-catalog/external-locations/{{external_location_name}}",
+					"protocol": "https",
+					"host": [
+						"{{prefix}}"
+					],
+					"path": [
+						"unity-catalog",
+						"external-locations",
+						"{{external_location_name}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "List Tables",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
@@ -707,7 +770,37 @@
 			"response": []
 		},
 		{
-			"name": "Update Metastore Assignment",
+			"name": "Delete Metastore Assignment",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"metastore_id\": \"{{metastore_id}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{prefix}}/unity-catalog/workspaces/{{workspace_id}}/metastore",
+					"protocol": "https",
+					"host": [
+						"{{prefix}}"
+					],
+					"path": [
+						"unity-catalog",
+						"workspaces",
+						"{{workspace_id}}",
+						"metastore"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Metastore Assignment Copy",
 			"request": {
 				"method": "PATCH",
 				"header": [],
@@ -769,6 +862,26 @@
 					"path": [
 						"unity-catalog",
 						"metastore_summary"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Metastore",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{prefix}}/unity-catalog/metastores/{{metastore_id}}",
+					"protocol": "https",
+					"host": [
+						"{{prefix}}"
+					],
+					"path": [
+						"unity-catalog",
+						"metastores",
+						"{{metastore_id}}"
 					]
 				}
 			},
