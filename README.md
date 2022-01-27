@@ -3,6 +3,23 @@ This repository provides documentation, guidance, and scripting to support the a
 
 Either follow the Guided Setup or the Manual Setup instructions. Once complete, follow the section titled "After Running Guided or Manual Setup".
 
+- [Unity Catalog Setup](#unity-catalog-setup)
+- [Prerequisites](#prerequisites)
+  - [Manual Setup Only](#manual-setup-only)
+  - [Required Cloud Permissions](#required-cloud-permissions)
+    - [Azure](#azure)
+    - [AWS](#aws)
+- [Instructions](#instructions)
+    - [Step 1 - Azure Only - Create a new workspace and setup SCIM](#step-1---azure-only---create-a-new-workspace-and-setup-scim)
+    - [Step 2 - Install/Login to your Cloud Provider](#step-2---installlogin-to-your-cloud-provider)
+    - [Step 3 - Guided Setup (if you are doing a manual install skip to Step 4)](#step-3---guided-setup-if-you-are-doing-a-manual-install-skip-to-step-4)
+    - [Step 4 - Manual Setup](#step-4---manual-setup)
+      - [AWS](#aws-1)
+      - [Azure](#azure-1)
+    - [Step 5 - After Running Guided or Manual Setup](#step-5---after-running-guided-or-manual-setup)
+- [Common Errors](#common-errors)
+  - [User Already Exists](#user-already-exists)
+
 # Prerequisites
 * Mac/Windows
 * Azure/AWS CLI 
@@ -86,10 +103,12 @@ Change to the aws directory
 cd terraform/aws
 ```
 Review the variables needed for AWS [here](terraform/aws/README.md).
-Replace variable values as needed in `unity_catalog.tfvars` and run `terraform apply`
+Make a copy of `unity_catalog.tfvars`, rename it to `secrets.tfvars`, fill in the variable values as needed and run `terraform apply`
+
+`secrets.tfvars` is already included in the `.gitignore` file to prevent an accidental push of credentials.
 
 ```commandline
-terraform apply -var-file "unity_catalog.tfvars"
+terraform apply -var-file "secrets.tfvars"
 ```
 
 #### Azure
@@ -98,9 +117,12 @@ Change to the azure directory
 cd terraform/azure
 ```
 Review the variables needed for Azure [here](terraform/azure/README.md).
-Replace variable values as needed in `unity_catalog.tfvars` and run `terraform apply`
+Make a copy of `unity_catalog.tfvars`, rename it to `secrets.tfvars`, fill in the variable values as needed and run `terraform apply`
+
+`secrets.tfvars` is already included in the `.gitignore` file to prevent an accidental push of credentials.
+
 ```commandline
-terraform apply -var-file "unity_catalog.tfvars"
+terraform apply -var-file "secrets.tfvars"
 ```
 
 
@@ -116,5 +138,8 @@ terraform apply -var-file "unity_catalog.tfvars"
 - Import this repo into the Databricks workspace, and use the notebooks under `quickstart_notebooks` to get familiar with Unity Catalog journeys
 - Switch to the SQL persona and use the Data Explorer to browse through the 3 level data catalogs and view tables metadata & permissions, without a running endpoint
 
-- **SQL Endpoints** - Under the ‘Advanced Settings’ select the ‘Preview Channel’ when creating a UC-enabled SQL endpoint
+- **SQL Endpoints** - SQL Endpoints now support Unity Catalog by default
 
+# Common Errors
+## User Already Exists
+- This happens if the user already exists in a different E2 Databricks account. Remove those users from the list of users/admins and rerun `terraform apply`. Check with your Databricks account on how to remediate for the users with issues
