@@ -155,32 +155,6 @@ FROM
 -- COMMAND ----------
 
 -- MAGIC %md
--- MAGIC 
--- MAGIC ## Create an External Table
--- MAGIC 
--- MAGIC *External Tables* are tables created outside of the managed storage location, and are not fully managed by the Unity Catalog.  The primary difference between an external table and a managed table is that dropping an external table from the catalog does not delete the underlying data files. 
--- MAGIC 
--- MAGIC External tables are metadata definitions stored in the metastore, and benefit from the same governance model applied to managed tables. 
-
--- COMMAND ----------
-
-USE CATALOG quickstart_catalog;
-CREATE TABLE IF NOT EXISTS quickstart_database.city_data (
-  rankIn2016 INT,
-  state STRING,
-  stateAbbrev STRING,
-  population2010 LONG,
-  estPopulation2016 LONG,
-  city STRING
-) USING Delta LOCATION "s3://databricks-corp-training/common/City-Data.delta";
-SELECT
-  *
-FROM
-  quickstart_database.city_data;
-
--- COMMAND ----------
-
--- MAGIC %md
 -- MAGIC #### Drop Table
 -- MAGIC If a *managed table* is dropped with the `DROP TABLE` command, the underlying data files are removed as well. 
 -- MAGIC 
@@ -188,80 +162,8 @@ FROM
 
 -- COMMAND ----------
 
--- Drop the unmanaged table
-DROP TABLE quickstart_database.city_data
-
--- COMMAND ----------
-
--- MAGIC %md
--- MAGIC 
--- MAGIC ## Migrate Existing Tables to Unity Catalog
--- MAGIC 
--- MAGIC Existing tables stored within a workspaces metastore from before the introduction of Unity Catalog are still available for use and can be accessed from a catalog named `hive_metastore`. 
--- MAGIC 
--- MAGIC The existing tables from the legacy metastore can be migrated to the Unity Catalog using a pattern similar to the one below.
-
--- COMMAND ----------
-
-USE CATALOG quickstart_catalog;
-CREATE TABLE quickstart_database.migrated_table AS
-SELECT
-  *
-FROM
-  hive_metastore.{ database_name }.{ table_name };
-
--- COMMAND ----------
-
--- MAGIC %md
--- MAGIC If the legacy table is a Delta table, you can create a deep clone of the source table to preserve the Delta log. 
-
--- COMMAND ----------
-
-USE CATALOG quickstart_catalog;
-CREATE TABLE IF NOT EXISTS quickstart_database.migrated_table DEEP CLONE hive_metastore.default.city_data
-
--- COMMAND ----------
-
--- MAGIC %md
--- MAGIC You can also migrate external tables from the legacy metastore by recreating the tables in the new Unity Catalog.
--- MAGIC 
--- MAGIC The location of an existing external table can be found using the `DESCRIBE TABLE EXTENDED` command. Once you know the location you can use it to add the table to the new Unity Catalog metastore.
-
--- COMMAND ----------
-
--- Create example external table in legacy store
-USE CATALOG hive_metastore;
-CREATE TABLE IF NOT EXISTS default.external_table (
-  rankIn2016 INT,
-  state STRING,
-  stateAbbrev STRING,
-  population2010 LONG,
-  estPopulation2016 LONG,
-  city STRING
-) USING PARQUET LOCATION "s3a://databricks-corp-training/common/City-Data.parquet";
-
--- COMMAND ----------
-
--- Describe the external table and find the Location
-DESCRIBE TABLE EXTENDED default.external_table
-
--- COMMAND ----------
-
---Create the external table in the Unity Catalog
-USE CATALOG quickstart_catalog;
-CREATE TABLE quickstart_database.migrated_external_table (
-  rankIn2016 INT,
-  state STRING,
-  stateAbbrev STRING,
-  population2010 LONG,
-  estPopulation2016 LONG,
-  city STRING
-) USING PARQUET LOCATION "s3://databricks-corp-training/common/City-Data.parquet";
-
--- COMMAND ----------
-
-USE CATALOG hive_metastore;
-DROP TABLE default.external_table
+-- Drop the managed table
+-- DROP TABLE quickstart_catalog.quickstart_database.quickstart_table
 
 -- COMMAND ----------
 
@@ -328,8 +230,3 @@ SELECT
   ON TABLE quickstart_database.quickstart_table
 FROM
   `account users`
-
--- COMMAND ----------
-
--- MAGIC %md
--- MAGIC ## Troubleshooting Queries
