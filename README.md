@@ -19,6 +19,7 @@ Either follow the Guided Setup or the Manual Setup instructions. Once complete, 
     - [Step 5 - After Running Guided or Manual Setup](#step-5---after-running-guided-or-manual-setup)
 - [Common Errors](#common-errors)
   - [User Already Exists](#user-already-exists)
+  - [Cannot create catalog](#cannot-create-catalog)
 
 # Prerequisites
 * Mac/Windows
@@ -143,3 +144,6 @@ terraform apply -var-file "secrets.tfvars"
 # Common Errors
 ## User Already Exists
 - This happens if the user already exists in a different E2 Databricks account. Remove those users from the list of users/admins and rerun `terraform apply`. Check with your Databricks account on how to remediate for the users with issues
+
+## Cannot create catalog
+- This happens if the `databricks_workspace_host` is not in the `databricks_workspace_ids` list. Due to the API design, metastore resources (catalogs & schemas) will be created under the metastore currently assigned to `databricks_workspace_host`
