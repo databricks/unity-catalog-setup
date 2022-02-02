@@ -421,7 +421,8 @@ for service_name in service_name_list:
 # MAGIC -- CREATE DATE DIMENSION TABLE
 # MAGIC --
 # MAGIC USE CATALOG MAIN; 
-# MAGIC CREATE TABLE IF NOT EXISTS audit_logs.DIM_DATE
+# MAGIC USE getArgument()
+# MAGIC CREATE TABLE IF NOT EXISTS $database.DIM_DATE
 # MAGIC AS
 # MAGIC   SELECT DATEID,
 # MAGIC          DATE,
@@ -441,20 +442,18 @@ for service_name in service_name_list:
 # MAGIC   
 # MAGIC -- view the temporary table
 # MAGIC SELECT *
-# MAGIC FROM DIM_DATE
+# MAGIC FROM $database.DIM_DATE
 # MAGIC WHERE DATE <= CURRENT_TIMESTAMP
 # MAGIC ORDER BY DATE ASC;
 
 # COMMAND ----------
 
 # DBTITLE 1,Optimize Date Dimension Table
-# MAGIC %sql
-# MAGIC OPTIMIZE audit_logs.DIM_DATE
+spark.sql(f"""OPTIMIZE {database}.DIM_DATE""")
 
 # COMMAND ----------
 
-# MAGIC %sql
-# MAGIC DESCRIBE audit_logs.DIM_DATE
+display(spark.sql(f"""DESCRIBE {database}.DIM_DATE"""))
 
 # COMMAND ----------
 

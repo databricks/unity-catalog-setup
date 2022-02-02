@@ -1,6 +1,11 @@
 -- Databricks notebook source
--- DBTITLE 1,Use Schema uc_audit_logs
-USE uc_audit_logs
+-- DBTITLE 1,Use Appropriate Catalog
+USE CATALOG $catalog
+
+-- COMMAND ----------
+
+-- DBTITLE 1,Use Appropriate Database Created
+USE $database
 
 -- COMMAND ----------
 
@@ -9,8 +14,10 @@ USE uc_audit_logs
 -- MAGIC import datetime
 -- MAGIC # Data Window Filter
 -- MAGIC now = datetime.datetime.now()
--- MAGIC dbutils.widgets.text("2_Date - End", now.strftime("%Y-%m-%d"))
+-- MAGIC dbutils.widgets.text("0_catalog", "main")
+-- MAGIC dbutils.widgets.text("0_database", "audit_logs")
 -- MAGIC dbutils.widgets.text("1_Date - Beginning", "2021-11-24")
+-- MAGIC dbutils.widgets.text("2_Date - End", now.strftime("%Y-%m-%d"))
 -- MAGIC # dbutils.widgets.dropdown("0_Time Unit", "Day", ["Day", "Month"])
 -- MAGIC timeUnit = "Time"
 
@@ -18,10 +25,10 @@ USE uc_audit_logs
 
 -- DBTITLE 1,Create Filters - Queries
 --create widget for multiple selections of recipient names generated on run of this notebook for latest list from latest data
-CREATE WIDGET DROPDOWN 4_Recipients  DEFAULT "americanairlines" CHOICES SELECT DISTINCT requestParams.recipient_name as recipient_name FROM unitycatalog WHERE requestParams.recipient_name is not null ;
+CREATE WIDGET DROPDOWN 4_Recipients  DEFAULT "N/A" CHOICES SELECT DISTINCT CASE WHEN requestParams.recipient_name is null THEN "N/A" else requestParams.recipient_name END as recipient_name FROM unitycatalog;
 -- Create Widget for Actions Wanted to Visualize
 --CREATE WIDGET DROPDOWN 6_Actions DEFAULT "deltaSharingQueryTable" CHOICES SELECT DISTINCT CASE WHEN actionName is null THEN "N/A" else actionName END as actionName FROM ----uc_audit_logs.unitycatalog ;
-CREATE WIDGET DROPDOWN 5_Shares DEFAULT "americanairlines" CHOICES SELECT DISTINCT CASE WHEN requestParams.share is null THEN "N/A" else requestParams.share END as `Share Name` FROM unitycatalog ;
+CREATE WIDGET DROPDOWN 5_Shares DEFAULT "N/A" CHOICES SELECT DISTINCT CASE WHEN requestParams.share is null THEN "N/A" else requestParams.share END as `Share Name` FROM unitycatalog ;
 
 -- COMMAND ----------
 
@@ -272,9 +279,9 @@ from
   requestParams.recipient_name as recipient_name, date,
   --CONCAT(requestParams.share,requestParams.schema,requestParams.name) as Share_Database_Table,date,
      CAST(from_json(response.result, 'tableName STRING').tableName AS STRING) as tableName,
-     CAST(from_json(response.result, 'scannedAddFileSize STRING').scannedAddFileSize AS INT) as numBytes,
-     CAST(from_json(response.result, 'numRecords STRING').numRecords AS INT) as numRecords,
-     CAST(from_json(response.result, 'activeAddFiles STRING').activeAddFiles AS INT) as numFiles,
+     CAST(from_json(response.result, 'scannedAddFileSize STRING').scannedAddFileSize AS BIGINT) as numBytes,
+     CAST(from_json(response.result, 'numRecords STRING').numRecords AS BIGINT) as numRecords,
+     CAST(from_json(response.result, 'activeAddFiles STRING').activeAddFiles AS BIGINT) as numFiles,
      actionName
    from unitycatalog
    WHERE  LOWER(actionName) = "deltasharingqueriedtable" AND requestParams.recipient_name LIKE '%$4_Recipients%' AND (date >= getArgument("1_Date - Beginning") AND date <= getArgument('2_Date - End'))
@@ -285,15 +292,30 @@ order by numBytes desc;
 
 -- COMMAND ----------
 
+select requestParams.recipient_name as recipient_name,  date, actionName,
+CAST(from_json(response.result, 'metastoreId STRING').metastoreId AS STRING) as metastoreId,
+ CAST(from_json(response.result, 'tableName STRING').tableName AS STRING) as tableName,
+     CAST(from_json(response.result, 'checkpointBytes STRING').checkpointBytes AS BIGINT) as checkpointBytes,
+     CAST(from_json(response.result, 'maxRemoveFiles STRING').maxRemoveFiles AS BIGINT) as maxRemoveFiles,
+     CAST(from_json(response.result, 'path STRING').path AS STRING) as filepath,
+     CAST(from_json(response.result, 'scannedAddFileSize STRING').scannedAddFileSize AS BIGINT) as numBytes,
+     CAST(from_json(response.result, 'numRecords STRING').numRecords AS BIGINT) as numRecords,
+     CAST(from_json(response.result, 'activeAddFiles STRING').activeAddFiles AS BIGINT) as numFiles,
+     CAST(from_json(response.result, 'limitHint STRING').limitHint AS STRING) as limitHint
+   from unitycatalog
+   where LOWER(actionName) = "deltasharingqueriedtable"  and requestParams.recipient_name LIKE '%$4_Recipients%' AND (date >= getArgument("1_Date - Beginning") AND date <= getArgument('2_Date - End'))
+
+-- COMMAND ----------
+
 -- DBTITLE 1,Amount of Shared Data Recipients are Accessing (Starting 11/05)
 -- no user agent with queried table
 select recipient_name,actionName, date, 
   sum(numBytes) as numBytes, sum(numRecords) as numRecords, sum(numFiles) as numFiles
 from
   (select requestParams.recipient_name as recipient_name,  date,
-     CAST(from_json(response.result, 'scannedAddFileSize STRING').scannedAddFileSize AS INT) as numBytes,
-     CAST(from_json(response.result, 'numRecords STRING').numRecords AS INT) as numRecords,
-     CAST(from_json(response.result, 'activeAddFiles STRING').activeAddFiles AS INT) as numFiles,
+     CAST(from_json(response.result, 'scannedAddFileSize STRING').scannedAddFileSize AS BIGINT) as numBytes,
+     CAST(from_json(response.result, 'numRecords STRING').numRecords AS BIGINT) as numRecords,
+     CAST(from_json(response.result, 'activeAddFiles STRING').activeAddFiles AS BIGINT) as numFiles,
      actionName
    from unitycatalog
   WHERE  LOWER(actionName) = "deltasharingqueriedtable" AND requestParams.recipient_name LIKE '%$4_Recipients%'  AND (date >= getArgument("1_Date - Beginning") AND date <= getArgument('2_Date - End'))
@@ -306,5 +328,5 @@ order by date DESC,numBytes desc;
 select
 *
 from
-uc_audit_logs.silver
+$database.silver
 WHERE  LOWER(actionName) = "deltasharingqueriedtable"
