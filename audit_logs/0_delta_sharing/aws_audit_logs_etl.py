@@ -2,19 +2,38 @@
 # MAGIC %md
 # MAGIC #Prerequisites
 # MAGIC In order to make this real audit log data using our <a href="https://docs.databricks.com/administration-guide/account-settings/audit-logs.html">Configure Databricks Audit Logging Feature</a> and you must have the premium plan  <a href="https://databricks.com/product/aws-pricing">Pricing Details</a>. Just email your <b>Account Representative</b> to upgrade your workspace, no migration necessary to get this tier.
+# MAGIC - <a href="https://docs.google.com/document/d/1lO66KIrTF5C8Zzt-Pvzw23Y1zyEWU0Z2OGoLvFBEFkE/edit#heading=h.1dtudqy417mb">Need to run on a single-user isolated (PE) cluster</a>, Databricks Runtime 10.2+
+# MAGIC - Require an instance profile for access to the log bucket (where audit logs are delivered), and the sink bucket (location for AutoLoader schema and streaming checkpoints)
 
 # COMMAND ----------
 
+# DBTITLE 1,Create Widgets to Input Necessary Parameters (run once then comment out when scheduling automated job)
 # MAGIC %sql
-# MAGIC -- this is only required if running on a UC-enabled cluster
-# MAGIC --USE CATALOG deltasharing
+# MAGIC CREATE WIDGET TEXT database DEFAULT "audit_logs";
+# MAGIC CREATE WIDGET TEXT log_bucket DEFAULT "s3://";
+# MAGIC CREATE WIDGET TEXT sink_bucket DEFAULT "s3://"
 
 # COMMAND ----------
 
-# MAGIC %sql
-# MAGIC --CREATE WIDGET TEXT database DEFAULT "Audit Logs";
-# MAGIC --CREATE WIDGET TEXT log_bucket DEFAULT "s3://";
-# MAGIC --CREATE WIDGET TEXT sink_bucket DEFAULT "s3://"
+# DBTITLE 1,Use Default UC Catalog
+spark.sql(f"USE CATALOG main")
+
+# COMMAND ----------
+
+# DBTITLE 1,Register Database in Metastore
+spark.sql(f"CREATE SCHEMA IF NOT EXISTS {database}")
+
+# COMMAND ----------
+
+# DBTITLE 1,CLEAN UP AND USE ONLY IF PREVIOUSLY RAN WITHOUT A UC ENABLED CLUSTER
+#silver_path = f"{sink_bucket}/audit_logs_streaming/silver"
+#bronze_path = f"{sink_bucket}/audit_logs_streaming/bronze"
+#gold_path = f"{sink_bucket}/audit_logs_streaming/gold"
+#checkpoint_path = f"{sink_bucket}/checkpoints"
+#dbutils.fs.rm(bronze_path, True)
+#dbutils.fs.rm(checkpoint_path, True)
+#dbutils.fs.rm(silver_path, True)
+#dbutils.fs.rm(gold_path, True)
 
 # COMMAND ----------
 
@@ -130,7 +149,7 @@ streamDF = (
 
 # COMMAND ----------
 
-# DBTITLE 1,Write JSON Data to Delta Bronze Table
+# DBTITLE 1,Write JSON Data to Managed Delta Bronze Table
 bronze_path = f"{sink_bucket}/audit_logs_streaming/bronze"
 checkpoint_path = f"{sink_bucket}/checkpoints"
 
@@ -140,10 +159,9 @@ checkpoint_path = f"{sink_bucket}/checkpoints"
  .partitionBy("date")
  .outputMode("append")
  .option("checkpointLocation", f"{checkpoint_path}/bronze")
- .option("path", bronze_path) 
- .option("mergeSchema", True)
+ .option("mergeSchema", True) 
  .trigger(once=True)
- .start()
+ .toTable(f"{database}.bronze")
 )
 
 # COMMAND ----------
@@ -162,20 +180,6 @@ while spark.streams.active != []:
 
 # MAGIC %md
 # MAGIC Now that we've created the table on an external S3 bucket, we'll need to register the table to the internal Databricks Hive metastore to make access to the data easier for end users <b>(SQLA)</b>. We'll create both the database/schema `uc_audit_logs`, in addition to the `bronze` table. All of Delta Lake's metadata are stored in the transaction log, so the entry in the Hive metastore is just a pointer. In addition to providing ACID transactions and schema evolution, partitioning is much more scalable than Hive and there's functionally no limit to the number of partitions you can have in a Delta Lake table
-
-# COMMAND ----------
-
-# DBTITLE 1,Register Database in Metastore
-spark.sql(f"CREATE DATABASE IF NOT EXISTS {database}")
-
-# COMMAND ----------
-
-# DBTITLE 1,Register Bronze Table in Database Created Above
-spark.sql(f"""
-CREATE TABLE IF NOT EXISTS {database}.bronze
-USING DELTA
-LOCATION '{bronze_path}'
-""")
 
 # COMMAND ----------
 
@@ -207,7 +211,7 @@ strip_udf = udf(stripNulls, StringType())
 # COMMAND ----------
 
 # DBTITLE 1,Step 8: We instantiate a StreamReader from our bronze Delta Lake table to stream updates to our Silver Delta Lake table
-bronzeDF = spark.readStream.load(bronze_path)
+bronzeDF = spark.readStream.format("delta").table(f"{database}.bronze")
 
 # COMMAND ----------
 
@@ -238,6 +242,7 @@ query = (
 
 # COMMAND ----------
 
+# DBTITLE 1,Write out Silver Pipeline to Managed Silver Delta Table
 silver_path = f"{sink_bucket}/audit_logs_streaming/silver"
 
 (query
@@ -246,10 +251,9 @@ silver_path = f"{sink_bucket}/audit_logs_streaming/silver"
  .partitionBy("date")
  .outputMode("append")
  .option("checkpointLocation", f"{checkpoint_path}/silver")
- .option("path", silver_path)
  .option("mergeSchema", True)
  .trigger(once=True)
- .start()
+ .toTable(f"{database}.silver")
 )
 
 # COMMAND ----------
@@ -262,19 +266,6 @@ silver_path = f"{sink_bucket}/audit_logs_streaming/silver"
 while spark.streams.active != []:
   print("Waiting for streaming query to finish.")
   time.sleep(5)
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC Now that we've created the table on an external S3 bucket, we'll need to register the table to the internal Databricks Hive metastore to make access to the data easier for end users. 
-
-# COMMAND ----------
-
-spark.sql(f"""
-CREATE TABLE IF NOT EXISTS {database}.silver
-USING DELTA
-LOCATION '{silver_path}'
-""")
 
 # COMMAND ----------
 
@@ -319,7 +310,7 @@ just_keys_udf = udf(justKeys, StringType())
 
 # DBTITLE 1,Gold Layer Transformation(s)
 def flatten_table(service_name, gold_path):
-  flattenedStream = spark.readStream.load(silver_path)
+  flattenedStream = spark.readStream.format("delta").table(f"{database}.silver")
   flattened = spark.table(f"{database}.silver")
   
   schema = StructType()
@@ -352,10 +343,9 @@ def flatten_table(service_name, gold_path):
    .outputMode("append")
    .format("delta")
    .option("checkpointLocation", f"{checkpoint_path}/gold/{service_name}")
-   .option("path", f"{gold_path}/{service_name}")
    .option("mergeSchema", True)
    .trigger(once=True)
-   .start()
+   .toTable(f"{database}.{service_name}")
   )
 
 # COMMAND ----------
@@ -366,7 +356,7 @@ service_name_list = [i['serviceName'] for i in spark.table(f"{database}.silver")
 # COMMAND ----------
 
 # DBTITLE 1,We then run the flattenTable function for each `serviceName`.
-gold_path = f"{sink_bucket}/audit_logs_streaming/gold"
+gold_path = f"{database}"
 
 for service_name in service_name_list:
   flatten_table(service_name, gold_path)
@@ -389,13 +379,8 @@ while spark.streams.active != []:
 
 # COMMAND ----------
 
-# DBTITLE 1,Apply transformations, write out silver transformed data to gold and optimize each service table
+# DBTITLE 1,Optimize Each Gold Service table
 for service_name in service_name_list:
-  spark.sql(f"""
-  CREATE TABLE IF NOT EXISTS {database}.{service_name}
-  USING DELTA
-  LOCATION '{gold_path}/{service_name}'
-  """)
   spark.sql(f"OPTIMIZE {database}.{service_name}")
 
 # COMMAND ----------
@@ -435,8 +420,8 @@ for service_name in service_name_list:
 # MAGIC --
 # MAGIC -- CREATE DATE DIMENSION TABLE
 # MAGIC --
-# MAGIC 
-# MAGIC CREATE TABLE IF NOT EXISTS DIM_DATE
+# MAGIC USE CATALOG MAIN; 
+# MAGIC CREATE TABLE IF NOT EXISTS audit_logs.DIM_DATE
 # MAGIC AS
 # MAGIC   SELECT DATEID,
 # MAGIC          DATE,
@@ -464,14 +449,18 @@ for service_name in service_name_list:
 
 # DBTITLE 1,Optimize Date Dimension Table
 # MAGIC %sql
-# MAGIC OPTIMIZE DIM_DATE
+# MAGIC OPTIMIZE audit_logs.DIM_DATE
 
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC DESCRIBE DIM_DATE
+# MAGIC DESCRIBE audit_logs.DIM_DATE
 
 # COMMAND ----------
 
 # DBTITLE 1,We now have a gold Delta Lake table for each serviceName that Databricks tracks in its audit logs, which we can now use for monitoring and analysis.
 display(spark.sql(f"SHOW TABLES IN {database}"))
+
+# COMMAND ----------
+
+
