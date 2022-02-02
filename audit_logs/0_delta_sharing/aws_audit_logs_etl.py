@@ -7,6 +7,11 @@
 
 # COMMAND ----------
 
+# DBTITLE 1,Use Default UC Catalog
+spark.sql(f"USE CATALOG main")
+
+# COMMAND ----------
+
 # DBTITLE 1,Create Widgets to Input Necessary Parameters (run once then comment out when scheduling automated job)
 # MAGIC %sql
 # MAGIC CREATE WIDGET TEXT database DEFAULT "audit_logs";
@@ -15,8 +20,10 @@
 
 # COMMAND ----------
 
-# DBTITLE 1,Use Default UC Catalog
-spark.sql(f"USE CATALOG main")
+# DBTITLE 1,Get Defined Parameters from Widgets to Populate Throughout this Notebook
+database = dbutils.widgets.get("database")
+log_bucket = dbutils.widgets.get("log_bucket")
+sink_bucket = dbutils.widgets.get("sink_bucket").strip("/")
 
 # COMMAND ----------
 
@@ -81,13 +88,6 @@ spark.sql(f"CREATE SCHEMA IF NOT EXISTS {database}")
 from pyspark.sql.functions import udf, col, from_unixtime, from_utc_timestamp, from_json
 from pyspark.sql.types import StringType, StructField, StructType
 import json, time, requests
-
-# COMMAND ----------
-
-# DBTITLE 1,Get Defined Parameters from Widgets to Populate Throughout this Notebook
-database = dbutils.widgets.get("database")
-log_bucket = dbutils.widgets.get("log_bucket")
-sink_bucket = dbutils.widgets.get("sink_bucket").strip("/")
 
 # COMMAND ----------
 
