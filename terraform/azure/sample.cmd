@@ -1,1 +1,1 @@
-terraform apply -var-file "unity_catalog.tfvars"
+terraform apply -var-file "secrets.tfvars"

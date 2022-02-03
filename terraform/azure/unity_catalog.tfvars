@@ -1,19 +1,19 @@
-tenant_id = "9f37a392-f0ae-4280-9796-f1864a10effc"
-subscription_id = "3f2e4d32-8e8d-46d6-82bc-5bb8d962328b"
+tenant_id = "00000000-0000-0000-0000-000000000000"
+subscription_id = "00000000-0000-0000-0000-00000000000"
 
 reuse_rg = true
 rg_name = "unity-catalog-testing"
 location = "East US"
 
-prefix = "zpuc"
+prefix = "uc"
 
 tags = {
-    Owner = "zeashan.pappa@databricks.com"
+    Owner = "you@yourcompany.comm"
     environment = "uc-testing"
 }
 
 metastore_name = "zpuc"
-metastore_owner = "zeashan.pappa@databricks.com"
+metastore_owner = "yourgroup"
 catalog_name = "awesomecatalog"
 schema_name = "awesomeschema"
 workspace_ids = ["8874075304749540"]
