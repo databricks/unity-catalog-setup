@@ -1,9 +1,9 @@
 resource "databricks_metastore" "this" {
-  name = var.metastore_name // needs to come from a var, default to uc
+  name = var.metastore_name
   storage_root = format("abfss://%s@%s.dfs.core.windows.net/",
     azurerm_storage_account.unity_catalog.name,
   azurerm_storage_container.unity_catalog.name)
-  owner = var.metastore_owner // needs to be an ad group that exists, comes from a var
+  owner = var.metastore_owner
   // forcefully remove that auto-created
   // catalog we have no access to
   force_destroy = true
@@ -33,7 +33,7 @@ resource "databricks_metastore_assignment" "this" {
 
 resource "databricks_catalog" "catalog" {
   metastore_id = databricks_metastore.this.id
-  name         = var.catalog_name // needs to come from a var, default to sandbox
+  name         = var.catalog_name
   comment      = "this catalog is managed by terraform"
   properties = {
     purpose = "testing"
@@ -43,7 +43,7 @@ resource "databricks_catalog" "catalog" {
 
 resource "databricks_schema" "things" {
   catalog_name = databricks_catalog.catalog.id
-  name         = var.schema_name // needs to come from a var, default to things
+  name         = var.schema_name
 
   comment = "This database is managed by terraform"
   properties = {
