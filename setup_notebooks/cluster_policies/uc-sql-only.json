@@ -1,7 +1,8 @@
 {
     "spark_version": {
       "type": "regex",
-      "pattern": "10\\.[1-9]*\\.x-scala.*"
+      "pattern": "10\\.[1-9]*\\.x-scala.*",
+      "defaultValue": "10.3.x-scala2.12"
     },
     "data_security_mode": {
       "type": "fixed",
