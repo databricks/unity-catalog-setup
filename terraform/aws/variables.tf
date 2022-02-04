@@ -1,11 +1,11 @@
 variable "aws_region" {
   description = "The AWS Region to deploy into, e.g. us-east-1"
-  type = string
+  type        = string
 }
 
 variable "aws_profile" {
   description = "The AWS Profile to use."
-  type = string
+  type        = string
 }
 
 variable "create_aws_resources" {
@@ -29,7 +29,7 @@ variable "unity_metastore_iam" {
   The policy & trust relationship needs to follow the documentation
   EOT
   type        = string
-  default = ""
+  default     = ""
 }
 
 variable "databricks_workspace_ids" {

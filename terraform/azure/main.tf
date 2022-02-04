@@ -6,18 +6,18 @@ resource "random_string" "naming" {
 }
 
 locals {
-  prefix = format("%s%s",var.prefix,random_string.naming.result)
+  prefix = format("%s%s", var.prefix, random_string.naming.result)
 }
 
 resource "azurerm_resource_group" "unity_catalog" {
-  count = var.reuse_rg ? 0 : 1
+  count    = var.reuse_rg ? 0 : 1
   name     = var.rg_name
   location = var.location
 }
 
 data "azurerm_resource_group" "unity_catalog" {
   count = var.reuse_rg ? 1 : 0
-  name     = var.rg_name
+  name  = var.rg_name
 }
 
 resource "azurerm_storage_account" "unity_catalog" {

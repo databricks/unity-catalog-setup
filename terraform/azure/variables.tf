@@ -1,51 +1,51 @@
 variable "rg_name" {
   description = "Enter your resource group name"
-  type = string
+  type        = string
 }
 
 variable "location" {
   description = "Enter your location, i.e. West US or East US"
-  type = string
+  type        = string
 }
 
 variable "reuse_rg" {
   description = "Reuse resource group, do not create a new resource group (enter true/false)"
-  type = bool
+  type        = bool
 }
 
 variable "tenant_id" {
   description = "Enter your tenant id from Azure Portal"
-  type = string
+  type        = string
 }
 
 variable "subscription_id" {
   description = "Enter your subscription id from Azure Portal"
-  type = string
+  type        = string
 }
 
 variable "prefix" {
   description = "Enter a prefix to prepend to any created resources"
-  type = string
+  type        = string
 }
 
 variable "metastore_name" {
   description = "Enter the name of the metastore, it can be scoped by environment or LOB i.e. dev/prod/sales/engr"
-  type = string
+  type        = string
 }
 
 variable "metastore_owner" {
   description = "Enter the name of the metastore owner, this must be a valid email account or group name in Azure Active Directory"
-  type = string
+  type        = string
 }
 
 variable "catalog_name" {
   description = "Enter the name of a default catalog to create"
-  type = string
+  type        = string
 }
 
 variable "schema_name" {
   description = "Enter the name of a default schema to create"
-  type = string
+  type        = string
 }
 
 variable "workspace_ids" {
@@ -57,8 +57,8 @@ variable "workspace_ids" {
   type        = list(string)
 }
 
-variable tags {
+variable "tags" {
   description = "Enter a dictionary of tags to be added to any resources created"
-  default = {}
-  type = map
+  default     = {}
+  type        = map(any)
 }
