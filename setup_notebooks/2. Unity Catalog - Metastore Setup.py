@@ -52,25 +52,28 @@ dbutils.widgets.removeAll()
 
 # COMMAND ----------
 
-dbutils.widgets.dropdown("cloud", "Select one", ["Select one", "AWS", "Azure"])
+dbutils.widgets.dropdown("cloud", "Select one", ["Select one", "AWS", "Azure"], "Cloud Provider")
 
 # COMMAND ----------
 
 cloud = dbutils.widgets.get("cloud")
 if cloud == "Select one":
-    raise Exception("Need to select a cloud")
-  
+    raise Exception("Need to select a cloud provider")
+
 if cloud == "AWS":
-    dbutils.widgets.text("bucket", "s3://bucket")
-    dbutils.widgets.text("iam_role", "arn:aws:iam::997819012307:role/role")
+    dbutils.widgets.text("bucket", "s3://bucket", "S3 Bucket")
+    dbutils.widgets.text("iam_role", "arn:aws:iam::997819012307:role/role", "IAM Role")
 elif cloud == "Azure":
-    dbutils.widgets.text("bucket", "abfss://$CONTAINER_NAME@$STORAGE_ACCOUNT_NAME.dfs.core.windows.net/")
-    dbutils.widgets.text("directory_id", "9f37a392-f0ae-4280-9796-f1864a10effc")
-    dbutils.widgets.text("application_id", "ed573937-9c53-4ed6-b016-929e765443eb")
-    dbutils.widgets.text("client_secret", "xxxxx")
-dbutils.widgets.text("metastore", "unity-catalog")
-dbutils.widgets.text("storage_credential_name", "default-credential")
-dbutils.widgets.text("metastore_admin_group", "metastore-admin-users")
+    dbutils.widgets.text("bucket", "abfss://$CONTAINER_NAME@$STORAGE_ACCOUNT_NAME.dfs.core.windows.net/", "ADLS Container URL")
+    dbutils.widgets.text("directory_id", "9f37a392-f0ae-4280-9796-f1864a10effc", "Azure Tenant ID")
+    dbutils.widgets.text("application_id", "ed573937-9c53-4ed6-b016-929e765443eb", "AAD Application ID")
+    dbutils.widgets.text("client_secret", "xxxxx", "Client Secret")
+    dbutils.widgets.text("workspace_id",
+                         dbutils.notebook.entry_point.getDbutils().notebook().getContext().tags().get("orgId").getOrElse(None),
+                         "Workspace ID")
+dbutils.widgets.text("metastore", "unity-catalog", "UC Metastore Name")
+dbutils.widgets.text("storage_credential_name", "default-credential", "UC Storage Credential Name")
+dbutils.widgets.text("metastore_admin_group", "metastore-admin-users", "UC Metastore Admin Group")
 
 # COMMAND ----------
 
@@ -80,6 +83,7 @@ elif cloud == "Azure":
     directory_id = dbutils.widgets.get("directory_id")
     application_id = dbutils.widgets.get("application_id")
     client_secret = dbutils.widgets.get("client_secret")
+    workspace_id = dbutils.widgets.get("workspace_id")
   
 bucket = dbutils.widgets.get("bucket")
 metastore = dbutils.widgets.get("metastore")
@@ -118,7 +122,6 @@ elif cloud == "Azure":
 host = dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiUrl().getOrElse(None)
 token = dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiToken().getOrElse(None)
 user = dbutils.notebook.entry_point.getDbutils().notebook().getContext().tags().get("user").getOrElse(None)
-workspace_id = dbutils.notebook.entry_point.getDbutils().notebook().getContext().tags().get("orgId").getOrElse(None)
 
 # COMMAND ----------
 
