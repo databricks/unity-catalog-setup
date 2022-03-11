@@ -23,3 +23,7 @@ provider "azurerm" {
   subscription_id = var.subscription_id
   features {}
 }
+
+provider "databricks" {
+  host     = var.databricks_workspace_host
+}

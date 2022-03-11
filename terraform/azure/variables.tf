@@ -62,3 +62,8 @@ variable "tags" {
   default     = {}
   type        = map(any)
 }
+
+variable "databricks_workspace_host" {
+  description = "Databricks workspace url"
+  type        = string
+}
