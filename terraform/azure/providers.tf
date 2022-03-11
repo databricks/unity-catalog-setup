@@ -25,5 +25,5 @@ provider "azurerm" {
 }
 
 provider "databricks" {
-  host     = var.databricks_workspace_host
+  host = var.databricks_workspace_host
 }
