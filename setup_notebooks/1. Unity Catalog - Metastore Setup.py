@@ -8,11 +8,11 @@
 
 # MAGIC %md
 # MAGIC ## READ ME FIRST
-# MAGIC - Make sure you are running this notebook as an **Account Administrator** (role need to be set at account level at https://accounts.cloud.databricks.com/)
-# MAGIC - Only needed for Azure, AWS has a full UI to support enablement
-# MAGIC - Select Azure after Cmd 6 is run. Fill in the rest of the widgets with the required information
+# MAGIC - Refer to docs for [AWS](https://docs.databricks.com/data-governance/unity-catalog/get-started.html), [Azure]()
+# MAGIC - Make sure you are running this notebook as an **Account Administrator** (need to be set up by Databricks team)
+# MAGIC - Fill in the widgets with the required information
 # MAGIC   - `bucket` - the default storage location for managed tables in Unity Catalog
-# MAGIC     - **Azure**: abfs path to the container `abfss://$CONTAINER_NAME@$STORAGE_ACCOUNT_NAME.dfs.core.windows.net/`
+# MAGIC     - **Azure**: abfs path to the container `abfss://<CONTAINER_NAME>@<STORAGE_ACCOUNT_NAME>.dfs.core.windows.net/`
 # MAGIC   - `storage_credential_name` - unique name for the storage credential
 # MAGIC   - Credential:
 # MAGIC     - **Azure**:
@@ -20,8 +20,7 @@
 # MAGIC         - `application_id` - the application id of the service principal
 # MAGIC         - `client_secret` - the client secret of the service principal
 # MAGIC   - `metastore` - unique name for the metastore
-# MAGIC   - `metastore_admin_group` - account-level group who will be the metastore admins
-# MAGIC - Double check the UC special images on Cmd 10
+# MAGIC   - `metastore_admin_group` - account-level group who will be the metastore admins (this should be created in Azure AD)
 # MAGIC - Unity Catalog set up requires the Databricks CLI with Unity Catalog extension. This is installed from pip
 
 # COMMAND ----------
@@ -52,38 +51,23 @@ dbutils.widgets.removeAll()
 
 # COMMAND ----------
 
-dbutils.widgets.dropdown("cloud", "Select one", ["Select one", "AWS", "Azure"], "Cloud Provider")
-
-# COMMAND ----------
-
-cloud = dbutils.widgets.get("cloud")
-if cloud == "Select one":
-    raise Exception("Need to select a cloud provider")
-
-if cloud == "AWS":
-    dbutils.widgets.text("bucket", "s3://bucket", "S3 Bucket")
-    dbutils.widgets.text("iam_role", "arn:aws:iam::997819012307:role/role", "IAM Role")
-elif cloud == "Azure":
-    dbutils.widgets.text("bucket", "abfss://$CONTAINER_NAME@$STORAGE_ACCOUNT_NAME.dfs.core.windows.net/", "ADLS Container URL")
-    dbutils.widgets.text("directory_id", "9f37a392-f0ae-4280-9796-f1864a10effc", "Azure Tenant ID")
-    dbutils.widgets.text("application_id", "ed573937-9c53-4ed6-b016-929e765443eb", "AAD Application ID")
-    dbutils.widgets.text("client_secret", "xxxxx", "Client Secret")
-    dbutils.widgets.text("workspace_id",
-                         dbutils.notebook.entry_point.getDbutils().notebook().getContext().tags().get("orgId").getOrElse(None),
-                         "Workspace ID")
+dbutils.widgets.text("bucket", "abfss://container-name@storageaccount.dfs.core.windows.net/", "ADLS Container URL")
+dbutils.widgets.text("directory_id", "9f37a392-f0ae-4280-9796-f1864a10effc", "Azure Tenant ID")
+dbutils.widgets.text("application_id", "ed573937-9c53-4ed6-b016-929e765443eb", "AAD Application ID")
+dbutils.widgets.text("client_secret", "xxxxx", "Client Secret")
+dbutils.widgets.text("workspace_id",
+                     dbutils.notebook.entry_point.getDbutils().notebook().getContext().tags().get("orgId").getOrElse(None),
+                     "Workspace ID")
 dbutils.widgets.text("metastore", "unity-catalog", "UC Metastore Name")
 dbutils.widgets.text("storage_credential_name", "default-credential", "UC Storage Credential Name")
 dbutils.widgets.text("metastore_admin_group", "metastore-admin-users", "UC Metastore Admin Group")
 
 # COMMAND ----------
 
-if cloud == "AWS":
-    iam_role = dbutils.widgets.get("iam_role")
-elif cloud == "Azure":
-    directory_id = dbutils.widgets.get("directory_id")
-    application_id = dbutils.widgets.get("application_id")
-    client_secret = dbutils.widgets.get("client_secret")
-    workspace_id = dbutils.widgets.get("workspace_id")
+directory_id = dbutils.widgets.get("directory_id")
+application_id = dbutils.widgets.get("application_id")
+client_secret = dbutils.widgets.get("client_secret")
+workspace_id = dbutils.widgets.get("workspace_id")
   
 bucket = dbutils.widgets.get("bucket")
 metastore = dbutils.widgets.get("metastore")
@@ -92,23 +76,13 @@ metastore_admin = dbutils.widgets.get("metastore_admin_group")
 
 # COMMAND ----------
 
-# format validation of bucket path & iam role
+# format validation of bucket path
 
 import re
 
-s3_regex = "^s3:\/\/[a-z0-9\-]{3,63}$"
-iam_role_regex = "^arn:aws:iam::\d{12}:role/.+"
-abfs_regex = "^abfss:\/\/.+\.dfs\.core\.windows\.net(\/)?$"
-
-if cloud == "AWS":
-  if not re.match(s3_regex, bucket):
-    raise Exception("Not a valid s3 path")
-
-  if not re.match(iam_role_regex, iam_role):
-    raise Exception("Not a valid IAM role arn")
+abfs_regex = "^abfss:\/\/[a-z0-9-]+@[a-z0-9]+\.dfs\.core\.windows\.net(\/)?$"
     
-elif cloud == "Azure":
-  if not re.match(abfs_regex, bucket):
+if not re.match(abfs_regex, bucket):
     raise Exception("Not a valid abfs path")  
 
 # COMMAND ----------
@@ -201,10 +175,7 @@ print(execute_uc(['assign-metastore', '--metastore-id', metastore_id, '--workspa
 # COMMAND ----------
 
 # create a storage credential named $CREDENTIAL_NAME, and store its ID
-if cloud == "AWS":
-    credential_id = execute_uc(['create-storage-credential', '--json', f'{{"name": "{storage_credential_name}", "aws_iam_role": {{"role_arn": "{iam_role}"}}}}'])
-elif cloud == "Azure":
-    credential_id = execute_uc(['create-storage-credential', '--json', f'{{"name": "{storage_credential_name}", "azure_service_principal": {{"directory_id": "{directory_id}", "application_id": "{application_id}", "client_secret":"{client_secret}"}}}}'])
+credential_id = execute_uc(['create-storage-credential', '--json', f'{{"name": "{storage_credential_name}", "azure_service_principal": {{"directory_id": "{directory_id}", "application_id": "{application_id}", "client_secret":"{client_secret}"}}}}'])
 credential_id = json.loads(credential_id)["id"]
 print(f"Storage credential configuration {credential_id} has been set up")
 
