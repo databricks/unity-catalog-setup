@@ -4,7 +4,11 @@ from pyspark.sql.functions import *
 from pyspark.sql.types import *
 import json, time
 
+
+# edit the location where logs are delivered
 log_bucket = "s3://databricks-e2-certification-logs-bwp2xp/audit-logs"
+
+# edit the location where the autoloader schema are stored
 sink_bucket = "dbfs:/tmp"
 
 @dlt.table(
@@ -25,15 +29,14 @@ def bronze():
 
 # COMMAND ----------
 
-# create silver table
 @udf(StringType())
 def strip_null_udf(raw):
     return json.dumps({i: raw.asDict()[i] for i in raw.asDict() if raw.asDict()[i] != None})
 
 @dlt.table(
-  comment="Audit logs cleaned and prepared for analysis.",
-  table_properties={"quality":"silver"},
-  partition_cols = [ 'date' ]    
+    comment="Audit logs cleaned and prepared for analysis. Strip out all empty keys for every record, parse email address from a nested field and parse UNIX epoch to UTC timestamp.",
+    table_properties={"quality":"silver"},
+    partition_cols = [ 'date' ]
 )
 def silver():
     return (
@@ -58,6 +61,8 @@ def bronze_silver_verification():
 
 # COMMAND ----------
 
+# these udfs is used to calculate the super-schema based on all events of a given service
+
 @udf(StringType())
 def just_keys_udf(string):
     return [i for i in json.loads(string).keys()]
@@ -80,7 +85,7 @@ def extract_schema_udf(keys):
     return schema.json()
 
 @dlt.table(
-    comment="Services and their schemas"
+    comment="List of services and their corresponding super-schema"
 )
 def silver_services_schema():
     
