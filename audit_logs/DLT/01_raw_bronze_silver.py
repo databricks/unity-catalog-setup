@@ -8,9 +8,6 @@ import json, time
 # edit the location where logs are delivered
 log_bucket = "s3://databricks-e2-certification-logs-bwp2xp/audit-logs"
 
-# edit the location where the autoloader schema are stored
-sink_bucket = "dbfs:/tmp"
-
 @dlt.table(
   comment="The raw audit logs, ingested from the s3 location configured with Databricks audit log configuration",
   table_properties={"quality":"bronze"},
@@ -23,7 +20,6 @@ def bronze():
             .option("cloudFiles.format", "json")
             .option("cloudFiles.inferColumnTypes", True)
             .option("cloudFiles.schemaHints", "workspaceId long")  
-            .option("cloudFiles.schemaLocation", f"{sink_bucket}/audit_log_schema")
             .load(log_bucket)
            )
 
