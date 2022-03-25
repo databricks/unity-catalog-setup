@@ -5,8 +5,8 @@ from pyspark.sql.types import *
 import json, time
 
 
-# edit the location where logs are delivered
-log_bucket = "s3://databricks-e2-certification-logs-bwp2xp/audit-logs"
+# retrieve the location where logs are delivered
+log_bucket = spark.conf.get("mypipeline.log_bucket")
 
 @dlt.table(
   comment="The raw audit logs, ingested from the s3 location configured with Databricks audit log configuration",

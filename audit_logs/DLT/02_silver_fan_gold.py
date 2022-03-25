@@ -4,9 +4,9 @@ from pyspark.sql.functions import *
 from pyspark.sql.types import *
 import json
 
-# edit the full table name to match the silver tables the first pipeline writes out to
-services_table = "vuong_nguyen_audit.silver_services_schema"
-silver_table = "vuong_nguyen_audit.silver"
+# retrieve the full table name to match the silver tables the first pipeline writes out to
+services_table = spark.conf.get("mypipeline.services_table")
+silver_table = spark.conf.get("mypipeline.silver_table")
 
 # COMMAND ----------
 
