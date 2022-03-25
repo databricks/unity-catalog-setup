@@ -1,8 +1,9 @@
 # Databricks notebook source
 # MAGIC %md
-# MAGIC # UC Metastore Setup
+# MAGIC # UC Metastore Setup (legacy)
 # MAGIC 
-# MAGIC This is based on details in "Unity Catalog Setup Guide"
+# MAGIC 
+# MAGIC *Preferably leverage the Account Console, or the Terraform guide ([AWS](https://registry.terraform.io/providers/databrickslabs/databricks/latest/docs/guides/unity-catalog), [Azure](https://registry.terraform.io/providers/databrickslabs/databricks/latest/docs/guides/unity-catalog-azure))*
 
 # COMMAND ----------
 
