@@ -1,19 +1,19 @@
 # Databricks notebook source
 # MAGIC %md
 # MAGIC ## Collect column-level lineage and populate a Delta table
-# MAGIC
+# MAGIC 
 # MAGIC **Note**: UC Lineage is currently in Private Preview
-# MAGIC
+# MAGIC 
 # MAGIC This notebook exports column-level lineage from all UC tables under a catalog (or all catalogs by specifying `<all>` - this might take a long time)
 
 # COMMAND ----------
 
 # MAGIC %md
 # MAGIC ## Provide parameters in the widgets
-# MAGIC
-# MAGIC Need to provide 2 parameters
-# MAGIC - Provide the 2L name of the schema (`catalog.schema`)
-# MAGIC - Provide the target delta table where the column-level lineage will be exported (this table will be created if not exists)
+# MAGIC 
+# MAGIC Need to provide 2 parameters:
+# MAGIC - Name of the catalog to extract lineage from
+# MAGIC - The 3L name for the new target Delta table where the column-level lineage will be exported (catalog & schema should already exist, with the appropriate permissions to create a new table)
 
 # COMMAND ----------
 
