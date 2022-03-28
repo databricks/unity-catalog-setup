@@ -1,16 +1,16 @@
 # Databricks notebook source
 # MAGIC %md
 # MAGIC ## Collect column-level lineage and populate a Delta table
-# MAGIC 
+# MAGIC
 # MAGIC **Note**: UC Lineage is currently in Private Preview
-# MAGIC 
+# MAGIC
 # MAGIC This notebook exports column-level lineage from all UC tables under a catalog (or all catalogs by specifying `<all>` - this might take a long time)
 
 # COMMAND ----------
 
 # MAGIC %md
 # MAGIC ## Provide parameters in the widgets
-# MAGIC  
+# MAGIC
 # MAGIC Need to provide 2 parameters
 # MAGIC - Provide the 2L name of the schema (`catalog.schema`)
 # MAGIC - Provide the target delta table where the column-level lineage will be exported (this table will be created if not exists)
@@ -26,8 +26,8 @@ dbutils.widgets.text("Target lineage table (3L)", "vuongnguyen.default.column_li
 
 # COMMAND ----------
 
-catalog_name:str = dbutils.widgets.get("Catalog name (specify <all> for all catalogs)")
-lineage_table:str = dbutils.widgets.get("Target lineage table (3L)")
+catalog_name: str = dbutils.widgets.get("Catalog name (specify <all> for all catalogs)")
+lineage_table: str = dbutils.widgets.get("Target lineage table (3L)")
 
 # COMMAND ----------
 
@@ -45,8 +45,20 @@ from pyspark.sql import DataFrame
 
 # COMMAND ----------
 
-host: str = dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiUrl().getOrElse(None)
-token: str = dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiToken().getOrElse(None)
+host: str = (
+    dbutils.notebook.entry_point.getDbutils()
+    .notebook()
+    .getContext()
+    .apiUrl()
+    .getOrElse(None)
+)
+token: str = (
+    dbutils.notebook.entry_point.getDbutils()
+    .notebook()
+    .getContext()
+    .apiToken()
+    .getOrElse(None)
+)
 
 # COMMAND ----------
 
@@ -58,7 +70,7 @@ retry_strategy = Retry(
     total=3,
     backoff_factor=1,
     status_forcelist=[429, 500, 502, 503, 504],
-    method_whitelist=["HEAD", "GET", "OPTIONS"]
+    method_whitelist=["HEAD", "GET", "OPTIONS"],
 )
 adapter = HTTPAdapter(max_retries=retry_strategy)
 http = requests.Session()
@@ -73,7 +85,8 @@ http.mount("http://", adapter)
 # COMMAND ----------
 
 ## create the delta table to store the column-level lineage
-spark.sql(f"""
+spark.sql(
+    f"""
     CREATE TABLE IF NOT EXISTS {lineage_table} (
       table_name STRING,
       column_name STRING,
@@ -83,7 +96,8 @@ spark.sql(f"""
       table_type STRING,
       workspace_id LONG
     ) USING DELTA COMMENT 'This is my column lineage information'
-      """)
+      """
+)
 
 # COMMAND ----------
 
@@ -92,16 +106,18 @@ spark.sql(f"""
 
 # COMMAND ----------
 
-def query_uc_api(session: Session, endpoint:str, params: dict) -> dict:
-    
+
+def query_uc_api(session: Session, endpoint: str, params: dict) -> dict:
+
     query = session.get(
         host + f"/api/2.0/{endpoint}",
-        headers = {"Authorization": "Bearer " + token},
-        params = params
+        headers={"Authorization": "Bearer " + token},
+        params=params,
     )
     if query.status_code != requests.codes.ok:
         raise Exception(query.json())
     return query.json()
+
 
 # COMMAND ----------
 
@@ -110,7 +126,10 @@ def query_uc_api(session: Session, endpoint:str, params: dict) -> dict:
 
 # COMMAND ----------
 
-catalogs = [catalog['name'] for catalog in query_uc_api(http, 'unity-catalog/catalogs', {})['catalogs']]
+catalogs = [
+    catalog["name"]
+    for catalog in query_uc_api(http, "unity-catalog/catalogs", {})["catalogs"]
+]
 
 if catalog_name == "<all>":
     # delete existing column lineages for this table
@@ -127,7 +146,12 @@ all_schemas = []
 for catalog in catalogs:
     # need to skip certain catalogs, e.g. Delta Sharing shares logged as catalogs
     try:
-        schemas = [(catalog, schema['name']) for schema in query_uc_api(http, "unity-catalog/schemas", {"catalog_name":catalog})['schemas']]
+        schemas = [
+            (catalog, schema["name"])
+            for schema in query_uc_api(
+                http, "unity-catalog/schemas", {"catalog_name": catalog}
+            )["schemas"]
+        ]
         all_schemas.extend(schemas)
     except:
         pass
@@ -140,37 +164,44 @@ for catalog in catalogs:
 # COMMAND ----------
 
 # extract lineage information from the json output
-def format_lineage(flow: str, column_lineage:DataFrame, table_name:str, col_name:str) -> DataFrame:
-    return (column_lineage
-            .withColumnRenamed('name', 'lineage_column_name')
-            .withColumn('lineage_table_name', concat_ws('.', 'catalog_name', 'schema_name', 'table_name'))
-            .drop('catalog_name', 'schema_name', 'table_name')
-            .withColumn('table_name', lit(table_name))
-            .withColumn('column_name', lit(col_name))
-            .withColumn('flow', lit(flow))
-           )
+def format_lineage(
+    flow: str, column_lineage: DataFrame, table_name: str, col_name: str
+) -> DataFrame:
+    return (
+        column_lineage.withColumnRenamed("name", "lineage_column_name")
+        .withColumn(
+            "lineage_table_name",
+            concat_ws(".", "catalog_name", "schema_name", "table_name"),
+        )
+        .drop("catalog_name", "schema_name", "table_name")
+        .withColumn("table_name", lit(table_name))
+        .withColumn("column_name", lit(col_name))
+        .withColumn("flow", lit(flow))
+    )
+
 
 # COMMAND ----------
 
 column_lineage_df: List[DataFrame] = []
 
 for catalog, schema in all_schemas:
-    tables_query = query_uc_api(http, 
-        "unity-catalog/tables", {"catalog_name": catalog, "schema_name": schema}
+    tables_query = query_uc_api(
+        http, "unity-catalog/tables", {"catalog_name": catalog, "schema_name": schema}
     )
     if "tables" in tables_query:
         for table in tables_query["tables"]:
-            table_name = table["full_name"] 
-            
+            table_name = table["full_name"]
+
             # retrieve column-level lineage for each column in this table
             if "columns" in table:
                 for column in table["columns"]:
                     # query to get column-level lineage
-                    column_lineage = query_uc_api(http, 
+                    column_lineage = query_uc_api(
+                        http,
                         "lineage-tracking/column-lineage/get",
                         {
                             "table_name": table_name,
-                            "column_name": column['name'],
+                            "column_name": column["name"],
                         },
                     )
 
@@ -182,7 +213,7 @@ for catalog, schema in all_schemas:
                             # read the json output into DataFrame
                             df = spark.read.json(sc.parallelize([json_lineage]))
                             # transform the json output
-                            df = format_lineage(flow, df, table_name, column['name'])
+                            df = format_lineage(flow, df, table_name, column["name"])
                             # add it to the list
                             column_lineage_df.append(df)
 
@@ -200,4 +231,8 @@ display(spark.sql(f"SELECT * FROM {lineage_table}"))
 # COMMAND ----------
 
 # getting table lineage by doing select distinct
-display(spark.sql(f"SELECT DISTINCT table_name, flow, lineage_table_name, table_type, workspace_id FROM {lineage_table}"))
+display(
+    spark.sql(
+        f"SELECT DISTINCT table_name, flow, lineage_table_name, table_type, workspace_id FROM {lineage_table}"
+    )
+)
