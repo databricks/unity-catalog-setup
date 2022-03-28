@@ -26,8 +26,8 @@ dbutils.widgets.text("Target lineage table (3L)", "vuongnguyen.default.column_li
 
 # COMMAND ----------
 
-catalog_name = dbutils.widgets.get("Catalog name (specify <all> for all catalogs)")
-lineage_table = dbutils.widgets.get("Target lineage table (3L)")
+catalog_name:str = dbutils.widgets.get("Catalog name (specify <all> for all catalogs)")
+lineage_table:str = dbutils.widgets.get("Target lineage table (3L)")
 
 # COMMAND ----------
 
@@ -41,6 +41,7 @@ from requests.sessions import Session
 import json
 from pyspark.sql.functions import explode, lit, concat_ws
 from functools import reduce
+from pyspark.sql import DataFrame
 
 # COMMAND ----------
 
@@ -139,19 +140,19 @@ for catalog in catalogs:
 # COMMAND ----------
 
 # extract lineage information from the json output
-def format_lineage(flow, column_lineage):
+def format_lineage(flow: str, column_lineage:DataFrame, table_name:str, col_name:str) -> DataFrame:
     return (column_lineage
             .withColumnRenamed('name', 'lineage_column_name')
             .withColumn('lineage_table_name', concat_ws('.', 'catalog_name', 'schema_name', 'table_name'))
             .drop('catalog_name', 'schema_name', 'table_name')
             .withColumn('table_name', lit(table_name))
-            .withColumn('column_name', lit(column['name']))
+            .withColumn('column_name', lit(col_name))
             .withColumn('flow', lit(flow))
            )
 
 # COMMAND ----------
 
-column_lineage_df = []
+column_lineage_df: List[DataFrame] = []
 
 for catalog, schema in all_schemas:
     tables_query = query_uc_api(http, 
@@ -181,7 +182,7 @@ for catalog, schema in all_schemas:
                             # read the json output into DataFrame
                             df = spark.read.json(sc.parallelize([json_lineage]))
                             # transform the json output
-                            df = format_lineage(flow, df)
+                            df = format_lineage(flow, df, table_name, column['name'])
                             # add it to the list
                             column_lineage_df.append(df)
 
