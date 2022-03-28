@@ -13,7 +13,7 @@ resource "databricks_metastore_data_access" "first" {
   metastore_id = databricks_metastore.this.id
   name         = "the-keys"
   azure_service_principal {
-    directory_id   = var.tenant_id
+    directory_id   = local.tenant_id
     application_id = azuread_application.unity_catalog.application_id
     client_secret  = azuread_application_password.unity_catalog.value
   }
@@ -22,13 +22,21 @@ resource "databricks_metastore_data_access" "first" {
   // a cyclic dependency between entities and
   // it's the best way around it
   is_default = true
+  depends_on = [
+    azurerm_role_assignment.example
+  ]
 }
 
 resource "databricks_metastore_assignment" "this" {
-  for_each             = toset(var.workspace_ids)
-  workspace_id         = each.key
+  workspace_id         = local.databricks_workspace_id
   metastore_id         = databricks_metastore.this.id
   default_catalog_name = "hive_metastore"
+}
+
+resource "time_sleep" "wait_5_seconds" {
+  depends_on = [databricks_metastore_assignment.this]
+
+  create_duration = "5s"
 }
 
 resource "databricks_catalog" "catalog" {
@@ -38,7 +46,7 @@ resource "databricks_catalog" "catalog" {
   properties = {
     purpose = "testing"
   }
-  depends_on = [databricks_metastore_assignment.this]
+  depends_on = [time_sleep.wait_5_seconds]
 }
 
 resource "databricks_schema" "things" {

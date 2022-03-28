@@ -19,3 +19,4 @@ schema_name     = "awesomeschema"
 workspace_ids   = ["0000000000"]
 
 databricks_workspace_host = "https://adb-00000000000.0.azuredatabricks.net/"
+databricks_resource_id    = "/subscriptions/00000000-0000-0000-0000-00000000000/resourceGroups/zp/providers/Microsoft.Databricks/workspaces/zp"

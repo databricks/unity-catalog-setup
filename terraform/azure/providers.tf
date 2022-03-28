@@ -2,28 +2,28 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~>2.92.0"
+      version = "~>2.99.0"
     }
     azuread = {
       source  = "hashicorp/azuread"
-      version = "~>2.15.0"
+      version = "~>2.19.0"
     }
     databricks = {
       source  = "databrickslabs/databricks"
-      version = "~>0.4.0"
+      version = "~>0.5.2"
     }
   }
 }
 
 provider "azuread" {
-  tenant_id = var.tenant_id
+  tenant_id = local.tenant_id
 }
 
 provider "azurerm" {
-  subscription_id = var.subscription_id
+  subscription_id = local.subscription_id
   features {}
 }
 
 provider "databricks" {
-  host = var.databricks_workspace_host
+  host = local.databricks_workspace_host
 }

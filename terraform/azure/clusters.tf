@@ -15,4 +15,9 @@ resource "databricks_cluster" "unity_sql" {
     availability = "SPOT"
   }
   data_security_mode = "USER_ISOLATION"
+
+  # need to wait until the metastore is assigned
+  depends_on = [
+    databricks_metastore_assignment.this
+  ]
 }

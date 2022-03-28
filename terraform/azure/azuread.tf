@@ -1,5 +1,5 @@
 resource "azuread_application" "unity_catalog" {
-  display_name = local.prefix
+  display_name = "${local.prefix}-root-sp"
 }
 
 resource "azuread_application_password" "unity_catalog" {

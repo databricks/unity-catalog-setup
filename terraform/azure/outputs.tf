@@ -3,7 +3,7 @@ output "sp_application_id" {
 }
 
 output "sp_directory_id" {
-  value = var.tenant_id
+  value = local.tenant_id
 }
 
 output "sp_secret" {
