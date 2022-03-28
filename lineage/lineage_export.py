@@ -4,7 +4,7 @@
 # MAGIC 
 # MAGIC **Note**: UC Lineage is currently in Private Preview
 # MAGIC 
-# MAGIC This notebook exports column-level lineage from all UC tables under a schema (can be extended to collect lineage from all UC tables under a catalog)
+# MAGIC This notebook exports column-level lineage from all UC tables under a catalog (or all catalogs by specifying `<all>` - this might take a long time)
 
 # COMMAND ----------
 
@@ -21,12 +21,12 @@ dbutils.widgets.removeAll()
 
 # COMMAND ----------
 
-dbutils.widgets.text("2L schema name", "arana_lineage.arana_lineage_demo")
+dbutils.widgets.text("Catalog name (specify <all> for all catalogs)", "arana_lineage")
 dbutils.widgets.text("Target lineage table (3L)", "vuongnguyen.default.column_lineage")
 
 # COMMAND ----------
 
-schema_2L_name = dbutils.widgets.get("2L schema name")
+catalog_name = dbutils.widgets.get("Catalog name (specify <all> for all catalogs)")
 lineage_table = dbutils.widgets.get("Target lineage table (3L)")
 
 # COMMAND ----------
@@ -72,11 +72,9 @@ spark.sql(f"""
 # extract lineage information from the json output
 def format_lineage(flow, column_lineage):
     return (column_lineage
-            .select(explode('columns').alias('col'))
-            .select('col.*')
             .withColumnRenamed('name', 'lineage_column_name')
             .withColumn('lineage_table_name', concat_ws('.', 'catalog_name', 'schema_name', 'table_name'))
-            .drop('catalog_name', 'schema_name', 'table_name')          
+            .drop('catalog_name', 'schema_name', 'table_name')
             .withColumn('table_name', lit(table_name))
             .withColumn('column_name', lit(column['name']))
             .withColumn('flow', lit(flow))
@@ -85,22 +83,44 @@ def format_lineage(flow, column_lineage):
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ## Query UC API to get list of tables under selected schema
+# MAGIC ## Define function to query UC APIs
 
 # COMMAND ----------
 
-catalog_name, schema_name = schema_2L_name.split('.')
-schema_response = requests.get(
-    host + "/api/2.0/unity-catalog/tables",
-    headers = {"Authorization": "Bearer " + token},
-    params = {
-      "catalog_name":catalog_name,
-      "schema_name":schema_name
-    }
-)
+def query_uc_api(endpoint:str, params: dict) -> dict:
+    query = requests.get(
+        host + f"/api/2.0/unity-catalog/{endpoint}",
+        headers = {"Authorization": "Bearer " + token},
+        params = params
+    )
+    if query.status_code != requests.codes.ok:
+        raise Exception(query.json())
+    return query.json()
 
-if schema_response.status_code != requests.codes.ok:
-    raise Exception(schema_response.json())
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Query UC API to get list of schemas
+
+# COMMAND ----------
+
+if catalog_name == "<all>":
+    catalogs = [catalog['name'] for catalog in query_uc_api('catalogs', {})['catalogs']]
+    # delete existing column lineages for this table
+    spark.sql(f"DELETE FROM {lineage_table}")
+else:
+    catalogs = [catalog_name]
+    spark.sql(f"DELETE FROM {lineage_table} WHERE table_name LIKE '{catalog_name}.%'")
+
+# COMMAND ----------
+
+all_schemas = []
+for catalog in catalogs:
+    try:
+        schemas = [(catalog, schema['name']) for schema in query_uc_api("schemas", {"catalog_name":catalog})['schemas']]
+        all_schemas.extend(schemas)
+    except:
+        pass
 
 # COMMAND ----------
 
@@ -111,42 +131,47 @@ if schema_response.status_code != requests.codes.ok:
 
 column_lineage_df = []
 
-for table in schema_response.json()['tables']:
-    table_name = table['full_name']
+for catalog, schema in all_schemas:
+    tables_query = query_uc_api("tables", {"catalog_name":catalog, "schema_name": schema})
+    if 'tables' in tables_query:
+        for table in tables_query['tables']:
+            table_name = table['full_name']
+            
+            # retrieve column-level lineage for each column in this table
+            if 'columns' in table:
+                for column in table['columns']:
+                    # query to get column-level lineage
+                    column_lineage = requests.get(
+                        host + "/api/2.0/lineage-tracking/column-lineage/get",
+                        headers={"Authorization": "Bearer " + token},
+                        params={
+                          "table_name": table_name, 
+                          "column_name": column['name']
+                        }
+                    )
 
-    # delete existing column lineages for this table
-    spark.sql(f"DELETE FROM {lineage_table} WHERE table_name='{table_name}'")
-  
-    # retrieve column-level lineage for each column in this table
-    for column in table['columns']:
-        # query to get column-level lineage
-        column_lineage = requests.get(
-            host + "/api/2.0/lineage-tracking/column-lineage/get",
-            headers={"Authorization": "Bearer " + token},
-            params={
-              "table_name": table_name, 
-              "column_name": column['name']
-            }
-        )
+                    for flow in ['downstream_cols', 'upstream_cols']:
+                      # check that there is lineage information
+                        if flow in column_lineage.json():
+                            json_lineage = column_lineage.json()[flow]
 
-      for flow in ['downstream_cols', 'upstream_cols']:
-        # check that there is lineage information
-        
-          if flow in column_lineage:
-              json_lineage = column_lineage.json()[flow]
+                            # read the json output into DataFrame
+                            df = spark.read.json(sc.parallelize([json_lineage]))
+                            # transform the json output
+                            df = format_lineage(flow, df)
+                            # add it to the list
+                            column_lineage_df.append(df)
 
-              # read the json output into DataFrame
-              df = spark.read.json(sc.parallelize([json_lineage]))
-              # transform the json output
-              df = format_lineage(flow, df)
-              # add it to the list
-              column_lineage_df.append(df)
-    
 # union all the lineage dataframes, and write to delta
 if column_lineage_df:
     reduce(DataFrame.unionAll, column_lineage_df).write.mode("append").saveAsTable(lineage_table)
 
 # COMMAND ----------
 
-# example query from lineage table
+# getting column lineage
 display(spark.sql(f"SELECT * FROM {lineage_table}"))
+
+# COMMAND ----------
+
+# getting table lineage by doing select distinct
+display(spark.sql(f"SELECT DISTINCT table_name, flow, lineage_table_name, table_type, workspace_id FROM {lineage_table}"))
