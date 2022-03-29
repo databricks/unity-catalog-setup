@@ -1,7 +1,7 @@
 # Databricks notebook source
 dbutils.widgets.text("catalog", "audit_logs")
 dbutils.widgets.text("database", "azure")
-dbutils.widgets.text("sink_bucket", "azure")
+dbutils.widgets.text("sink_bucket", "s3://databricks-uc-field-eng-kpwfklmr/unity-azure")
 
 # COMMAND ----------
 
@@ -11,8 +11,9 @@ sink_bucket = dbutils.widgets.get("sink_bucket").strip("/")
 
 # COMMAND ----------
 
-from pyspark.sql.functions import col, from_unixtime, from_utc_timestamp, from_json
+from pyspark.sql.functions import col, from_json, explode, unix_timestamp
 from pyspark.sql.types import *
+import time, json
 
 # COMMAND ----------
 
@@ -22,6 +23,8 @@ spark.sql(f"CREATE DATABASE IF NOT EXISTS {catalog}.{database}")
 # COMMAND ----------
 
 # event hub configuration
+
+connSharedAccessKey = <enter key here>
 
 TOPIC = "unity"
 BOOTSTRAP_SERVERS = "fieldengdeveastus2ehb.servicebus.windows.net:9093"
@@ -39,9 +42,11 @@ df = (spark.readStream
       .option("kafka.request.timeout.ms", "60000")
       .option("kafka.session.timeout.ms", "60000")
       .option("failOnDataLoss", "false")
-      .option("startingOffsets", "latest")
+      .option("startingOffsets", "earliest")
+      .option("maxOffsetsPerTrigger", 100000)
       .load()
       .withColumn("deserializedBody", col("value").cast("string"))
+      .withColumn("date", col("timestamp").cast("date"))
       .drop("value")
      )
 
@@ -50,13 +55,12 @@ df = (spark.readStream
 bronze_table = f"{catalog}.{database}.bronze"
 checkpoint_path = f"{sink_bucket}/checkpoints"
 
-(streamDF
+(df
     .writeStream
     .format("delta")
     .partitionBy("date")
     .outputMode("append")
-    .option("checkpointLocation", f"{checkpoint_path}/bronze") 
-    .option("cloudFiles.maxBytesPerTrigger", "1g")
+    .option("checkpointLocation", f"{checkpoint_path}/bronze")
     .option("mergeSchema", True)
     .trigger(availableNow=True)
     .toTable(bronze_table)
@@ -102,13 +106,14 @@ query = (bronzeDF
         .select(explode("parsedBody.records").alias("streamRecord"))
         .selectExpr("streamRecord.*")
         .withColumn("version", col("operationVersion"))
-        .withColumn("time", col("time").cast("timestamp"))
-        .withColumn("timestamp", unix_timestamp("time") * 1000)
-        .withColumn("date_time", from_utc_timestamp(from_unixtime(col("timestamp")/1000), "UTC"))
-        .select(col("category").alias("serviceName"), "version", "timestamp", "date", "properties", col("identity").alias("userIdentity"))
+        .withColumn("date_time", col("time").cast("timestamp"))         
+        .withColumn("timestamp", unix_timestamp(col("date_time")) * 1000)
+        .withColumn("date", col("time").cast("date"))
+        .select("category", "version", "timestamp", "date_time", "date", "properties", col("identity").alias("userIdentity"))
         .selectExpr("*", "properties.*")
         .withColumnRenamed("requestParams", "flattened")
         .withColumn("identity", from_json("userIdentity", "email STRING, subjectName STRING"))
+        .withColumn("response", from_json("response", "errorMessage STRING,result STRING,statusCode BIGINT"))         
         .drop("properties", "userIdentity")
        )
 
@@ -131,16 +136,9 @@ silver_table = f"{catalog}.{database}.silver"
 # COMMAND ----------
 
 while spark.streams.active != []:
-  print("Waiting for streaming query to finish.")
-  time.sleep(5)
-
-# COMMAND ----------
-
-assert(spark.table(bronze_table).count() == spark.table(silver_table).count())
-
-# COMMAND ----------
-
-spark.sql(f"OPTIMIZE {silver_table}")
+    print("Waiting for streaming query to finish.")
+    time.sleep(5)
+spark.sql(f"OPTIMIZE {silver_table}")  
 
 # COMMAND ----------
 
@@ -180,7 +178,7 @@ def flatten_table(service):
     # write the df with the correct schema to table
     (flattenedStream
      .filter(col("serviceName") == service_name)
-     .withColumn("requestParams", from_json(col("requestParams"), schema))
+     .withColumn("requestParams", from_json(col("flattened"), schema))
      .drop("flattened")
      .writeStream
      .partitionBy("date")
