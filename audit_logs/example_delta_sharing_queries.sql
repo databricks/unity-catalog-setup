@@ -1,5 +1,17 @@
 -- Databricks notebook source
 -- MAGIC %md
+-- MAGIC ### What queries are useful?
+-- MAGIC - How often is data being pulled? (same version)
+-- MAGIC - Access pattern over the day? - a graph would be useful
+-- MAGIC - Are you querying the metadata first, before querying the data?
+-- MAGIC - Location access (IP range/geo)
+-- MAGIC - Breakdown by agent
+-- MAGIC - Potential correlation between time/location/agent
+-- MAGIC - Which datasets are updated too often? which datasets are not updated enough? which datasets are not being read at all?
+
+-- COMMAND ----------
+
+-- MAGIC %md
 -- MAGIC ### Create Filters - Audit Log Tables and Date Range
 
 -- COMMAND ----------
