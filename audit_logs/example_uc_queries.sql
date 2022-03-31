@@ -4,8 +4,15 @@
 
 -- COMMAND ----------
 
+CREATE WIDGET TEXT 0_catalog DEFAULT "audit_logs";
+
+CREATE WIDGET TEXT 0_database DEFAULT "aws";
+
+-- COMMAND ----------
+
 -- Show Tables within Audit Logs Database
-SHOW TABLES IN audit_logs.aws
+USE $0_catalog.$0_database;
+SHOW TABLES
 
 -- COMMAND ----------
 
@@ -15,7 +22,7 @@ SHOW TABLES IN audit_logs.aws
 -- COMMAND ----------
 
 -- Describe the Unity Catalog Table
-DESCRIBE audit_logs.aws.unitycatalog
+DESCRIBE unitycatalog
 
 -- COMMAND ----------
 
@@ -28,7 +35,7 @@ DESCRIBE audit_logs.aws.unitycatalog
 SELECT
   distinct actionName
 from
-  audit_logs.aws.unitycatalog
+  unitycatalog
 order by
   actionName
 
@@ -45,7 +52,7 @@ SELECT
   actionName,
   count(actionName) as actionCount
 from
-  audit_logs.aws.unitycatalog
+  unitycatalog
 group by
   actionName
 
@@ -70,7 +77,7 @@ SELECT
   requestParams.table_full_name as table_name,
   response.errorMessage as error
 FROM
-  audit_logs.aws.unitycatalog
+  unitycatalog
 where
   actionName in ("generateTemporaryTableCredential")
 order by
@@ -85,7 +92,7 @@ SELECT
   requestParams.table_full_name as table_name,
   count(actionName) as queries
 FROM
-  audit_logs.aws.unitycatalog
+  unitycatalog
 where
   actionName in ("generateTemporaryTableCredential")
 group by
@@ -113,7 +120,7 @@ SELECT
   requestParams.changes,
   response.result
 FROM
-  audit_logs.aws.unitycatalog
+  unitycatalog
 WHERE
   actionName LIKE "%Share"
   OR actionName = "getActivationUrlInfo"
@@ -131,7 +138,7 @@ SELECT
   email,
   count(actionName) AS numActions
 FROM
-  audit_logs.aws.unitycatalog
+  unitycatalog
 group by
   email
 order by
@@ -149,7 +156,7 @@ SELECT
   email,
   count(actionName) AS numActions
 FROM
-  audit_logs.aws.unitycatalog
+  unitycatalog
 WHERE
   actionName like '%Share'
 group by
@@ -171,7 +178,7 @@ SELECT
   actionName,
   requestParams.name
 FROM
-  audit_logs.aws.unitycatalog
+  unitycatalog
 where
   actionName Like "%Recipient"
 
@@ -187,7 +194,7 @@ SELECT
   requestParams.name,
   count(requestParams.name) AS numActions
 FROM
-  audit_logs.aws.unitycatalog
+  unitycatalog
 where
   actionName Like "%Recipient"
 group by
@@ -211,7 +218,7 @@ SELECT
   actionName,
   requestParams
 FROM
-  audit_logs.aws.unitycatalog
+  unitycatalog
 where
   requestParams.share is not null
 
@@ -225,7 +232,7 @@ select
   concat_ws('.', requestParams.share,  requestParams.`schema`,  requestParams.`name`) as tableName,
   count(requestId)
 from
-  audit_logs.aws.unitycatalog
+  unitycatalog
 where
   requestParams.share is not null
 group by
@@ -249,7 +256,7 @@ SELECT
   actionName,
   count(actionName) as numActions
 FROM
-  audit_logs.aws.unitycatalog
+  unitycatalog
 where
   actionName Like "%deltaSharing%"
 group by
@@ -264,7 +271,7 @@ SELECT
   actionName,
   count(actionName)
 FROM
-  audit_logs.aws.unitycatalog
+  unitycatalog
 where
   actionName not Like "%deltaSharing%"
 group by
@@ -284,7 +291,7 @@ SELECT
   count(actionName),
   to_date(date_time) as date
 from
-  audit_logs.aws.unitycatalog
+  unitycatalog
 group by
   to_date(date_time)
 order by
@@ -311,7 +318,7 @@ SELECT
   ) as tableName,
   count(requestId) as numRequests
 FROM
-  audit_logs.aws.unitycatalog
+  unitycatalog
 WHERE
   actionName like "deltaSharingQuer%"
 group by
@@ -352,7 +359,7 @@ from
       ) as numFiles,
       actionName
     from
-      audit_logs.aws.unitycatalog
+      unitycatalog
     where
       requestParams.recipient_name is not null
       and actionName = "deltaSharingQueriedTable"
