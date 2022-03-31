@@ -366,7 +366,7 @@ geolocation_df = spark.sql("""
 
 df = (spark.table("unitycatalog")
       .where("sourceIpAddress is not null and requestParams.recipient_name is not null")
-      .withColumn("mask", explode(sequence(lit(9),lit(32))))
+      .withColumn("mask", explode(sequence(lit(7),lit(32))))
       .withColumn("network_bin", ip_network("sourceIpAddress", "mask"))
       .join(geolocation_df, ['network_bin', 'mask'])
       .where("city_name IS NOT null")
