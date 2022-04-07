@@ -2,21 +2,29 @@
 import threading
 import json
 import time
+import os
 from pyspark.sql.types import *
 from pyspark.sql.functions import col, from_json, explode, unix_timestamp
-dbutils.widgets.text("catalog", "audit_logs")
-dbutils.widgets.text("database", "azure")
-dbutils.widgets.text(
-    "sink_bucket", "s3://databricks-uc-field-eng-kpwfklmr/unity-azure")
+
+# COMMAND ----------
+
+dbutils.widgets.text("catalog", "audit_logs", "Catalog for Audit logs")
+dbutils.widgets.text("database", "azure", "Database for Audit logs")
+dbutils.widgets.text("eh_ns_name", "", "Name of Eventhubs namespace")
+dbutils.widgets.text("eh_topic_name", "unity", "Name of Eventhubs topic")
+dbutils.widgets.text("secret_scope_name", "", "Name of the secrets scope with EH access key")
+dbutils.widgets.text("secret_name", "", "Name of the secret with EH access key")
+dbutils.widgets.text("sink_path", "/tmp/unity-audit-logs", "DBFS path to Spark checkpoints")
 
 # COMMAND ----------
 
 catalog = dbutils.widgets.get("catalog")
 database = dbutils.widgets.get("database")
-sink_bucket = dbutils.widgets.get("sink_bucket").strip("/")
-
-# COMMAND ----------
-
+eh_ns_name = dbutils.widgets.get("eh_ns_name")
+topic_name = dbutils.widgets.get("eh_topic_name")
+secret_scope_name = dbutils.widgets.get("secret_scope_name")
+secret_name = dbutils.widgets.get("secret_name")
+sink_path = dbutils.widgets.get("sink_path").strip("/")
 
 # COMMAND ----------
 
@@ -26,18 +34,20 @@ spark.sql(f"CREATE DATABASE IF NOT EXISTS {catalog}.{database}")
 # COMMAND ----------
 
 # event hub configuration
-
-connSharedAccessKey = <enter key here >
-
-TOPIC = "unity"
-BOOTSTRAP_SERVERS = "fieldengdeveastus2ehb.servicebus.windows.net:9093"
+connSharedAccessKey = dbutils.secrets.get(secret_scope_name, secret_name)
+BOOTSTRAP_SERVERS = f"{eh_ns_name}.servicebus.windows.net:9093"
 EH_SASL = f'kafkashaded.org.apache.kafka.common.security.plain.PlainLoginModule required username="$ConnectionString" password="{connSharedAccessKey}";'
+
+# COMMAND ----------
+
+num_executors = sc._jsc.sc().getExecutorMemoryStatus().size()-1
+num_cores = sum(sc.parallelize((("")*num_executors), num_executors).mapPartitions(lambda p: [os.cpu_count()]).collect())
 
 # COMMAND ----------
 
 df = (spark.readStream
       .format("kafka")
-      .option("subscribe", TOPIC)
+      .option("subscribe", topic_name)
       .option("kafka.bootstrap.servers", BOOTSTRAP_SERVERS)
       .option("kafka.sasl.mechanism", "PLAIN")
       .option("kafka.security.protocol", "SASL_SSL")
@@ -47,6 +57,7 @@ df = (spark.readStream
       .option("failOnDataLoss", "false")
       .option("startingOffsets", "earliest")
       .option("maxOffsetsPerTrigger", 100000)
+      .option("minPartitions", num_cores)
       .load()
       .withColumn("deserializedBody", col("value").cast("string"))
       .withColumn("date", col("timestamp").cast("date"))
@@ -56,7 +67,7 @@ df = (spark.readStream
 # COMMAND ----------
 
 bronze_table = f"{catalog}.{database}.bronze"
-checkpoint_path = f"{sink_bucket}/checkpoints"
+checkpoint_path = f"{sink_path}/checkpoints"
 
 (df
     .writeStream
