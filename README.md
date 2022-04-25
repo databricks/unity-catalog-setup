@@ -89,8 +89,8 @@ or
 ### Step 3 - Guided Setup (if you are doing a manual install skip to Step 4)
 - Run the guided setup from a Mac/Linux machine. This will attempt to install terraform for you, and then gather required values in Q&A mode and pass them to terraform.
 - You will be prompted for variable input as part of this guided process
-  - Review the variables needed for Azure [here](terraform/azure/README.md).
-  - Review the variables needed for AWS [here](terraform/aws/README.md).
+  - Review the variables needed for Azure [here](terraform_files/azure/README.md).
+  - Review the variables needed for AWS [here](terraform_files/aws/README.md).
 ```commandline
 ./run.sh
 ```
@@ -103,7 +103,7 @@ Change to the aws directory
 ```commandline
 cd terraform/aws
 ```
-Review the variables needed for AWS [here](terraform/aws/README.md).
+Review the variables needed for AWS [here](terraform_files/aws/README.md).
 Make a copy of `unity_catalog.tfvars`, rename it to `secrets.tfvars`, fill in the variable values as needed and run `terraform apply`
 
 `secrets.tfvars` is already included in the `.gitignore` file to prevent an accidental push of credentials.
@@ -117,7 +117,7 @@ Change to the azure directory
 ```
 cd terraform/azure
 ```
-Review the variables needed for Azure [here](terraform/azure/README.md).
+Review the variables needed for Azure [here](terraform_files/azure/README.md).
 Make a copy of `unity_catalog.tfvars`, rename it to `secrets.tfvars`, fill in the variable values as needed and run `terraform apply`
 
 `secrets.tfvars` is already included in the `.gitignore` file to prevent an accidental push of credentials.
