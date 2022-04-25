@@ -34,7 +34,8 @@ if [[ $OSTYPE == "linux-gnu"* ]]; then
       if ! command -v terraform &> /dev/null
       then
         sudo wget https://releases.hashicorp.com/terraform/1.1.3/terraform_1.1.3_linux_amd64.zip
-        sudo unzip ./terraform_1.1.3_linux_amd64.zip –d /usr/local/bin
+        sudo unzip terraform_1.1.3_linux_amd64.zip
+        sudo mv ./terraform /usr/local/bin/
       fi
 elif [[ "$OSTYPE" == "darwin"* ]]; then
       echo "This tool will ensure that required dependencies are installed. Your permissions may be elevated during this process and you may be prompted to enter your credentials or to confirm, please do not run this command as root."
@@ -60,14 +61,14 @@ if ! [[ $cloud_type =~ $re ]] ; then
 fi
 
 if [[ $cloud_type == "1" ]] ; then
-  pushd terraform/azure || exit
+  pushd terraform_files/azure || exit
   terraform init
   terraform apply
   popd || exit
 fi
 
 if [[ $cloud_type == "2" ]] ; then
-  pushd terraform/aws || exit
+  pushd terraform_files/aws || exit
   terraform init
   terraform apply
   popd || exit
