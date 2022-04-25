@@ -21,7 +21,15 @@ if [[ $OSTYPE == "linux-gnu"* ]]; then
       fi
       if command -v apt-get &> /dev/null
       then
-        sudo apt-get install wget unzip
+        sudo apt-get install wget unzip curl
+        if ! command -v terraform &> /dev/null
+        then
+            curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+             sudo apt-add-repository "deb [arch=$(dpkg --print-architecture)] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+             sudo apt update
+             sudo apt install terraform
+             terraform -v
+          fi
       fi
       if ! command -v terraform &> /dev/null
       then
