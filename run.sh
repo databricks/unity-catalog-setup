@@ -39,6 +39,7 @@ if [[ $OSTYPE == "linux-gnu"* ]]; then
         sudo unzip ./terraform_1.1.3_linux_amd64.zip –d /usr/local/bin
         else        
         sudo unzip ./terraform_1.1.3_linux_amd64.zip –d /usr/bin
+        fi
       fi
 elif [[ "$OSTYPE" == "darwin"* ]]; then
       echo "This tool will ensure that required dependencies are installed. Your permissions may be elevated during this process and you may be prompted to enter your credentials or to confirm, please do not run this command as root."
