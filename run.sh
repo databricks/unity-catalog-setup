@@ -34,6 +34,10 @@ if [[ $OSTYPE == "linux-gnu"* ]]; then
       if ! command -v terraform &> /dev/null
       then
         sudo wget https://releases.hashicorp.com/terraform/1.1.3/terraform_1.1.3_linux_amd64.zip
+        if command -v yum &> /dev/null
+        then
+        sudo unzip ./terraform_1.1.3_linux_amd64.zip –d /usr/local/bin
+        else        
         sudo unzip ./terraform_1.1.3_linux_amd64.zip –d /usr/bin
       fi
 elif [[ "$OSTYPE" == "darwin"* ]]; then
