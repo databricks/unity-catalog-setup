@@ -50,7 +50,7 @@ else:
 # MAGIC 
 # MAGIC URL "s3://<your_location_path>" 
 # MAGIC 
-# MAGIC WITH STORAGE CREDENTIAL `test_cred`; --Use the storage credential you created that has the ARN that will connect to the URL where the data is
+# MAGIC WITH ( STORAGE CREDENTIAL `test_cred` ); --Use the storage credential you created that has the ARN that will connect to the URL where the data is
 # MAGIC 
 # MAGIC -- Note the use of backticks around the <your_location_name> and <credential name>
 # MAGIC -- Either single or double quotes can be used around <your_location_path>

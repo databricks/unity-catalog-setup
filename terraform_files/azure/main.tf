@@ -1,4 +1,9 @@
-//workspace variables
+/*****************************************************************************************************************
+* Create a Unity Catalog metastore with its default root bucket & service principal
+* Create securables inside the newly created metastore: catalog, schema, external location & credentials
+* Create a UC-enabled cluster
+******************************************************************************************************************/
+
 resource "random_string" "naming" {
   special = false
   upper   = false

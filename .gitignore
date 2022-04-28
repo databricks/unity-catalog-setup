@@ -68,3 +68,6 @@ override.tf.json
 
 # Ignore the /tmp directory used to download binaries
 /tmp
+
+# ignore .vscode
+.vscode

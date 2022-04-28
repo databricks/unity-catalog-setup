@@ -16,5 +16,6 @@ metastore_name  = "zpuc"
 metastore_owner = "yourgroup"
 catalog_name    = "awesomecatalog"
 schema_name     = "awesomeschema"
-workspace_ids   = ["8874075304749540"]
+workspace_ids   = ["0000000000"]
 
+databricks_workspace_host = "https://adb-00000000000.0.azuredatabricks.net/"
