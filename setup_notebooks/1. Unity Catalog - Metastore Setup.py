@@ -176,14 +176,15 @@ print(execute_uc(['assign-metastore', '--metastore-id', metastore_id, '--workspa
 # COMMAND ----------
 
 # create a storage credential named $CREDENTIAL_NAME, and store its ID
-credential_id = execute_uc(['create-storage-credential', '--json', f'{{"name": "{storage_credential_name}", "azure_service_principal": {{"directory_id": "{directory_id}", "application_id": "{application_id}", "client_secret":"{client_secret}"}}}}'])
-credential_id = json.loads(credential_id)["id"]
+credential_id = execute_uc(['create-storage-credential', '--json', f'{{"name": "{storage_credential_name}", "azure_service_principal": {{"directory_id": "{directory_id}", "application_id": "{application_id}", "client_secret":"{client_secret}"}}}}', '--debug'])
+clean_resp = re.search("chunked(.*)", credential_id.replace('\n',''))
+credential_id = json.loads(clean_resp.group(1))["id"]
 print(f"Storage credential configuration {credential_id} has been set up")
 
 # COMMAND ----------
 
 # update the metastore with the storage credential
-execute_uc(['update-metastore', '--id', metastore_id, '--json', f'{{"name": "{metastore}", "storage_root_credential_id": "{credential_id}"}}'])
+execute_uc(['update-metastore', '--id', metastore_id, '--json', f'{{"storage_root_credential_id": "{credential_id}"}}'])
 print(f"Metastore {metastore_id} has been set up")
 
 # COMMAND ----------
