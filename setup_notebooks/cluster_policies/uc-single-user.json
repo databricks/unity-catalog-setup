@@ -1,4 +1,9 @@
 {
+  "spark_version": {
+    "type": "regex",
+    "pattern": "10\\.[1-9].*",
+    "defaultValue": "10.3.x-scala2.12"
+  },  
   "data_security_mode": {
     "type": "fixed",
     "value": "SINGLE_USER",
@@ -8,10 +13,5 @@
     "type": "regex",
     "pattern": "([a-zA-Z0-9+._-]+@[a-zA-Z0-9._-]+\\.[a-zA-Z0-9_-]+)",
     "hidden": true
-  },
-  "spark_version": {
-    "type": "regex",
-    "pattern": "10\\.[1-9].*",
-    "defaultValue": "10.3.x-scala2.12"
   }
 }
