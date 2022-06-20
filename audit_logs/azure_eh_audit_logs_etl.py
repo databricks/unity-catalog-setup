@@ -190,7 +190,6 @@ def flatten_table(service):
     else:
         for key in keysDistinct:
             schema.add(StructField(key, StringType()))
-
     # write the df with the correct schema to table
     (flattenedStream
      .filter(col("serviceName") == service_name)
