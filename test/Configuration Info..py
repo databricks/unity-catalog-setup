@@ -1,4 +1,9 @@
 # Databricks notebook source
+# MAGIC %md
+# MAGIC ### This is the Configuration File
+
+# COMMAND ----------
+
 # MAGIC %pip install azure
 
 # COMMAND ----------
