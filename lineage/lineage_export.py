@@ -2,7 +2,7 @@
 # MAGIC %md
 # MAGIC ## Collect column-level lineage and populate a Delta table
 # MAGIC 
-# MAGIC **Note**: UC Lineage is currently in Private Preview
+# MAGIC **Note**: UC Lineage is currently in Public Preview
 # MAGIC 
 # MAGIC This notebook exports column-level lineage from all UC tables under a catalog (or all catalogs by specifying `<all>` - this might take a long time)
 
@@ -42,6 +42,7 @@ import json
 from pyspark.sql.functions import explode, lit, concat_ws
 from functools import reduce
 from pyspark.sql import DataFrame
+from typing import List
 
 # COMMAND ----------
 
@@ -70,7 +71,7 @@ retry_strategy = Retry(
     total=3,
     backoff_factor=1,
     status_forcelist=[429, 500, 502, 503, 504],
-    method_whitelist=["HEAD", "GET", "OPTIONS"],
+    allowed_methods=["HEAD", "GET", "OPTIONS"],
 )
 adapter = HTTPAdapter(max_retries=retry_strategy)
 http = requests.Session()
@@ -219,7 +220,7 @@ for catalog, schema in all_schemas:
 
 # union all the lineage dataframes, and write to delta
 if column_lineage_df:
-    reduce(DataFrame.unionAll, column_lineage_df).write.mode("append").saveAsTable(
+    reduce(lambda df1, df2: DataFrame.unionByName(df1, df2, allowMissingColumns = True), column_lineage_df).write.mode("append").saveAsTable(
         lineage_table
     )
 
