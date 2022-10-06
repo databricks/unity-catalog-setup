@@ -1,6 +1,0 @@
-repos:
-  - repo: https://github.com/terraform-docs/terraform-docs
-    rev: "v0.16.0"
-    hooks:
-      - id: terraform-docs-go
-        args: ["markdown", "table", "--recursive", "--output-file", "README.md", "./terraform/aws"]
