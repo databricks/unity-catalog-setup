@@ -6,7 +6,7 @@ Customers should follow instructions from the [official documentation](https://d
 
 ## Cloudformation
 
-To get started using Unity Catalog on AWS, you need an S3 bucket and an IAM role. It is required to setup an S3 bucket to be the root storage location for managed tables. You must also set up a cross-account trust relationship so that Unity Catalog can assume a role to access the data in the bucket on behalf of Databricks users. To help with this setup, we have provided two Cloudformation templates.
+To get started using Unity Catalog on AWS, you will need an S3 bucket and an IAM role for your first UC metastore. It is required to setup an S3 bucket to be the root storage location for managed tables in that metastore. You must also set up a cross-account trust relationship so that Unity Catalog can assume a role to access the data in the bucket on behalf of Databricks users. To help with this setup, we have provided two Cloudformation templates.
 
 1. **Without KMS** - [`unity-catalog-setup-template.json`](cloudformation/unity-catalog-template.json) - A template to create the S3 bucket, the IAM role, and the necessary IAM policy. S3 is configured to use server-side encryption using **S3-managed keys**, and _KMS permissions are **not** granted._
 2. **With KMS** - [`unity-catalog-setup-kms-template.json`](cloudformation/unity-catalog-kms-template.json) - A template to create the S3 bucket, the IAM role, and the necessary IAM policy. S3 is configured to use server-side encryption using **the provided KMS key**, and _KMS permissions are granted._
@@ -15,7 +15,7 @@ To get started using Unity Catalog on AWS, you need an S3 bucket and an IAM role
 
 #### Create a Stack Using the [AWS CLI](https://aws.amazon.com/cli/)
 
-_Prerequisite: [Install and configur the AWS command line interface](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)_)
+_Prerequisite: [Install and configure the AWS command line interface](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)_
 
 **Without KMS**
 
