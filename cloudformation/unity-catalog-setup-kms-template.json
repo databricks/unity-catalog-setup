@@ -1,0 +1,119 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+
+    "Parameters": {
+        "DatabricksAccountID": {
+            "Description": "Your Databricks account ID without hyphens.",
+            "Type": "String",
+            "AllowedPattern": "^[0-9]{12}$",
+            "ConstraintDescription": "Log into the Databricks account console. Click User Profile."
+        },
+        "MetastoreBucketName": {
+            "Description": "S3 bucket to be created for the root storage of managed tables in Unity Catalog. See https://docs.databricks.com/data-governance/unity-catalog/get-started.html#configure-a-storage-bucket-and-iam-role-in-aws",
+            "Type": "String",
+            "MinLength": 3,
+            "MaxLength": 63,
+            "AllowedPattern": "^[a-z0-9][a-z0-9.-]+[a-z0-9]$"
+        },
+        "KMSKeyARN": {
+            "Description": "The Amazon Resouce Name (ARN) of the KMS key to use.",
+            "Type": "String"
+        }
+    },
+
+    "Outputs": {
+        "UnityCatalogRole": {
+            "Description": "Edit this role and add itself as a principal in the assume role policy document.",
+            "Value": { "Fn::Sub": "${UnityCatalogRole.Arn}" }
+        },
+        "UnityCatalogMetastore": {
+            "Value": { "Fn::Sub": "${UnityCatalogMetastore.Arn}" }
+        }
+    },
+
+    "Resources": {
+        "UnityCatalogMetastore": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+                "BucketName": { "Ref": "MetastoreBucketName" },
+                "BucketEncryption": {
+                    "ServerSideEncryptionConfiguration": [ {
+                        "BucketKeyEnabled" : true,
+                        "ServerSideEncryptionByDefault" : {
+                            "SSEAlgorithm" : "aws:kms",
+                            "KMSMasterKeyID" : { "Ref": "KMSKeyARN" }
+                        }
+                    } ]
+                }
+            }
+        },
+
+        "UnityCatalogRole": {
+            "Type" : "AWS::IAM::Role",
+            "Properties": {
+                "Description" : "Unity Catalog role for accessing S3",
+                "Path": "/",
+                "AssumeRolePolicyDocument" : {
+                    "Version": "2012-10-17",
+                    "Statement": [ {
+                        "Effect": "Allow",
+                        "Principal": {
+                            "AWS": [
+                                "arn:aws:iam::414351767826:role/unity-catalog-prod-UCMasterRole-14S5ZJVKOTYTL"
+                            ]
+                        },
+                        "Action": "sts:AssumeRole",
+                        "Condition": {
+                            "StringEquals": {
+                                "sts:ExternalId": { "Ref": "DatabricksAccountID" }
+                            }
+                        }
+                    } ]
+                }
+            }
+        },
+
+        "UnityCatalogRolePolicy": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "UnityCatalogMetastore",
+                "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [ {
+                        "Effect": "Allow",
+                        "Action": [
+                            "s3:GetObject",
+                            "s3:PutObject",
+                            "s3:DeleteObject",
+                            "s3:ListBucket",
+                            "s3:GetBucketLocation",
+                            "s3:GetLifecycleConfiguration",
+                            "s3:PutLifecycleConfiguration"
+                        ],
+                        "Resource": [
+                            { "Fn::Sub": "${UnityCatalogMetastore.Arn}/*" },
+                            { "Fn::Sub": "${UnityCatalogMetastore.Arn}" }
+                        ]
+                    }, {
+                        "Effect": "Allow",
+                        "Action": [
+                            "kms:Decrypt",
+                            "kms:Encrypt",
+                            "kms:GenerateDataKey*"
+                        ],
+                        "Resource": [
+                            { "Ref": "KMSKeyARN" }
+                        ]
+                    }, {
+                        "Effect": "Allow",
+                        "Action": "sts:AssumeRole",
+                        "Resource": { "Fn::Sub": "${UnityCatalogRole.Arn}" }
+                    } ]
+                },
+                "Roles": [
+                    { "Ref": "UnityCatalogRole" }
+                ]
+            }
+        }
+    }
+}
